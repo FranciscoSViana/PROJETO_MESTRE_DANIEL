@@ -1,0 +1,119 @@
+<div class="p-6 max-w-4xl mx-auto bg-white shadow-lg rounded-lg mt-6">
+
+  <h2 class="text-2xl font-semibold text-gray-700 mb-4">Novo Credenciado!</h2>
+  <hr class="mb-4">
+
+  <form [formGroup]="camposForm" (ngSubmit)="salvar()">
+
+    <!-- Linha 1: RAG sozinho -->
+    <div class="mb-4">
+      <label class="block text-gray-600 font-medium mb-2">RAG</label>
+      <input type="text" formControlName="rag" placeholder="Ex.: 12345"
+             class="w-full p-3 border border-gray-300 rounded shadow-sm focus:ring focus:ring-blue-400"/>
+    </div>
+
+    <!-- Linha 2: UF + Cidade -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+
+      <!-- UF -->
+      <div>
+        <label class="block text-gray-600 font-medium mb-2">UF</label>
+        <select formControlName="uf"
+                class="w-full p-3 border border-gray-300 rounded shadow-sm focus:ring focus:ring-blue-400">
+          <option value="">Selecione um estado</option>
+          <option *ngFor="let uf of ufs" [value]="uf.sigla">
+            {{ uf.sigla }} - {{ uf.nome }}
+          </option>
+        </select>
+      </div>
+
+      <!-- Cidade -->
+      <div>
+        <label class="block text-gray-600 font-medium mb-2">Cidade</label>
+        <select formControlName="cidade"
+                class="w-full p-3 border border-gray-300 rounded shadow-sm focus:ring focus:ring-blue-400">
+          <option value="">Selecione uma cidade</option>
+          <option *ngFor="let c of cidades" [value]="c.nome">{{ c.nome }}</option>
+        </select>
+      </div>
+
+    </div>
+
+    <!-- Linha 3: Tipo -->
+    <div class="mb-4">
+      <label class="block text-gray-600 font-medium mb-2">Tipo</label>
+      <input type="text" formControlName="tipo"
+             class="w-full p-3 border border-gray-300 rounded shadow-sm focus:ring focus:ring-blue-400"/>
+    </div>
+
+    <!-- Linha 4: Valor Chamado + Valor KM -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+      <div>
+        <label class="block text-gray-600 font-medium mb-2">Valor Chamado</label>
+        <input type="number" formControlName="valorChamado"
+               class="w-full p-3 border border-gray-300 rounded shadow-sm focus:ring focus:ring-blue-400"/>
+      </div>
+      <div>
+        <label class="block text-gray-600 font-medium mb-2">Valor KM</label>
+        <input type="number" formControlName="valorKm"
+               class="w-full p-3 border border-gray-300 rounded shadow-sm focus:ring focus:ring-blue-400"/>
+      </div>
+    </div>
+
+    <!-- Linha 5: Quantidade OS + Contato -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+      <div>
+        <label class="block text-gray-600 font-medium mb-2">Quantidade OS Atendidas</label>
+        <input type="number" formControlName="quantidadeOSAtendidas"
+               class="w-full p-3 border border-gray-300 rounded shadow-sm focus:ring focus:ring-blue-400"/>
+      </div>
+      <div>
+        <label class="block text-gray-600 font-medium mb-2">Contato</label>
+        <input type="text" formControlName="contato"
+               class="w-full p-3 border border-gray-300 rounded shadow-sm focus:ring focus:ring-blue-400"/>
+      </div>
+    </div>
+
+    <!-- Linha 6: Telefones + Email -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+      <div>
+        <label class="block text-gray-600 font-medium mb-2">Telefones</label>
+        <input type="text" formControlName="telefones"
+               class="w-full p-3 border border-gray-300 rounded shadow-sm focus:ring focus:ring-blue-400"/>
+      </div>
+      <div>
+        <label class="block text-gray-600 font-medium mb-2">Email</label>
+        <input type="email" formControlName="email"
+               class="w-full p-3 border border-gray-300 rounded shadow-sm focus:ring focus:ring-blue-400"/>
+      </div>
+    </div>
+
+    <!-- Linha 7: Técnico + CPF -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+      <div>
+        <label class="block text-gray-600 font-medium mb-2">Técnico</label>
+        <input type="text" formControlName="tecnico"
+               class="w-full p-3 border border-gray-300 rounded shadow-sm focus:ring focus:ring-blue-400"/>
+      </div>
+      <div>
+        <label class="block text-gray-600 font-medium mb-2">CPF</label>
+        <input type="text" formControlName="cpf"
+               class="w-full p-3 border border-gray-300 rounded shadow-sm focus:ring focus:ring-blue-400"/>
+      </div>
+    </div>
+
+    <!-- Base -->
+    <div class="mb-4">
+      <label class="block text-gray-600 font-medium mb-2">Base</label>
+      <input type="text" formControlName="base"
+             class="w-full p-3 border border-gray-300 rounded shadow-sm focus:ring focus:ring-blue-400"/>
+    </div>
+
+    <button type="submit"
+            class="w-full bg-green-600 text-white font-semibold p-3 rounded shadow hover:bg-green-700">
+      Salvar Credenciado
+    </button>
+
+  </form>
+
+</div>
