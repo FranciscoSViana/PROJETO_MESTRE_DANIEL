@@ -9,11 +9,15 @@ const routes: Routes = [
     children: [
       {
         path: 'clientes',
-        loadChildren: () => import('../clientes/clientes.module').then(m => m.ClientesModule)
+        loadChildren: () => import('../clientes/clientes.module').then(m => m.ClientesModule),
+        pathMatch: 'full',
+        data: { titulo: 'Clientes', subTitulo: 'Módulo de Clientes' }
       },
       {
         path: 'credenciados',
-        loadChildren: () => import('../credenciados/credenciados.module').then(m => m.CredenciadosModule)
+        loadChildren: () => import('../credenciados/credenciados.module').then(m => m.CredenciadosModule),
+        pathMatch: 'full',
+        data: { titulo: 'Credenciados', subTitulo: 'Módulo de Credenciados' }
       }
     ]
   }

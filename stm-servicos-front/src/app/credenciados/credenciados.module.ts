@@ -5,11 +5,13 @@ import { CredenciadosRoutingModule } from './credenciados-routing.module';
 import { CadastroCredenciadoComponent } from './cadastro-credenciado/cadastro-credenciado.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { NgxMaskDirective } from 'ngx-mask';
+import { ConsultaCredenciadoComponent } from './consulta-credenciado/consulta-credenciado.component';
 
 
 @NgModule({
   declarations: [
-    CadastroCredenciadoComponent
+    CadastroCredenciadoComponent,
+    ConsultaCredenciadoComponent
   ],
   imports: [
     CommonModule,

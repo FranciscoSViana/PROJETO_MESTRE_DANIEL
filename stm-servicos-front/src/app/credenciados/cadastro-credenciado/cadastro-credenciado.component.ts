@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { CredenciadoService } from '../credenciado.service';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'app-cadastro-credenciado',
@@ -14,7 +15,7 @@ export class CadastroCredenciadoComponent implements OnInit {
   ufs: any[] = [];
   cidades: any[] = [];
 
-  constructor(private service: CredenciadoService) {
+  constructor(private service: CredenciadoService, private router: Router, private route: ActivatedRoute) {
     this.camposForm = new FormGroup({
       id: new FormControl(),
       codigo: new FormControl(),
@@ -68,16 +69,37 @@ export class CadastroCredenciadoComponent implements OnInit {
   }
 
   salvar() {
-    if (this.camposForm.valid) {
-      // Remove id e codigo do envio
-      const credenciado = { ...this.camposForm.value };
+    this.camposForm.markAllAsTouched();
 
-      this.service.salvar(credenciado).subscribe({
-        next: () => alert('Credenciado salvo com sucesso!'),
-        error: (err) => console.error('Erro ao salvar credenciado', err)
-      });
-    } else {
-      this.camposForm.markAllAsTouched();
+    if (this.camposForm.valid) {
+
+      const id = this.camposForm.get('id')?.value;
+      const credenciado = this.camposForm.getRawValue();
+
+      if (id) {
+        // EDITAR
+        this.service.atualizar(id, credenciado).subscribe({
+          next: () => {
+            this.router.navigate(['/credenciados']);
+          },
+          error: err => {
+            console.error('Erro ao atualizar credenciado', err);
+            alert('Erro ao atualizar credenciado.');
+          }
+        });
+
+      } else {
+        // CRIAR
+        this.service.salvar(credenciado).subscribe({
+          next: () => {
+            this.router.navigate(['/credenciados']);
+          },
+          error: err => {
+            console.error('Erro ao salvar credenciado', err);
+            alert('Erro ao salvar credenciado.');
+          }
+        });
+      }
     }
   }
 }

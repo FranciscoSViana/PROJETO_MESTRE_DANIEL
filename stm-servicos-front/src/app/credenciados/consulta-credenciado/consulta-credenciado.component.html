@@ -1,0 +1,87 @@
+<div class="p-6 max-w-7xl mx-auto bg-white shadow-lg rounded-lg mt-6">
+
+  <!-- Cabeçalho -->
+  <div class="flex justify-between items-center mb-4">
+    <h2 class="text-2xl font-semibold text-gray-700">Credenciados Cadastrados</h2>
+
+    <button
+      routerLink="/credenciados/cadastro"
+      class="px-4 py-2 bg-green-600 text-white rounded-lg shadow hover:bg-green-700">
+      + Novo Credenciado
+    </button>
+  </div>
+
+  <hr class="mb-4">
+
+  <!-- Tabela -->
+  <div class="overflow-x-auto">
+    <table class="w-full border-collapse">
+      <thead class="bg-gray-100 text-gray-700">
+        <tr>
+          <th class="p-3 border text-center">Código</th>
+          <th class="p-3 border text-center">Nome</th>
+          <th class="p-3 border text-center">CPF</th>
+          <th class="p-3 border text-center">UF</th>
+          <th class="p-3 border text-center">Cidade</th>
+          <th class="p-3 border text-center">Ações</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let c of credenciados" class="hover:bg-gray-50">
+
+          <td class="p-3 border text-center">{{ c.codigo }}</td>
+          <td class="p-3 border text-center">{{ c.tecnico }}</td>
+          <td class="p-3 border text-center">{{ formatarCpf(c.cpf) }}</td>
+          <td class="p-3 border text-center">{{ c.uf }}</td>
+          <td class="p-3 border text-center">{{ c.cidade }}</td>
+
+          <!-- BOTÕES AÇÕES -->
+          <td class="p-3 border text-center flex justify-center gap-2">
+
+            <!-- EDITAR -->
+            <button
+              [routerLink]="['/credenciados/editar', c.id]"
+              class="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm">
+              Editar
+            </button>
+
+            <!-- EXCLUIR -->
+            <button
+              (click)="excluir(c.id)"
+              class="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 text-sm">
+              Excluir
+            </button>
+
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Paginação -->
+  <div class="mt-6 flex justify-center items-center gap-4">
+
+    <button
+      (click)="paginaAnterior()"
+      [disabled]="page === 0"
+      class="px-4 py-2 bg-blue-600 text-white rounded shadow hover:bg-blue-700 
+             disabled:opacity-40 disabled:cursor-not-allowed">
+      Anterior
+    </button>
+
+    <span class="text-gray-700 font-medium">
+      Página {{ page + 1 }} de {{ totalPages }}
+    </span>
+
+    <button
+      (click)="proximaPagina()"
+      [disabled]="(page + 1) >= totalPages"
+      class="px-4 py-2 bg-blue-600 text-white rounded shadow hover:bg-blue-700 
+             disabled:opacity-40 disabled:cursor-not-allowed">
+      Próxima
+    </button>
+
+  </div>
+
+</div>
