@@ -3,26 +3,30 @@ spring:
     name: stm-servicos
 
   datasource:
-    url: jdbc:h2:file:~/osdb;CASE_INSENSITIVE_IDENTIFIERS=TRUE;AUTO_SERVER=TRUE
-    username: sa
-    password: 123
-    driverClassName: org.h2.Driver
-
-  h2:
-    console:
-      enabled: true
-      path: /h2-console
-      settings:
-        web-allow-others: true
+#    url: jdbc:mysql://localhost:3306/db_guardian?createDatabaseIfNotExist=true&serverTimezone=UTC
+    url: jdbc:postgresql://localhost:5432/db_guardian
+    username: postgres        # seu usuário do MySQL
+    password: root
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+#    url: jdbc:h2:file:~/osdb;CASE_INSENSITIVE_IDENTIFIERS=TRUE;AUTO_SERVER=TRUE
+#    username: sa
+#    password: 123
+#    driverClassName: org.h2.Driver
+#
+#  h2:
+#    console:
+#      enabled: true
+#      path: /h2-console
+#      settings:
+#        web-allow-others: true
 
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
     show-sql: false
-    properties:
-      hibernate:
-        format_sql: true
-        dialect: org.hibernate.dialect.H2Dialect
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
 
 logging:
   level:
