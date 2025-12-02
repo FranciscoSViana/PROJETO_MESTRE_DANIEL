@@ -20,7 +20,7 @@ public class ControleFaturamento {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, columnDefinition = "datetime")
+    @Column(nullable = false)
     private OffsetDateTime emissao;
 
     @ManyToOne
