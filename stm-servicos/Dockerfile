@@ -4,7 +4,7 @@
 FROM ubuntu:latest AS build
 
 # Atualiza pacotes e instala Java 21
-RUN apt-get update && apt-get install -y openjdk-21-jdk unzip curl
+RUN apt-get update && apt-get install -y eclipse-temurin:21-jdk unzip curl
 
 # Define diretório de trabalho
 WORKDIR /app
@@ -21,7 +21,7 @@ RUN ./gradlew clean bootJar --no-daemon
 # ===============================
 # Stage 2: Runtime
 # ===============================
-FROM openjdk:21-jdk-slim
+FROM eclipse-temurin:21-jdk-alpine
 
 WORKDIR /app
 
