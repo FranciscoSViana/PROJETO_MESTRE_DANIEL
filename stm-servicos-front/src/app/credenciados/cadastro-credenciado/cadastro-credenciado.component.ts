@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { CredenciadoService } from '../credenciado.service';
 import { ActivatedRoute, Router } from '@angular/router';
 
@@ -30,7 +30,7 @@ export class CadastroCredenciadoComponent implements OnInit {
       telefones: new FormControl(),
       email: new FormControl(),
       tecnico: new FormControl(),
-      cpf: new FormControl(),
+      cpf: new FormControl('', Validators.required),
       base: new FormControl()
     });
   }
@@ -47,6 +47,20 @@ export class CadastroCredenciadoComponent implements OnInit {
         this.camposForm.get('cidade')?.setValue('');
       }
     });
+
+    // Se vier um ID na rota, carregar o credenciado para edição
+    const id = this.route.snapshot.paramMap.get('id');
+    if (id) {
+      this.service.buscarPorId(id).subscribe({
+        next: credenciado => {
+          this.camposForm.patchValue(credenciado);
+          if (credenciado.uf) {
+            this.carregarCidades(credenciado.uf);
+          }
+        },
+        error: err => console.error('Erro ao carregar credenciado', err)
+      });
+    }
   }
 
   carregarEstados() {
@@ -69,12 +83,14 @@ export class CadastroCredenciadoComponent implements OnInit {
   }
 
   salvar() {
+    console.log('Salvar chamado');
     this.camposForm.markAllAsTouched();
 
     if (this.camposForm.valid) {
 
       const id = this.camposForm.get('id')?.value;
       const credenciado = this.camposForm.getRawValue();
+      console.log('Payload enviado:', credenciado);
 
       if (id) {
         // EDITAR
@@ -96,7 +112,8 @@ export class CadastroCredenciadoComponent implements OnInit {
           },
           error: err => {
             console.error('Erro ao salvar credenciado', err);
-            alert('Erro ao salvar credenciado.');
+            const mensagem = err?.error?.userMessage || 'Erro ao salvar credenciado';
+            alert(mensagem);
           }
         });
       }

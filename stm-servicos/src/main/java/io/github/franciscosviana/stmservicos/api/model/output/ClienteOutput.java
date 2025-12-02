@@ -3,6 +3,7 @@ package io.github.franciscosviana.stmservicos.api.model.output;
 import lombok.Builder;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 @Data
@@ -16,8 +17,8 @@ public class ClienteOutput {
     private String contrato;
     private String nome;
 
-    private double valorChamado;
-    private double valorKm;
+    private BigDecimal valorChamado;
+    private BigDecimal valorKm;
 
     private String cnpj;
     private String inscricaoEstadual;

@@ -11,6 +11,10 @@ const routes: Routes = [
   {
     path: '',
     component: ConsultaCredenciadoComponent
+  },
+  {
+    path: 'editar/:id',
+    component: CadastroCredenciadoComponent
   }
 ];
 

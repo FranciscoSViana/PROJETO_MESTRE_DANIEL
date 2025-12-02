@@ -10,14 +10,17 @@ const routes: Routes = [
       {
         path: 'clientes',
         loadChildren: () => import('../clientes/clientes.module').then(m => m.ClientesModule),
-        pathMatch: 'full',
         data: { titulo: 'Clientes', subTitulo: 'Módulo de Clientes' }
       },
       {
         path: 'credenciados',
         loadChildren: () => import('../credenciados/credenciados.module').then(m => m.CredenciadosModule),
-        pathMatch: 'full',
         data: { titulo: 'Credenciados', subTitulo: 'Módulo de Credenciados' }
+      },
+      {
+        path: 'ordem-servico',
+        loadChildren: () => import('../ordem-servico/ordem-servico.module').then(m => m.OrdemServicoModule),
+        data: { titulo: 'Ordens de Serviços', subTitulo: 'Módulo de Ordens' }
       }
     ]
   }

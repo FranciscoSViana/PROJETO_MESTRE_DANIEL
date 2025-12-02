@@ -13,23 +13,31 @@ export class LayoutComponent implements OnInit {
 
   props: LayoutProps = { titulo: '', subTitulo: '' };
 
-  constructor(private router: Router, private activatedRoute: ActivatedRoute) {}
+  constructor(private router: Router, private activatedRoute: ActivatedRoute) { }
 
   ngOnInit(): void {
     this.router.events
-    .pipe(
-      filter(() => this.obterPropriedadesLayout() !== null),
-      map(() => this.obterPropriedadesLayout())
-    ).subscribe((props: LayoutProps) => this.props = props);
+      .pipe(
+        map(() => this.obterPropriedadesLayout()),
+        filter((props): props is LayoutProps => !!props)
+      ).subscribe(props => {
+        this.props = props;
+      });
   }
 
-  obterPropriedadesLayout(): LayoutProps {
+  obterPropriedadesLayout(): LayoutProps | null {
     let rotaFilha = this.activatedRoute.firstChild;
 
     while (rotaFilha?.firstChild) {
       rotaFilha = rotaFilha.firstChild;
     }
 
-    return rotaFilha?.snapshot.data as LayoutProps;
+    const data = rotaFilha?.snapshot.data;
+
+    if (data && 'titulo' in data && 'subTitulo' in data) {
+      return data as LayoutProps;
+    }
+
+    return null;
   }
 }

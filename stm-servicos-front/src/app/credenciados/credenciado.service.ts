@@ -35,6 +35,10 @@ export class CredenciadoService {
     return this.http.get<Credenciado>(`http://localhost:8080/api/credenciados/${id}`);
   }
 
+  buscarPorCodigo(codigo: number): Observable<Credenciado> {
+    return this.http.get<Credenciado>(`http://localhost:8080/api/credenciados/credenciado/0${codigo}`);
+  }
+
   /** Lista todos os Estados (UFs) */
   listarEstados(): Observable<any[]> {
     return this.http.get<any[]>(`http://localhost:8080/api/credenciados/estados`);

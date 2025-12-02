@@ -8,6 +8,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 @Data
@@ -28,8 +29,8 @@ public class Credenciado {
     private String uf;
     private String tipo;
 
-    private double valorChamado;
-    private double valorKm;
+    private BigDecimal valorChamado;
+    private BigDecimal valorKm;
 
     private int quantidadeOSAtendidas;
 

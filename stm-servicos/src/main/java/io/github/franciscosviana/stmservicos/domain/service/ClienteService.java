@@ -88,7 +88,12 @@ public class ClienteService {
         clienteRepository.delete(cliente);
     }
 
+    public ClienteOutput buscarPorCodigo(Long codigo) {
+        Cliente cliente = clienteRepository.findByCodigo(codigo)
+                .orElseThrow(() -> new RuntimeException("Cliente não encontrado pelo código: " + codigo));
 
+        return converter(cliente);
+    }
 
     public ReceitaWsResponse consultarCnpj(String cnpj){
         return receitaWsClient.consultarCnpj(cnpj);

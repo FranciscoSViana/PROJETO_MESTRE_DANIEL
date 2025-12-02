@@ -1,0 +1,188 @@
+<div class="p-6 max-w-5xl mx-auto bg-white shadow-lg rounded-lg mt-6">
+
+  <h2 class="text-2x1 font-semibold text-gray-700 mb-4">
+    {{ camposForm.get("id")?.value ? "Editar Ordem de Serviço" : "Nova Ordem de Serviço" }}
+  </h2>
+  <hr>
+
+  <form id="osForm" [formGroup]="camposForm" (ngSubmit)="salvar()">
+
+    <!-- IDs -->
+    <input type="hidden" formControlName="id" />
+    <input type="hidden" formControlName="clienteId" />
+    <input type="hidden" formControlName="credenciadoId" />
+
+    <!-- Linha 1: OSCLT + OSG -->
+    <div class="grid grid-cols-2 gap-4 mb-4">
+      <div>
+        <label class="block text-gray-600 font-medium mb-2">OS CLT</label>
+        <input type="text" formControlName="osClt" placeholder="Ex.: 998877"
+          class="w-full p-3 border border-gray-300 rounded shadow-sm" />
+      </div>
+
+      <div>
+        <label class="block text-gray-600 font-medium mb-2">OSG</label>
+        <input type="text" formControlName="osg" placeholder="Ex.: 202500123"
+          class="w-full p-3 border border-gray-300 rounded shadow-sm" />
+      </div>
+    </div>
+
+    <!-- Status + RAG -->
+    <div class="grid grid-cols-2 gap-4 mb-4">
+      <div>
+        <label class="block text-gray-600 font-medium mb-2">Status</label>
+        <input type="text" formControlName="status" placeholder="ABERTA / FECHADA"
+          class="w-full p-3 border border-gray-300 rounded shadow-sm" />
+      </div>
+
+      <div>
+        <label class="block text-gray-600 font-medium mb-2">RAG</label>
+        <input type="text" formControlName="rag" class="w-full p-3 border border-gray-300 rounded shadow-sm" />
+      </div>
+    </div>
+
+    <!-- Cliente + Credenciado -->
+    <!-- <div class="grid grid-cols-2 gap-4 mb-4">
+      <div>
+        <label class="block text-gray-600 font-medium mb-2">Cliente:</label>
+        <input type="text" formControlName="clienteId" placeholder="ID do Cliente" class="w-full p-3 border border-gray-300 rounded shadow-sm" />
+      </div>
+
+      <div>
+        <label class="block text-gray-600 font-medium mb-2">Credenciado: </label>
+        <input type="text" formControlName="credenciadoId" placeholder="ID do Credenciado" class="w-full p-3 border border-gray-300 rounded shadow-sm" />
+      </div>
+    </div> -->
+    <div class="grid grid-cols-2 gap-4 mb-4">
+      <div>
+        <label class="block text-gray-600 font-medium mb-2">Código do Cliente:</label>
+        <input type="number" formControlName="codigoCliente" (blur)="buscarClientePorCodigo()"
+          placeholder="Digite o código" 
+          class="w-full p-3 border border-gray-300 rounded shadow-sm no-spinner" />
+      </div>
+
+      <div>
+        <label class="block text-gray-600 font-medium mb-2">Cliente:</label>
+        <input type="text" formControlName="nomeCliente" class="w-full p-3 border border-gray-300 rounded shadow-sm"
+          readonly />
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-4 mb-4">
+      <div>
+        <label class="block text-gray-600 font-medium mb-2">Código do Credenciado:</label>
+        <input type="number" formControlName="codigoCredenciado" (blur)="buscarCredenciadoPorCodigo()"
+          placeholder="Digite o código" 
+          class="w-full p-3 border border-gray-300 rounded shadow-sm no-spinner" />
+      </div>
+
+      <div>
+        <label class="block text-gray-600 font-medium mb-2">Credenciado:</label>
+        <input type="text" formControlName="nomeCredenciado" class="w-full p-3 border border-gray-300 rounded shadow-sm"
+          readonly />
+      </div>
+    </div>
+
+
+    <!-- Contato + Telefone -->
+    <div class="grid grid-cols-2 gap-4 mb-4">
+      <div>
+        <label class="block text-gray-600 font-medium mb-2">Contato</label>
+        <input formControlName="contato" type="text" class="w-full p-3 border border-gray-300 rounded shadow-sm" />
+      </div>
+
+      <div>
+        <label class="block text-gray-600 font-medium mb-2">Telefone</label>
+        <input formControlName="telefone" type="text" mask="(00) 00000-0000"
+          class="w-full p-3 border border-gray-300 rounded shadow-sm" />
+      </div>
+    </div>
+
+    <!-- Contrato + Departamento -->
+    <div class="grid grid-cols-2 gap-4 mb-4">
+      <div>
+        <label class="block text-gray-600 font-medium mb-2">Contrato</label>
+        <input formControlName="contrato" type="text" class="w-full p-3 border border-gray-300 rounded shadow-sm" />
+      </div>
+
+      <div>
+        <label class="block text-gray-600 font-medium mb-2">Departamento</label>
+        <input formControlName="departamento" type="text" class="w-full p-3 border border-gray-300 rounded shadow-sm" />
+      </div>
+    </div>
+
+    <!-- Equipamento / Série / PIB -->
+    <div class="grid grid-cols-3 gap-4 mb-4">
+      <div>
+        <label class="block text-gray-600 font-medium mb-2">Equipamento</label>
+        <input formControlName="equipamento" type="text" class="w-full p-3 border border-gray-300 rounded shadow-sm" />
+      </div>
+
+      <div>
+        <label class="block text-gray-600 font-medium mb-2">Série</label>
+        <input formControlName="serie" type="text" class="w-full p-3 border border-gray-300 rounded shadow-sm" />
+      </div>
+
+      <div>
+        <label class="block text-gray-600 font-medium mb-2">PIB</label>
+        <input formControlName="pib" type="text" class="w-full p-3 border border-gray-300 rounded shadow-sm" />
+      </div>
+    </div>
+
+    <!-- Defeito -->
+    <div class="mb-4">
+      <label class="block text-gray-600 font-medium mb-2">Defeito Relatado</label>
+      <textarea formControlName="defeito" rows="3"
+        class="w-full p-3 border border-gray-300 rounded shadow-sm"></textarea>
+    </div>
+
+    <!-- Rastreio -->
+    <div class="mb-4">
+      <label class="block text-gray-600 font-medium mb-2">Código de Rastreio</label>
+      <input formControlName="rastreio" type="text" class="w-full p-3 border border-gray-300 rounded shadow-sm" />
+    </div>
+
+    <!-- Endereço -->
+    <h3 class="text-xl font-semibold text-gray-700 mt-6 mb-2">Endereço</h3>
+
+    <div class="grid grid-cols-3 gap-4 mb-4">
+      <div>
+        <label class="block text-gray-600 font-medium mb-2">CEP</label>
+        <input formControlName="cep" type="text" mask="00000-000"
+          class="w-full p-3 border border-gray-300 rounded shadow-sm" (blur)="buscarCep()" />
+      </div>
+
+      <div>
+        <label class="block text-gray-600 font-medium mb-2">Logradouro</label>
+        <input formControlName="logradouro" type="text" class="w-full p-3 border border-gray-300 rounded shadow-sm" />
+      </div>
+
+      <div>
+        <label class="block text-gray-600 font-medium mb-2">Número</label>
+        <input formControlName="numero" type="text" class="w-full p-3 border border-gray-300 rounded shadow-sm" />
+      </div>
+
+      <div>
+        <label class="block text-gray-600 font-medium mb-2">Bairro</label>
+        <input formControlName="bairro" type="text" class="w-full p-3 border border-gray-300 rounded shadow-sm" />
+      </div>
+
+      <div>
+        <label class="block text-gray-600 font-medium mb-2">Cidade</label>
+        <input formControlName="cidade" type="text" class="w-full p-3 border border-gray-300 rounded shadow-sm" />
+      </div>
+
+      <div>
+        <label class="block text-gray-600 font-medium mb-2">Estado (UF)</label>
+        <input formControlName="estado" type="text" maxlength="2"
+          class="w-full p-3 border border-gray-300 rounded shadow-sm" />
+      </div>
+    </div>
+
+    <!-- Botão -->
+    <button type="submit" class="w-full bg-blue-600 text-white font-semibold p-3 rounded shadow hover:bg-blue-700">
+      Salvar Ordem de Serviço
+    </button>
+
+  </form>
+</div>

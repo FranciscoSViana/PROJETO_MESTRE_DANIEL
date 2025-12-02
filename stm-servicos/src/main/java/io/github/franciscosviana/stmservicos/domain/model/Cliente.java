@@ -3,6 +3,7 @@ package io.github.franciscosviana.stmservicos.domain.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 @Data
@@ -21,8 +22,8 @@ public class Cliente {
     private String contrato;
     private String nome;
 
-    private double valorChamado;
-    private double valorKm;
+    private BigDecimal valorChamado;
+    private BigDecimal valorKm;
 
     private String cnpj;
     private String inscricaoEstadual;

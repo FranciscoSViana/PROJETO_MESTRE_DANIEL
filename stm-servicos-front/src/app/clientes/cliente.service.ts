@@ -26,7 +26,6 @@ export class ClienteService {
     return this.http.put<Cliente>(`http://localhost:8080/api/clientes/${id}`, cliente);
   }
 
-
   excluir(id: string): Observable<any> {
     return this.http.delete(`http://localhost:8080/api/clientes/${id}`);
   }
@@ -35,6 +34,9 @@ export class ClienteService {
     return this.http.get<Cliente>(`http://localhost:8080/api/clientes/${id}`);
   }
 
+  buscarPorCodigo(codigo: number): Observable<Cliente> {
+    return this.http.get<Cliente>(`http://localhost:8080/api/clientes/codigo/${codigo}`);
+  }
 
   consultarCnpj(cnpj: string): Observable<any> {
     return this.http.get<any>(`http://localhost:8080/api/clientes/cnpj/${cnpj}`);

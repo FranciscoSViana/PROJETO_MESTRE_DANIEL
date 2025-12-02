@@ -63,6 +63,11 @@ public class ClienteController {
         return ResponseEntity.ok(clienteOutput);
     }
 
+    @GetMapping("/codigo/{codigo}")
+    public ResponseEntity<ClienteOutput> buscarPorCodigo(@PathVariable Long codigo) {
+        ClienteOutput cliente = clienteService.buscarPorCodigo(codigo);
+        return ResponseEntity.ok(cliente);
+    }
 
     @GetMapping("/cnpj/{cnpj}")
     public ResponseEntity<ReceitaWsResponse> consultarCnpj(@PathVariable String cnpj){

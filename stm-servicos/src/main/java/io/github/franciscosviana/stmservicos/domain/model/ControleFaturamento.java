@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 
 @Data
@@ -19,6 +20,7 @@ public class ControleFaturamento {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false, columnDefinition = "datetime")
     private OffsetDateTime emissao;
 
     @ManyToOne
@@ -27,13 +29,15 @@ public class ControleFaturamento {
     private String planilhaOS;
 
     private String notaFiscal;
-    private double valorNF;
-    private double vlMedio;
+    private BigDecimal valorNF;
+    private BigDecimal vlMedio;
+
     private OffsetDateTime previsao;
+
     private OffsetDateTime pagamento;
 
-    private double custos;
-    private double imposto;
-    private double lucro;
-    private double lucroMedio;
+    private BigDecimal custos;
+    private BigDecimal imposto;
+    private BigDecimal lucro;
+    private BigDecimal lucroMedio;
 }

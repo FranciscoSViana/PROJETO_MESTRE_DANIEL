@@ -5,6 +5,7 @@ import io.github.franciscosviana.stmservicos.api.model.output.CredenciadoOutput;
 import io.github.franciscosviana.stmservicos.common.client.BrasilAPIClient;
 import io.github.franciscosviana.stmservicos.common.client.model.EstadoResponse;
 import io.github.franciscosviana.stmservicos.common.client.model.MunicipioResponse;
+import io.github.franciscosviana.stmservicos.common.validation.CPFInvalidoException;
 import io.github.franciscosviana.stmservicos.domain.model.Credenciado;
 import io.github.franciscosviana.stmservicos.domain.repository.CredenciadoRepository;
 import jakarta.transaction.Transactional;
@@ -17,6 +18,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
+import static io.github.franciscosviana.stmservicos.domain.service.OrdemServicoService.getCredenciadoOutput;
+
 @Service
 @RequiredArgsConstructor
 public class CredenciadoService {
@@ -26,6 +29,10 @@ public class CredenciadoService {
 
     @Transactional
     public CredenciadoOutput salvar(CredenciadoInput credenciadoInput){
+
+        if (!isCPFValido(credenciadoInput.getCpf())){
+            throw new CPFInvalidoException("CPF invalido: " + credenciadoInput.getCpf());
+        }
 
         Long ultimo = credenciadoRepository.buscarUltimoCodigo();
         Long proximoCodigo = ultimo + 1;
@@ -126,6 +133,13 @@ public class CredenciadoService {
         credenciadoRepository.delete(credenciado);
     }
 
+    public CredenciadoOutput buscarPorCodigo(Long codigo) {
+        Credenciado credenciado = credenciadoRepository.findByCodigo(codigo)
+                .orElseThrow(() -> new RuntimeException("Cliente não encontrado pelo código: " + codigo));
+
+        return converter(credenciado);
+    }
+
     public List<EstadoResponse> listarEstados() {
         List<EstadoResponse> estados = brasilAPIClient.buscarEstados();
 
@@ -144,21 +158,32 @@ public class CredenciadoService {
     }
 
     private CredenciadoOutput converter(Credenciado  credenciado){
-        return CredenciadoOutput.builder()
-                .id(credenciado.getId())
-                .codigo(credenciado.getCodigo())
-                .rag(credenciado.getRag())
-                .cidade(credenciado.getCidade())
-                .uf(credenciado.getUf())
-                .tipo(credenciado.getTipo())
-                .valorChamado(credenciado.getValorChamado())
-                .quantidadeOSAtendidas(credenciado.getQuantidadeOSAtendidas())
-                .contato(credenciado.getContato())
-                .telefones(credenciado.getTelefones())
-                .email(credenciado.getEmail())
-                .tecnico(credenciado.getTecnico())
-                .cpf(credenciado.getCpf())
-                .base(credenciado.getBase())
-                .build();
+        return getCredenciadoOutput(credenciado);
+    }
+
+    private boolean isCPFValido(String cpf) {
+        if (cpf == null || cpf.isBlank()) return false;
+
+        cpf = cpf.replaceAll("\\D", "");
+
+        if (cpf.length() != 11 || cpf.matches("(\\d)\\1{10}")) return false;
+
+        try {
+            int sum1 = 0;
+
+            for (int i = 0; i < 9; i++) sum1 += Character.getNumericValue(cpf.charAt(i)) * (10 - i);
+            int check1 = 11 - (sum1 % 11);
+
+            if (check1 >= 10) check1 = 0;
+            if (check1 != Character.getNumericValue(cpf.charAt(9))) return false;
+
+            int sum2 = 0;
+            for (int i = 0; i < 10; i++) sum2 += Character.getNumericValue(cpf.charAt(i)) * (11 - i);
+            int check2 = 11 - (sum2 % 11);
+            if (check2 >= 10) check2 = 0;
+            return check2 == Character.getNumericValue(cpf.charAt(10));
+        } catch (NumberFormatException e) {
+            return false;
+        }
     }
 }

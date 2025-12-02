@@ -53,10 +53,14 @@ public class CredenciadoController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<CredenciadoOutput> atualizar(@PathVariable UUID id,
-                                                       @RequestBody CredenciadoInput credenciadoInput) {
-
+    public ResponseEntity<CredenciadoOutput> atualizar(@PathVariable UUID id, @RequestBody CredenciadoInput credenciadoInput) {
         CredenciadoOutput credenciadoOutput = credenciadoService.atualizar(id, credenciadoInput);
+        return ResponseEntity.ok(credenciadoOutput);
+    }
+
+    @GetMapping("/credenciado/{codigo}")
+    public ResponseEntity<CredenciadoOutput> buscarPorCodigo(@PathVariable Long codigo) {
+        CredenciadoOutput credenciadoOutput = credenciadoService.buscarPorCodigo(codigo);
         return ResponseEntity.ok(credenciadoOutput);
     }
 

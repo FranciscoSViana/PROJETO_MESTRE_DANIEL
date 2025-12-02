@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
 @Data
 @Entity
 @Builder
@@ -18,7 +20,7 @@ public class Pedagio {
     private Long id;
 
     private String descricao;
-    private double valor;
+    private BigDecimal valor;
 
     @ManyToOne
     private Cidade cidade;

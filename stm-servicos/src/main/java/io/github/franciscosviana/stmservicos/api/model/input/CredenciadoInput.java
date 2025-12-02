@@ -3,6 +3,8 @@ package io.github.franciscosviana.stmservicos.api.model.input;
 import lombok.Builder;
 import lombok.Data;
 
+import java.math.BigDecimal;
+
 @Data
 @Builder
 public class CredenciadoInput {
@@ -12,8 +14,8 @@ public class CredenciadoInput {
     private String uf;
     private String tipo;
 
-    private double valorChamado;
-    private double valorKm;
+    private BigDecimal valorChamado;
+    private BigDecimal valorKm;
 
     private int quantidadeOSAtendidas;
 

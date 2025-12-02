@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Data
@@ -25,7 +26,7 @@ public class Cidade {
     private Credenciado credenciado;
 
     private String base;
-    private double kmIda;
+    private BigDecimal kmIda;
 
     @OneToMany(mappedBy = "cidade")
     private List<Pedagio> pedagios;
