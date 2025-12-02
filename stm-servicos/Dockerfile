@@ -1,12 +1,8 @@
 # ===============================
 # Stage 1: Build
 # ===============================
-FROM ubuntu:latest AS build
+FROM eclipse-temurin:21-jdk-jammy AS build
 
-# Atualiza pacotes e instala Java 21
-RUN apt-get update && apt-get install -y eclipse-temurin:21-jdk unzip curl
-
-# Define diretório de trabalho
 WORKDIR /app
 
 # Copia os arquivos do projeto
@@ -31,5 +27,4 @@ COPY --from=build /app/build/libs/*.jar app.jar
 # Porta que a aplicação vai expor
 EXPOSE 8080
 
-# Comando para iniciar a aplicação
 ENTRYPOINT ["java", "-jar", "app.jar"]
