@@ -1,33 +1,48 @@
-<header class="bg-gradient-to-r from-blue-500 to-blue-700 p-6 shadow-lg">
-    <div class="text-center text-white">
-        <h1 class="text-[30px] font-bold">{{ props.titulo }}</h1>
-        <p class="text-sm mt-2">{{ props.subTitulo }}</p>
+<!-- ✅ CONTAINER PRINCIPAL DA TELA -->
+<div class="min-h-screen flex flex-col bg-gradient-to-r from-blue-500 to-blue-700">
+
+  <!-- ✅ HEADER -->
+  <header class="p-6 shadow-lg text-white">
+
+    <div class="text-center">
+      <h1 class="text-[30px] font-bold">{{ props.titulo }}</h1>
+      <p class="text-sm mt-2">{{ props.subTitulo }}</p>
     </div>
 
     <div class="mt-4">
-        <hr class="border-t border-blue-300 opacity-50" />
+      <hr class="border-t border-blue-300 opacity-50" />
     </div>
 
     <nav class="mt-4">
-        <ul class="flex justify-center space-x-6 text-white font-semibold">
-            <li>
-                <a routerLink="clientes" class="hover:text-yellow-300">Clientes</a>
-            </li>
-            <li>
-                <a routerLink="credenciados" class="hover:text-yellow-300">Credenciados</a>
-            </li>
-            <li>
-                <a routerLink="ordem-servico" class="hover:text-yellow-300">Ordens</a>
-            </li>
-            <li>
-                <a class="hover:text-yellow-300">Sair</a>
-            </li>
-        </ul>
+      <ul class="flex justify-center space-x-6 font-semibold">
+        <li>
+          <a routerLink="clientes" class="hover:text-yellow-300">Clientes</a>
+        </li>
+        <li>
+          <a routerLink="credenciados" class="hover:text-yellow-300">Credenciados</a>
+        </li>
+        <li>
+          <a routerLink="ordem-servico" class="hover:text-yellow-300">Ordens</a>
+        </li>
+        <li>
+          <a class="hover:text-yellow-300">Sair</a>
+        </li>
+      </ul>
     </nav>
 
+  </header>
+
+  <!-- ✅ CONTEÚDO (OCUPA O RESTO DA TELA SEM QUEBRAR O FUNDO AZUL) -->
+  <main class="flex-1 flex items-center justify-center">
+
+    <!-- Aqui entra o login -->
     <router-outlet></router-outlet>
 
-    <footer class="bg-gray-200 text-center p-4 mt-6">
-        <p class="text-gray-600 text-sm">2025</p>
-    </footer>
-</header>
+  </main>
+
+  <!-- ✅ FOOTER SEMPRE NO FINAL -->
+  <footer class="bg-gray-200 text-center p-4 mt-6">
+    <p class="text-gray-600 text-sm">2025</p>
+  </footer>
+
+</div>

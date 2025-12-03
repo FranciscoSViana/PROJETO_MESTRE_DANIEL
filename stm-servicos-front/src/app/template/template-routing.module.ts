@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { LayoutComponent } from './layout/layout.component';
+import { adminGuard } from '../admin.guard';
 
 const routes: Routes = [
   {
@@ -21,6 +22,11 @@ const routes: Routes = [
         path: 'ordem-servico',
         loadChildren: () => import('../ordem-servico/ordem-servico.module').then(m => m.OrdemServicoModule),
         data: { titulo: 'Ordens de Serviços', subTitulo: 'Módulo de Ordens' }
+      },
+      {
+        path: '',
+        loadChildren: () => import('../login/login.module').then(m => m.LoginModule),
+        data: { titulo: 'Login', subTitulo: 'Entre aqui!' }
       }
     ]
   }
