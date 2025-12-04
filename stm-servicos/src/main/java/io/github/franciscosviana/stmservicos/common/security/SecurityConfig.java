@@ -31,14 +31,15 @@ public class SecurityConfig {
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
-                                "/actuator"
+                                "/actuator",
+                                "teste-email"
                         ).permitAll()
 
                         // ✅ ROTAS DE AUTENTICAÇÃO
                         .requestMatchers(
                                 "/api/auth/login",
-                                "/api/auth/forgot-password",
-                                "/api/auth/reset-password"
+                                "/api/auth/esqueci-senha",
+                                "/api/auth/reset-senha"
                         ).permitAll()
 
                         // ✅ ROTAS DE CLIENTES (AGORA LIBERADAS!)
@@ -47,7 +48,7 @@ public class SecurityConfig {
 
                         // ✅ ROTAS ADMIN
                         .requestMatchers("/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/api/auth/register").hasRole("ADMIN")
+                        .requestMatchers("/api/auth/cadastro").hasRole("ADMIN")
 
                         // ✅ TODAS AS OUTRAS PROTEGIDAS
                         .anyRequest().authenticated()

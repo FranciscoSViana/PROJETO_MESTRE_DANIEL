@@ -1,7 +1,22 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
+import { UsuarioComponent } from './usuario/usuario.component';
+import { CadastroUsuarioComponent } from './cadastro-usuario/cadastro-usuario.component';
 
-const routes: Routes = [];
+const routes: Routes = [
+  {
+    path: 'perfil',
+    component: UsuarioComponent
+  },
+  {
+    path: 'editar/:id',
+    component: UsuarioComponent
+  },
+  {
+    path: 'cadastro',
+    component: CadastroUsuarioComponent
+  }
+];
 
 @NgModule({
   imports: [RouterModule.forChild(routes)],

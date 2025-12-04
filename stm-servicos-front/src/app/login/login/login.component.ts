@@ -26,8 +26,14 @@ export class LoginComponent {
 
     if (this.camposForm.valid) {
       this.auth.login(this.camposForm.value as { usuario: string, senha: string }).subscribe({
-        next: () => this.router.navigate(['/clientes']),
-        error: () => alert('Usuário ou senha inválidos')
+        next: () => {
+          console.log('✅ Login realizado com sucesso');
+          this.router.navigate(['/clientes']);
+        },
+        error: err => {
+          console.error('❌ Erro no login:', err);
+          alert('Usuário ou senha inválidos');
+        }
       });
     }
   }

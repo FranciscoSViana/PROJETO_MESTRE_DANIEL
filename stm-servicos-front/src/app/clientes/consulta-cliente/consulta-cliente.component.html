@@ -1,4 +1,4 @@
-<div class="p-6 max-w-7xl mx-auto bg-white shadow-lg rounded-lg mt-6">
+<div class="p-6 max-w-7x1 mx-auto bg-white shadow-lg rounded-lg mt-6">
 
   <!-- Cabeçalho -->
   <div class="flex justify-between items-center mb-4">
@@ -13,49 +13,51 @@
   <hr class="mb-4">
 
   <!-- Tabela -->
-  <div class="overflow-x-auto">
-    <thead class="bg-gray-100 text-gray-700">
-      <tr>
-        <th class="p-3 border text-center">Código</th>
-        <th class="p-3 border text-center">Contrato</th>
-        <th class="p-3 border text-center">Nome</th>
-        <th class="p-3 border text-center">CNPJ</th>
-        <th class="p-3 border text-center">Razão Social</th>
-        <th class="p-3 border text-center">Valor Chamado</th>
-        <th class="p-3 border text-center">Valor KM</th>
-        <th class="p-3 border text-center">Ações</th> <!-- NOVO -->
-      </tr>
-    </thead>
+  <div class="px-4">
+    <div class="overflow-x-auto">
+      <table class="min-w-full border-collapse table-fixed">
 
-    <tbody>
-      <tr *ngFor="let c of clientes" class="hover:bg-gray-50">
+        <thead class="bg-gray-100 text-gray-700">
+          <tr class="h-12">
+            <th class="p-3 border text-center w-[90px]">Código</th>
+            <th class="p-3 border text-center w-[140px]">Contrato</th>
+            <th class="p-3 border text-center min-w-[220px]">Nome</th>
+            <th class="p-3 border text-center w-[180px]">CNPJ</th>
+            <th class="p-3 border text-center min-w-[240px]">Razão Social</th>
+            <th class="p-3 border text-center w-[140px]">Valor Chamado</th>
+            <th class="p-3 border text-center w-[120px]">Valor KM</th>
+            <th class="p-3 border text-center w-[100px]">Ações</th>
+          </tr>
+        </thead>
 
-        <td class="p-3 border text-center">{{ c.codigo }}</td>
-        <td class="p-3 border text-center">{{ c.contrato }}</td>
-        <td class="p-3 border text-center">{{ c.nome }}</td>
-        <td class="p-3 border text-center">{{ formatarCnpj(c.cnpj) }}</td>
-        <td class="p-3 border text-center">{{ c.razaoSocial }}</td>
-        <td class="p-3 border text-center">{{ c.valorChamado }}</td>
-        <td class="p-3 border text-center">{{ c.valorKm }}</td>
+        <tbody>
+          <tr *ngFor="let c of clientes" class="hover:bg-gray-50 h-12">
 
-        <!-- BOTÕES -->
-        <td class="p-3 border text-center flex justify-center gap-2">
+            <td class="p-3 border text-center truncate">{{ c.codigo }}</td>
+            <td class="p-3 border text-center truncate">{{ c.contrato }}</td>
+            <td class="p-3 border text-center truncate">{{ c.nome }}</td>
+            <td class="p-3 border text-center truncate">{{ formatarCnpj(c.cnpj) }}</td>
+            <td class="p-3 border text-center truncate">{{ c.razaoSocial }}</td>
+            <td class="p-3 border text-center truncate">{{ c.valorChamado }}</td>
+            <td class="p-3 border text-center truncate">{{ c.valorKm }}</td>
 
-          <!-- EDITAR -->
-          <button [routerLink]="['/clientes/editar', c.id]"
-            class="px-3 py-1 text-sm rounded bg-transparent hover:bg-gray-200 text-gray-800 transition-colors">
-            <i class="fa-solid fa-pen-to-square text-blue-600 text-2x1"></i>
-          </button>
+            <td class="p-3 border">
+              <div class="flex justify-center gap-2">
+                <button class="w-9 h-9 flex items-center justify-center rounded hover:bg-gray-200">
+                  <i class="fa-solid fa-pen-to-square text-blue-600"></i>
+                </button>
 
-          <!-- EXCLUIR -->
-          <button (click)="excluir(c.id)"
-            class="px-3 py-1 text-sm rounded bg-transparent hover:bg-gray-200 text-red-600 flex items-center gap-1 transition-colors">
-            <i class="fa-solid fa-trash"></i>
-          </button>
+                <button class="w-9 h-9 flex items-center justify-center rounded hover:bg-gray-200">
+                  <i class="fa-solid fa-trash text-red-600"></i>
+                </button>
+              </div>
+            </td>
 
-        </td>
-      </tr>
-    </tbody>
+          </tr>
+        </tbody>
+
+      </table>
+    </div>
   </div>
 
   <!-- Paginação -->

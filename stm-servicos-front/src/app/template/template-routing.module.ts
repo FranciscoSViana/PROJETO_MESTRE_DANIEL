@@ -9,6 +9,12 @@ const routes: Routes = [
     component: LayoutComponent,
     children: [
       {
+        path: '',
+        loadChildren: () => import('../login/login.module').then(m => m.LoginModule),
+        data: { titulo: 'Login', subTitulo: 'Entre aqui!' }
+
+      },
+      {
         path: 'clientes',
         loadChildren: () => import('../clientes/clientes.module').then(m => m.ClientesModule),
         data: { titulo: 'Clientes', subTitulo: 'Módulo de Clientes' }
@@ -24,9 +30,9 @@ const routes: Routes = [
         data: { titulo: 'Ordens de Serviços', subTitulo: 'Módulo de Ordens' }
       },
       {
-        path: '',
-        loadChildren: () => import('../login/login.module').then(m => m.LoginModule),
-        data: { titulo: 'Login', subTitulo: 'Entre aqui!' }
+        path: 'usuarios',
+        loadChildren: () => import('../usuarios/usuarios.module').then(m => m.UsuariosModule),
+        data: { titulo: 'Usuários', subtitulo: 'Gestão do usuário' }
       }
     ]
   }

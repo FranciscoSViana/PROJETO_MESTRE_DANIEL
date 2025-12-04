@@ -1,47 +1,71 @@
-<!-- ✅ CONTAINER PRINCIPAL DA TELA -->
 <div class="min-h-screen flex flex-col bg-gradient-to-r from-blue-500 to-blue-700">
 
-  <!-- ✅ HEADER -->
-  <header class="p-6 shadow-lg text-white">
+  <!-- HEADER -->
+  <header class="p-6 shadow-lg text-white relative">
 
     <div class="text-center">
       <h1 class="text-[30px] font-bold">{{ props.titulo }}</h1>
       <p class="text-sm mt-2">{{ props.subTitulo }}</p>
     </div>
 
-    <div class="mt-4">
+    <div class="mt-4" *ngIf="usuarioLogado && !isLoginRoute()">
       <hr class="border-t border-blue-300 opacity-50" />
     </div>
 
-    <nav class="mt-4">
-      <ul class="flex justify-center space-x-6 font-semibold">
-        <li>
-          <a routerLink="clientes" class="hover:text-yellow-300">Clientes</a>
-        </li>
-        <li>
-          <a routerLink="credenciados" class="hover:text-yellow-300">Credenciados</a>
-        </li>
-        <li>
-          <a routerLink="ordem-servico" class="hover:text-yellow-300">Ordens</a>
-        </li>
-        <li>
-          <a class="hover:text-yellow-300">Sair</a>
-        </li>
+    <!-- Menu de navegação: só aparece se estiver logado e não estiver na rota login -->
+    <nav class="mt-4 flex justify-center relative" *ngIf="usuarioLogado && !isLoginRoute()">
+      <ul class="flex space-x-6 font-semibold">
+        <li><a routerLink="clientes" class="hover:text-yellow-300">Clientes</a></li>
+        <li><a routerLink="credenciados" class="hover:text-yellow-300">Credenciados</a></li>
+        <li><a routerLink="ordem-servico" class="hover:text-yellow-300">Ordens</a></li>
       </ul>
+
+      <!-- Botão do usuário -->
+      <div class="absolute right-0 top-0">
+        <button (click)="toggleMenuUsuario()"
+          class="w-10 h-10 rounded-full bg-yellow-400 text-blue-900 font-bold flex items-center justify-center hover:bg-yellow-300">
+          {{ usuarioLogado[0] | uppercase }}
+        </button>
+
+        <div *ngIf="menuUsuarioAberto"
+     class="absolute right-0 mt-2 w-52 bg-white text-gray-800 rounded-lg shadow-lg z-50">
+
+  <p class="px-4 py-2 text-sm font-semibold border-b">{{ usuarioLogado }}</p>
+
+  <a routerLink="/usuarios/perfil"
+     class="block px-4 py-2 text-gray-800 font-semibold rounded hover:bg-gray-100 my-1 text-center">
+    👤 Meu Perfil
+  </a>
+
+  <a routerLink="/usuarios/editar"
+     class="block px-4 py-2 text-gray-800 font-semibold rounded hover:bg-gray-100 my-1 text-center">
+    ✏️ Editar Dados
+  </a>
+
+  <!-- Botão para cadastrar usuário, só visível para ADMIN -->
+  <a *ngIf="isAdmin" routerLink="/usuarios/cadastro"
+     class="block px-4 py-2 text-gray-800 font-semibold rounded hover:bg-gray-100 my-1 text-center">
+    ➕ Novo Usuário
+  </a>
+
+  <button (click)="logout()"
+          class="w-full px-4 py-2 text-red-600 font-semibold rounded hover:bg-red-100 my-1 text-center">
+    🚪 Sair
+  </button>
+</div>
+
+      </div>
     </nav>
 
   </header>
 
-  <!-- ✅ CONTEÚDO (OCUPA O RESTO DA TELA SEM QUEBRAR O FUNDO AZUL) -->
+  <!-- MAIN -->
   <main class="flex-1 flex items-center justify-center">
-
-    <!-- Aqui entra o login -->
     <router-outlet></router-outlet>
-
   </main>
 
-  <!-- ✅ FOOTER SEMPRE NO FINAL -->
-  <footer class="bg-gray-200 text-center p-4 mt-6">
+  <!-- FOOTER -->
+  <footer class="bg-gray-200 text-center p-4 mt-6" *ngIf="!isLoginRoute()">
     <p class="text-gray-600 text-sm">2025</p>
   </footer>
 

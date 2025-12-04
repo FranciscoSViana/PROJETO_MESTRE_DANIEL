@@ -1,6 +1,7 @@
 package io.github.franciscosviana.stmservicos.api.exceptionhandler;
 
 import io.github.franciscosviana.stmservicos.common.validation.CPFInvalidoException;
+import io.github.franciscosviana.stmservicos.common.validation.UsuarioException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -21,6 +22,20 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(CPFInvalidoException.class)
     public ResponseEntity<Object> handleCPFInvalido(CPFInvalidoException ex, WebRequest request) {
+
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+        ProblemType problemType = ProblemType.ERRO_NEGOCIO;
+        String detail = ex.getMessage();
+
+        Problem problem = createProblemBuilder(status, problemType, detail)
+                .userMessage(detail)
+                .build();
+
+        return handleExceptionInternal(ex, problem, new HttpHeaders(), status, request);
+    }
+
+    @ExceptionHandler(UsuarioException.class)
+    public ResponseEntity<Object> handleUsuario(UsuarioException ex, WebRequest request) {
 
         HttpStatus status = HttpStatus.BAD_REQUEST;
         ProblemType problemType = ProblemType.ERRO_NEGOCIO;

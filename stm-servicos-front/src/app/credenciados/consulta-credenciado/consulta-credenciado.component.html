@@ -13,47 +13,45 @@
   <hr class="mb-4">
 
   <!-- Tabela -->
-  <div class="overflow-x-auto">
-    <table class="w-full border-collapse">
-      <thead class="bg-gray-100 text-gray-700">
-        <tr>
-          <th class="p-3 border text-center">Código</th>
-          <th class="p-3 border text-center">Nome</th>
-          <th class="p-3 border text-center">CPF</th>
-          <th class="p-3 border text-center">UF</th>
-          <th class="p-3 border text-center">Cidade</th>
-          <th class="p-3 border text-center">Ações</th>
-        </tr>
-      </thead>
+  <div class="px-4">
+    <div class="overflow-x-auto">
+      <table class="min-w-full border-collapse table-fixed">
 
-      <tbody>
-        <tr *ngFor="let c of credenciados" class="hover:bg-gray-50">
+        <thead class="bg-gray-100 text-gray-700">
+          <tr class="h-12">
+            <th class="p-3 border text-center w-[90px]">Código</th>
+            <th class="p-3 border text-center min-w-[220px]">Nome</th>
+            <th class="p-3 border text-center w-[160px]">CPF</th>
+            <th class="p-3 border text-center w-[70px]">UF</th>
+            <th class="p-3 border text-center min-w-[180px]">Cidade</th>
+            <th class="p-3 border text-center w-[100px]">Ações</th>
+          </tr>
+        </thead>
 
-          <td class="p-3 border text-center">{{ c.codigo }}</td>
-          <td class="p-3 border text-center">{{ c.tecnico }}</td>
-          <td class="p-3 border text-center">{{ formatarCpf(c.cpf) }}</td>
-          <td class="p-3 border text-center">{{ c.uf }}</td>
-          <td class="p-3 border text-center">{{ c.cidade }}</td>
+        <tbody>
+          <tr *ngFor="let c of credenciados" class="hover:bg-gray-50 h-12">
+            <td class="p-3 border text-center truncate">{{ c.codigo }}</td>
+            <td class="p-3 border text-center truncate">{{ c.tecnico }}</td>
+            <td class="p-3 border text-center truncate">{{ formatarCpf(c.cpf) }}</td>
+            <td class="p-3 border text-center truncate">{{ c.uf }}</td>
+            <td class="p-3 border text-center truncate">{{ c.cidade }}</td>
 
-          <!-- BOTÕES AÇÕES -->
-          <td class="p-3 border text-center flex justify-center gap-2">
+            <td class="p-3 border">
+              <div class="flex justify-center gap-2">
+                <button class="w-9 h-9 flex items-center justify-center rounded hover:bg-gray-200">
+                  <i class="fa-solid fa-pen-to-square text-blue-600"></i>
+                </button>
 
-            <!-- EDITAR -->
-            <button [routerLink]="['/credenciados/editar', c.id]"
-              class="px-3 py-1 text-sm rounded bg-transparent hover:bg-gray-200 text-gray-800 transition-colors">
-              <i class="fa-solid fa-pen-to-square text-blue-600 text-2x1"></i>
-            </button>
+                <button class="w-9 h-9 flex items-center justify-center rounded hover:bg-gray-200">
+                  <i class="fa-solid fa-trash text-red-600"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
 
-            <!-- EXCLUIR -->
-            <button (click)="excluir(c.id)"
-              class="px-3 py-1 text-sm rounded bg-transparent hover:bg-gray-200 text-red-600 flex items-center gap-1 transition-colors">
-              <i class="fa-solid fa-trash"></i>
-            </button>
-
-          </td>
-        </tr>
-      </tbody>
-    </table>
+      </table>
+    </div>
   </div>
 
   <!-- Paginação -->

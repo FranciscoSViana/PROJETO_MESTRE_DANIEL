@@ -1,0 +1,51 @@
+<!-- ✅ CARD DO PERFIL (SEM QUEBRAR O LAYOUT PRINCIPAL) -->
+<div class="p-6 max-w-7x1 mx-auto bg-white shadow-lg rounded-lg mt-6">
+
+  <!-- Avatar -->
+  <div class="flex flex-col items-center text-center">
+
+    <div
+      class="w-20 h-20 rounded-full bg-blue-600 text-white flex items-center justify-center text-3xl font-bold shadow-lg">
+      {{ usuarioLogado[0] | uppercase }}
+    </div>
+
+    <h2 class="mt-4 text-2x1 font-bold text-gray-800">
+      Meu Perfil
+    </h2>
+
+    <p class="text-sm text-gray-500 mt-1">
+      Informações da conta
+    </p>
+  </div>
+
+  <div class="my-6">
+    <hr class="border-t border-gray-200" />
+  </div>
+
+  <!-- Dados -->
+  <div class="space-y-4 text-gray-700">
+
+    <div class="flex justify-between">
+      <span class="font-semibold">Nome:</span>
+      <span>{{ usuarioLogado }}</span>
+    </div>
+
+    <div class="flex justify-between">
+      <span class="font-semibold">Email:</span>
+      <span>{{ email }}</span>
+    </div>
+
+  </div>
+
+  <!-- Ações -->
+  <div class="mt-8 flex justify-end">
+
+    <button
+      routerLink="/usuario/editar"
+      class="bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700 transition">
+      ✏️ Editar Dados
+    </button>
+
+  </div>
+
+</div>

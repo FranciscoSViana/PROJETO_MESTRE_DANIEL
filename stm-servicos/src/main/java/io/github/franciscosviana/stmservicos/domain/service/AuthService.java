@@ -3,6 +3,7 @@ package io.github.franciscosviana.stmservicos.domain.service;
 import io.github.franciscosviana.stmservicos.api.model.input.AuthRequest;
 import io.github.franciscosviana.stmservicos.api.model.input.RegisterRequest;
 import io.github.franciscosviana.stmservicos.api.model.output.AuthResponse;
+import io.github.franciscosviana.stmservicos.common.validation.UsuarioException;
 import io.github.franciscosviana.stmservicos.domain.model.Usuario;
 import io.github.franciscosviana.stmservicos.domain.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
@@ -23,12 +24,12 @@ import java.util.stream.Collectors;
 public class AuthService {
 
     private final JwtService jwtService;
+    private final EmailService emailService;
     private final PasswordEncoder passwordEncoder;
     private final UsuarioRepository usuarioRepository;
     private final AuthenticationManager authenticationManager;
     private final UsuarioDetailsService usuarioDetailsService;
 
-    // ✅ LOGIN
     public AuthResponse login(AuthRequest request) {
         try {
             var authToken = new UsernamePasswordAuthenticationToken(
@@ -40,11 +41,6 @@ public class AuthService {
 
             UserDetails userDetails =
                     usuarioDetailsService.loadUserByUsername(request.getUsuario());
-
-//            String token = jwtService.generateToken(
-//                    userDetails.getUsername(),
-//                    Map.of("roles", userDetails.getAuthorities())
-//            );
 
             Map<String, Object> claims = Map.of(
                     "roles", userDetails.getAuthorities()
@@ -62,15 +58,10 @@ public class AuthService {
         }
     }
 
-    // ✅ REGISTER
-    public void register(RegisterRequest req) {
-
-        if (usuarioRepository.existsByNome(req.getUsuario())) {
-            throw new RuntimeException("username já existe");
-        }
+    public void cadastrar(RegisterRequest req) {
 
         if (usuarioRepository.existsByEmail(req.getEmail())) {
-            throw new RuntimeException("email já existe");
+            throw new UsuarioException("E-mail já existe");
         }
 
         // ✅ REGRA DE NEGÓCIO DAS ROLES
@@ -80,7 +71,7 @@ public class AuthService {
             roles = Set.of("USER");
         } else {
             for (String role : roles) {
-                if (!role.equals("USER") && !role.equals("ADMIN")) {
+                if (role == null || (!"USER".equals(role) && !"ADMIN".equals(role))) {
                     throw new RuntimeException("Role inválida: " + role);
                 }
             }
@@ -96,5 +87,7 @@ public class AuthService {
                 .build();
 
         usuarioRepository.save(usuario);
+
+        emailService.enviarEmail(usuario.getEmail(), "Bem vindo ao sistema", "Olá " + usuario.getNome() + ", sua conta foi criada com sucesso!");
     }
 }

@@ -5,6 +5,9 @@ import { TemplateRoutingModule } from './template-routing.module';
 import { LayoutComponent } from './layout/layout.component';
 import { ClientesModule } from '../clientes/clientes.module';
 import { CredenciadosModule } from '../credenciados/credenciados.module';
+import { OrdemServicoModule } from '../ordem-servico/ordem-servico.module';
+import { LoginModule } from '../login/login.module';
+import { UsuariosModule } from '../usuarios/usuarios.module';
 
 
 @NgModule({
@@ -15,7 +18,10 @@ import { CredenciadosModule } from '../credenciados/credenciados.module';
     CommonModule,
     TemplateRoutingModule,
     ClientesModule,
-    CredenciadosModule
+    CredenciadosModule,
+    OrdemServicoModule,
+    LoginModule,
+    UsuariosModule
   ]
 })
 export class TemplateModule { }

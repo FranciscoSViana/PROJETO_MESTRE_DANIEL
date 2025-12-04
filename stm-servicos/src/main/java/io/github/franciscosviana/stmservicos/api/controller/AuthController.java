@@ -27,20 +27,20 @@ public class AuthController {
         return ResponseEntity.ok(authService.login(request));
     }
 
-    @PostMapping("/register")
+    @PostMapping("/cadastro")
     public ResponseEntity<?> register(@RequestBody @Valid RegisterRequest req) {
-        authService.register(req);
+        authService.cadastrar(req);
         return ResponseEntity.ok(Map.of("message", "registrado com sucesso"));
     }
 
-    @PostMapping("/forgot-password")
+    @PostMapping("/esqueci-senha")
     public ResponseEntity<?> forgotPassword(@RequestBody Map<String, String> body) {
         String email = body.get("email");
         senhaResetService.createPasswordResetTokenForEmail(email);
         return ResponseEntity.ok(Map.of("message", "Se o e-mail existe, você receberá instruções"));
     }
 
-    @PostMapping("/reset-password")
+    @PostMapping("/reset-senha")
     public ResponseEntity<?> resetPassword(@RequestBody Map<String, String> body) {
         String token = body.get("token");
         String newPassword = body.get("newPassword");

@@ -29,27 +29,33 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     FilterChain filterChain) throws ServletException, IOException {
 
         final String authHeader = request.getHeader("Authorization");
-        final String jwt;
-        final String usuario;
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        jwt = authHeader.substring(7);
-        usuario = jwtService.extractUsername(jwt);
+        try {
+            String jwt = authHeader.substring(7);
+            String usuario = jwtService.extractUsername(jwt);
 
-        if (usuario != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = usuarioDetailsService.loadUserByUsername(usuario);
+            if (usuario != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                UserDetails userDetails = usuarioDetailsService.loadUserByUsername(usuario);
 
-            if (jwtService.isTokenValid(jwt, userDetails.getUsername())) {
-                var authToken = new UsernamePasswordAuthenticationToken(
-                        userDetails, null, userDetails.getAuthorities());
+                if (jwtService.isTokenValid(jwt, userDetails.getUsername())) {
+                    var authToken = new UsernamePasswordAuthenticationToken(
+                            userDetails, null, userDetails.getAuthorities());
 
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authToken);
+                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                }
             }
+
+        } catch (io.jsonwebtoken.ExpiredJwtException e) {
+            // ✅ Token expirado → não quebra o sistema
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        } catch (Exception e) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         }
 
         filterChain.doFilter(request, response);

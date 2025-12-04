@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { LayoutProps } from './layoutprops';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { filter, map } from 'rxjs';
 import { AuthService } from '../../auth.service';
 
@@ -13,25 +13,29 @@ import { AuthService } from '../../auth.service';
 export class LayoutComponent implements OnInit {
 
   props: LayoutProps = { titulo: '', subTitulo: '' };
-  usuarioLogado = '';
+  usuarioLogado: string | null = null;
   isAdmin = false;
+  menuUsuarioAberto = false;
 
   constructor(
-    private router: Router, 
+    private router: Router,
     private activatedRoute: ActivatedRoute,
     private auth: AuthService
   ) { }
 
   ngOnInit(): void {
+    // Atualiza props a cada navegação
     this.router.events
-      .pipe(
-        map(() => this.obterPropriedadesLayout()),
-        filter((props): props is LayoutProps => !!props)
-      ).subscribe(props => {
-        this.props = props;
+      .pipe(filter(event => event instanceof NavigationEnd))
+      .subscribe(() => {
+        this.props = this.obterPropriedadesLayout() || { titulo: '', subTitulo: '' };
       });
 
-      this.carregarUsuario();
+    // Observa mudanças no usuário logado
+    this.auth.usuario$.subscribe(usuario => {
+      this.usuarioLogado = usuario;
+      this.isAdmin = this.auth.isAdmin();
+    });
   }
 
   obterPropriedadesLayout(): LayoutProps | null {
@@ -52,15 +56,42 @@ export class LayoutComponent implements OnInit {
 
   carregarUsuario() {
     const token = localStorage.getItem('token');
-    if (!token) return;
+    if (!token) {
+      this.usuarioLogado = null; // garante que nav não aparece
+      return;
+    }
 
-    const payload = JSON.parse(atob(token.split('.')[1]));
-    this.usuarioLogado = payload.sub;
-    this.isAdmin = payload.roles.some((r: any) => r.authority === 'ROLE_ADMIN');
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      const agora = Math.floor(Date.now() / 1000);
+
+      // verifica expiração
+      if (payload.exp && payload.exp < agora) {
+        this.usuarioLogado = null;
+        localStorage.removeItem('token'); // opcional
+        return;
+      }
+
+      this.usuarioLogado = payload.sub;
+      this.isAdmin = payload.roles.some((r: any) => r.authority === 'ROLE_ADMIN');
+
+    } catch (e) {
+      this.usuarioLogado = null; // token inválido
+      localStorage.removeItem('token');
+    }
   }
 
   logout() {
     this.auth.logout();
-    this.router.navigate(['/login']);
+    this.router.navigate(['/']);
   }
+
+  toggleMenuUsuario() {
+    this.menuUsuarioAberto = !this.menuUsuarioAberto;
+  }
+
+  isLoginRoute(): boolean {
+    return this.router.url === '/';
+  }
+
 }
