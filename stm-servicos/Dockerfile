@@ -17,7 +17,7 @@ RUN ./gradlew clean bootJar --no-daemon
 # ===============================
 # Stage 2: Runtime
 # ===============================
-FROM eclipse-temurin:21-jdk-alpine
+FROM eclipse-temurin:21-jre-alpine
 
 WORKDIR /app
 
@@ -27,4 +27,4 @@ COPY --from=build /app/build/libs/*.jar app.jar
 # Porta que a aplicação vai expor
 EXPOSE 8080
 
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-XX:MaxRAMPercentage=75.0", "-jar", "app.jar"]

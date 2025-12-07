@@ -22,7 +22,7 @@
                 class="w-full p-3 border border-gray-300 rounded shadow-sm focus:ring focus:ring-blue-400">
           <option value="">Selecione um estado</option>
           <option *ngFor="let uf of ufs" [value]="uf.sigla">
-            {{ uf.sigla }} - {{ uf.nome }}
+            {{ uf.sigla }}
           </option>
         </select>
       </div>
@@ -50,12 +50,12 @@
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
       <div>
         <label class="block text-gray-600 font-medium mb-2">Valor Chamado</label>
-        <input type="number" formControlName="valorChamado"
+        <input type="text" formControlName="valorChamado" mask="separator.2" thousandSeparator="." decimalMarker=","
                class="w-full p-3 border border-gray-300 rounded shadow-sm focus:ring focus:ring-blue-400 no-spinner"/>
       </div>
       <div>
         <label class="block text-gray-600 font-medium mb-2">Valor KM</label>
-        <input type="number" formControlName="valorKm"
+        <input type="text" formControlName="valorKm" mask="separator.2" thousandSeparator="." decimalMarker=","
                class="w-full p-3 border border-gray-300 rounded shadow-sm focus:ring focus:ring-blue-400 no-spinner"/>
       </div>
     </div>
@@ -69,7 +69,7 @@
       </div>
       <div>
         <label class="block text-gray-600 font-medium mb-2">Contato</label>
-        <input type="text" formControlName="contato"
+        <input type="text" formControlName="contato" mask="(00) 00000-0000"
                class="w-full p-3 border border-gray-300 rounded shadow-sm focus:ring focus:ring-blue-400"/>
       </div>
     </div>
@@ -78,7 +78,7 @@
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
       <div>
         <label class="block text-gray-600 font-medium mb-2">Telefones</label>
-        <input type="text" formControlName="telefones"
+        <input type="text" formControlName="telefones" mask="(00) 00000-0000"
                class="w-full p-3 border border-gray-300 rounded shadow-sm focus:ring focus:ring-blue-400"/>
       </div>
       <div>

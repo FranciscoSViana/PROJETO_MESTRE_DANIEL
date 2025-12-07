@@ -1,0 +1,75 @@
+<div class="p-6 max-w-7xl mx-auto bg-white shadow-lg rounded-lg mt-6">
+
+  <!-- Cabeçalho -->
+  <div class="flex justify-between items-center mb-4">
+    <h2 class="text-2xl font-semibold text-gray-700">Usuários Cadastrados</h2>
+
+    <button routerLink="/usuarios/cadastro"
+      class="px-4 py-2 bg-green-600 text-white rounded-lg shadow hover:bg-green-700">
+      + Novo Usuário
+    </button>
+  </div>
+
+  <hr class="mb-4">
+
+  <!-- Tabela -->
+  <div class="px-4">
+    <div class="overflow-x-auto">
+      <table class="min-w-full border-collapse table-fixed">
+
+        <thead class="bg-gray-100 text-gray-700">
+          <tr class="h-12">
+            <th class="p-3 border text-center min-w-[220px]">Nome</th>
+            <th class="p-3 border text-center min-w-[240px]">E-mail</th>
+            <th class="p-3 border text-center w-[140px]">Roles</th>
+            <th class="p-3 border text-center w-[100px]">Ações</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let u of usuarios" class="hover:bg-gray-50 h-12">
+
+            <td class="p-3 border text-center truncate">{{ u.nome }}</td>
+            <td class="p-3 border text-center truncate">{{ u.email }}</td>
+            <td class="p-3 border text-center truncate">{{ u.roles.join(', ') }}</td>
+
+            <td class="p-3 border">
+              <div class="flex justify-center gap-2">
+                <button class="w-9 h-9 flex items-center justify-center rounded hover:bg-gray-200"
+                        (click)="editar(u.id)">
+                  <i class="fa-solid fa-pen-to-square text-blue-600"></i>
+                </button>
+
+                <button class="w-9 h-9 flex items-center justify-center rounded hover:bg-gray-200"
+                        (click)="excluir(u.id)">
+                  <i class="fa-solid fa-trash text-red-600"></i>
+                </button>
+              </div>
+            </td>
+
+          </tr>
+        </tbody>
+
+      </table>
+    </div>
+  </div>
+
+  <!-- Paginação -->
+  <div class="mt-6 flex justify-center items-center gap-4">
+
+    <button (click)="paginaAnterior()" [disabled]="page === 0" 
+            class="px-4 py-2 bg-blue-600 text-white rounded shadow hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed">
+      Anterior
+    </button>
+
+    <span class="text-gray-700 font-medium">
+      Página {{ page + 1 }} de {{ totalPages }}
+    </span>
+
+    <button (click)="proximaPagina()" [disabled]="(page + 1) >= totalPages"
+            class="px-4 py-2 bg-blue-600 text-white rounded shadow hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed">
+      Próxima
+    </button>
+
+  </div>
+</div>

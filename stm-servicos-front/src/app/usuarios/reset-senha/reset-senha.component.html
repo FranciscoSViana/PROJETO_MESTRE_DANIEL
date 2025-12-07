@@ -1,0 +1,29 @@
+<div class="p-6 max-w-md mx-auto bg-white shadow-lg rounded mt-20">
+
+  <h2 class="text-2x1 font-bold text-center mb-4">Nova Senha</h2>
+
+  <form [formGroup]="form" (ngSubmit)="resetar()">
+
+    <input type="password"
+      formControlName="senha"
+      placeholder="Nova senha"
+      class="w-full p-3 border rounded mb-2">
+
+    <!-- Barra de força -->
+    <div class="h-2 bg-gray-200 rounded mb-4">
+      <div class="h-2 rounded"
+        [style.width.%]="forca"
+        [ngClass]="classe">
+      </div>
+    </div>
+
+    <button class="w-full bg-green-600 text-white p-3 rounded">
+      Atualizar senha
+    </button>
+
+    <p *ngIf="mensagem" class="text-green-600 mt-3 text-center">
+      {{ mensagem }}
+    </p>
+
+  </form>
+</div>

@@ -6,7 +6,7 @@ import { Endereco } from "./endereco";
 
 export class OrdemServico {
 
-    id?: number;
+    id?: string;
 
     osClt?: string;
     osg?: string;

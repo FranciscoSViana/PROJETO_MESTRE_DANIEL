@@ -145,6 +145,7 @@ export class CadastroOrdemComponent implements OnInit {
         next: () => this.router.navigate(['/ordem-servico'])
       });
     }
+    console.log("ENDEREÇO: ", os.endereco);
     console.log('OBJETO', this.montarObjeto());
     console.log('OS', os);
   }

@@ -61,26 +61,39 @@ export class ClienteComponent implements OnInit {
     if (this.camposForm.valid) {
 
       const id = this.camposForm.get('id')?.value;
-      const cliente = this.camposForm.getRawValue();
+      const cliente: any = this.camposForm.getRawValue();
+
+      const parseValor = (value: any): number | null => {
+        if (value === null || value === undefined || value === '') return null;
+
+        // Se já for number, apenas retorna
+        if (typeof value === 'number') return value;
+
+        // Se for string formatada: "1.000,50"
+        let s = String(value);
+        s = s.replace(/\./g, '');  // remove separador de milhar
+        s = s.replace(',', '.');  // troca vírgula por ponto
+
+        const n = Number(s);
+        return isNaN(n) ? null : n;
+      };
+
+      cliente.valorChamado = parseValor(cliente.valorChamado);
+      cliente.valorKm = parseValor(cliente.valorKm);
 
       if (id) {
-        // EDITAR
         this.service.atualizar(id, cliente).subscribe({
-          next: () => {
-            this.router.navigate(['/clientes']);
-          }
+          next: () => this.router.navigate(['/clientes']),
+          error: err => console.error('Erro ao atualizar', err)
         });
       } else {
-        // CRIAR
         this.service.salvar(cliente).subscribe({
-          next: () => {
-            this.router.navigate(['/clientes']);
-          }
+          next: () => this.router.navigate(['/clientes']),
+          error: err => console.error('Erro ao salvar', err)
         });
       }
     }
   }
-
 
   isCampoInvalido(nomeCampo: string): boolean {
 

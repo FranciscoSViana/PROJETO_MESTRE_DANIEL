@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ClienteService } from '../cliente.service';
 import { Cliente } from '../cliente';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-consulta-cliente',
@@ -18,7 +19,7 @@ export class ConsultaClienteComponent implements OnInit {
   loading = false;
   errorMessage = '';
 
-  constructor(private service: ClienteService) { }
+  constructor(private service: ClienteService, private router: Router) { }
 
   ngOnInit(): void {
     this.carregarClientes();
@@ -91,5 +92,10 @@ export class ConsultaClienteComponent implements OnInit {
       /^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/,
       "$1.$2.$3/$4-$5"
     );
+  }
+
+  editar(id?: string) {
+    console.log('🟢 Clicou no editar, ID:', id);
+    this.router.navigate(['/clientes/editar', id]);
   }
 }

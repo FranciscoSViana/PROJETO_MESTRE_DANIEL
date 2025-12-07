@@ -4,6 +4,7 @@ import { OrdemServicoService } from '../ordem-servico.service';
 import { ClienteService } from '../../clientes/cliente.service';
 import { CredenciadoService } from '../../credenciados/credenciado.service';
 import { forkJoin, map } from 'rxjs';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-consulta-ordem',
@@ -27,7 +28,8 @@ export class ConsultaOrdemComponent implements OnInit {
   constructor(
     private service: OrdemServicoService,
     private clienteService: ClienteService,
-    private credenciadoService: CredenciadoService
+    private credenciadoService: CredenciadoService,
+    private router: Router
   ) { }
 
   ngOnInit(): void {
@@ -95,6 +97,11 @@ export class ConsultaOrdemComponent implements OnInit {
         }
       });
     }
+  }
+
+  editar(id?: string) {
+    console.log('🟢 Clicou no editar, ID:', id);
+    this.router.navigate(['/ordem-servico/editar', id]);
   }
 
   paginaAnterior() {

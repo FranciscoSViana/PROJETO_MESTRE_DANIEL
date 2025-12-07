@@ -9,18 +9,25 @@ spring:
     password: ${DB_PASS}
     driver-class-name: org.postgresql.Driver
     hikari:
-      maximum-pool-size: 10
+      maximum-pool-size: 5
 
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create-drop
     show-sql: false
     database-platform: org.hibernate.dialect.PostgreSQLDialect
 
-  jwt:
-    secret: ${JWT_SECRET}
-    expiration-ms: 3600000         # 1 hora
-    refresh-expiration-ms: 86400000 # 24 horas, opcional
+#  jwt:
+#    secret: ${JWT_SECRET}
+#    expiration-ms: 3600000         # 1 hora
+#    refresh-expiration-ms: 86400000 # 24 horas, opcional
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          secret-key: RoyOYArS6nxGRWywigKUxoOmdNkJUOGFskNpfMhNVd5Z #${JWT_SECRET}
+
   mail:
     host: ${MAIL_HOST}
     port: ${MAIL_PORT}
@@ -35,9 +42,9 @@ spring:
 
 app:
   frontend:
-    reset-url: http://localhost:4200/reset-password?token=
+    reset-url: http://localhost:4200/reset-senha?token=
 
 logging:
   level:
-    org.hibernate.SQL: debug
-    org.hibernate.type.descriptor.sql.BasicBinder: trace
+    org.springframework.security: DEBUG
+    org.springframework.security.oauth2: DEBUG

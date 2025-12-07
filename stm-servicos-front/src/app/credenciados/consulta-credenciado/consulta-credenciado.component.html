@@ -38,11 +38,11 @@
 
             <td class="p-3 border">
               <div class="flex justify-center gap-2">
-                <button class="w-9 h-9 flex items-center justify-center rounded hover:bg-gray-200">
+                <button class="w-9 h-9 flex items-center justify-center rounded hover:bg-gray-200" (click)="editar(c.id)">
                   <i class="fa-solid fa-pen-to-square text-blue-600"></i>
                 </button>
 
-                <button class="w-9 h-9 flex items-center justify-center rounded hover:bg-gray-200">
+                <button class="w-9 h-9 flex items-center justify-center rounded hover:bg-gray-200" (click)="excluir(c.id)">
                   <i class="fa-solid fa-trash text-red-600"></i>
                 </button>
               </div>

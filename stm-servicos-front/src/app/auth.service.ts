@@ -32,7 +32,7 @@ export class AuthService {
     this.atualizarUsuario();
   }
 
-  cadastrar(usuario: { usuario: string, email: string, senha: string, roles: string[] }) {
+  cadastrar(usuario: { nome: string, email: string, senha: string, roles: string[] }) {
     return this.http.post(`${this.apiUrl}/cadastro`, usuario);
   }
 
@@ -85,5 +85,13 @@ export class AuthService {
 
   atualizarUsuario() {
     this.usuarioSubject.next(this.getUsuarioDoToken());
+  }
+
+  esqueciSenha(email: string) {
+    return this.http.post(`${this.apiUrl}/esqueci-senha`, { email });
+  }
+
+  resetSenha(token: string, novaSenha: string) {
+    return this.http.post(`${this.apiUrl}/reset-senha`, { token, novaSenha });
   }
 }

@@ -90,7 +90,24 @@ export class CadastroCredenciadoComponent implements OnInit {
 
       const id = this.camposForm.get('id')?.value;
       const credenciado = this.camposForm.getRawValue();
-      console.log('Payload enviado:', credenciado);
+      
+      const parseValor = (value: any): number | null => {
+        if (value === null || value === undefined || value === '') return null;
+
+        // Se já for number, apenas retorna
+        if (typeof value === 'number') return value;
+
+        // Se for string formatada: "1.000,50"
+        let s = String(value);
+        s = s.replace(/\./g, '');  // remove separador de milhar
+        s = s.replace(',', '.');  // troca vírgula por ponto
+
+        const n = Number(s);
+        return isNaN(n) ? null : n;
+      };
+
+      credenciado.valorChamado = parseValor(credenciado.valorChamado);
+      credenciado.valorKm = parseValor(credenciado.valorKm);
 
       if (id) {
         // EDITAR

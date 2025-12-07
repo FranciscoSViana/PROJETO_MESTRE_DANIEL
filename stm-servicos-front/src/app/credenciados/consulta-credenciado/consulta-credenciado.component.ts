@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CredenciadoService } from '../credenciado.service';
 import { Credenciado } from '../credenciado';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-consulta-credenciado',
@@ -18,7 +19,7 @@ export class ConsultaCredenciadoComponent implements OnInit {
   loading = false;
   errorMessage = '';
 
-  constructor(private service: CredenciadoService) {}
+  constructor(private service: CredenciadoService, private router: Router) {}
 
   ngOnInit(): void {
     this.carregarCredenciados();
@@ -84,5 +85,10 @@ export class ConsultaCredenciadoComponent implements OnInit {
     if (!cpf) return '';
     const num = cpf.toString().padStart(11, '0');
     return num.replace(/^(\d{3})(\d{3})(\d{3})(\d{2})$/, "$1.$2.$3-$4");
+  }
+
+  editar(id?: string) {
+    console.log('🟢 Clicou no editar, ID:', id);
+    this.router.navigate(['/credenciados/editar', id]);
   }
 }

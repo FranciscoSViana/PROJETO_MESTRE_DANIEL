@@ -1,0 +1,21 @@
+<div class="p-6 max-w-md mx-auto bg-white shadow-lg rounded mt-20">
+
+  <h2 class="text-2x1 font-bold text-center mb-4">Recuperar Senha</h2>
+
+  <form [formGroup]="form" (ngSubmit)="enviar()">
+
+    <input type="email"
+      formControlName="email"
+      placeholder="Digite seu e-mail"
+      class="w-full p-3 border rounded mb-4">
+
+    <button class="w-full bg-blue-600 text-white p-3 rounded">
+      Enviar link de recuperação
+    </button>
+
+    <p *ngIf="mensagem" class="text-green-600 mt-3 text-center">
+      {{ mensagem }}
+    </p>
+
+  </form>
+</div>

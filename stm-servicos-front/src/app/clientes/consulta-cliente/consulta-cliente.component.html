@@ -38,16 +38,16 @@
             <td class="p-3 border text-center truncate">{{ c.nome }}</td>
             <td class="p-3 border text-center truncate">{{ formatarCnpj(c.cnpj) }}</td>
             <td class="p-3 border text-center truncate">{{ c.razaoSocial }}</td>
-            <td class="p-3 border text-center truncate">{{ c.valorChamado }}</td>
-            <td class="p-3 border text-center truncate">{{ c.valorKm }}</td>
+            <td class="p-3 border text-center truncate" mask="00,00">{{ c.valorChamado }}</td>
+            <td class="p-3 border text-center truncate" mask="00,00">{{ c.valorKm }}</td>
 
             <td class="p-3 border">
               <div class="flex justify-center gap-2">
-                <button class="w-9 h-9 flex items-center justify-center rounded hover:bg-gray-200">
+                <button class="w-9 h-9 flex items-center justify-center rounded hover:bg-gray-200" (click)="editar(c.id)">
                   <i class="fa-solid fa-pen-to-square text-blue-600"></i>
                 </button>
 
-                <button class="w-9 h-9 flex items-center justify-center rounded hover:bg-gray-200">
+                <button class="w-9 h-9 flex items-center justify-center rounded hover:bg-gray-200" (click)="excluir(c.id)">
                   <i class="fa-solid fa-trash text-red-600"></i>
                 </button>
               </div>

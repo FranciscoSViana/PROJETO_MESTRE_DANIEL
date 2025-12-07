@@ -1,6 +1,7 @@
 package io.github.franciscosviana.stmservicos.api.exceptionhandler;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import io.github.franciscosviana.stmservicos.api.model.input.CampoErro;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -19,6 +20,7 @@ public class Problem {
     private String detail;
     private String userMessage;
     private List<Object> objects;
+    private List<CampoErro> fields;
 
     @Getter
     @Builder
