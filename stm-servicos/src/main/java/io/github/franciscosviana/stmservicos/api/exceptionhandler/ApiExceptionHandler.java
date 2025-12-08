@@ -15,9 +15,7 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import java.time.OffsetDateTime;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Slf4j
 @ControllerAdvice
@@ -97,18 +95,22 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
                 ))
                 .toList();
 
+        CampoErro erroSenha = erros.stream()
+                .filter(c -> c.getCampo().equals("senha"))
+                .findFirst()
+                .orElse(null);
+
         Problem problem = createProblemBuilder(
                 HttpStatus.BAD_REQUEST,
                 ProblemType.ERRO_NEGOCIO,
-                "Um ou mais campos estão inválidos."
+                erroSenha != null ? erroSenha.getMensagem() : "Um ou mais campos estão inválidos."
         )
-                .userMessage("Preencha corretamente os campos destacados.")
+                .userMessage(erroSenha != null ? erroSenha.getMensagem() : "Preencha corretamente os campos destacados.")
                 .fields(erros)
                 .build();
 
         return handleExceptionInternal(ex, problem, headers, HttpStatus.BAD_REQUEST, request);
     }
-
 
     // ============================
     // ✅ BUILDER PADRÃO DO PROBLEM

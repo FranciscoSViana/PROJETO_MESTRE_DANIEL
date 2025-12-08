@@ -4,24 +4,22 @@
 
   <form [formGroup]="form" (ngSubmit)="resetar()">
 
-    <input type="password"
-      formControlName="senha"
-      placeholder="Nova senha"
-      class="w-full p-3 border rounded mb-2">
+    <input type="password" formControlName="senha" placeholder="Nova senha" class="w-full p-3 border rounded mb-2">
 
     <!-- Barra de força -->
-    <div class="h-2 bg-gray-200 rounded mb-4">
-      <div class="h-2 rounded"
-        [style.width.%]="forca"
-        [ngClass]="classe">
-      </div>
+    <div class="h-2 bg-gray-200 rounded mb-2">
+      <div class="h-2 rounded" [style.width.%]="forca" [ngClass]="classe"></div>
     </div>
 
     <button class="w-full bg-green-600 text-white p-3 rounded">
       Atualizar senha
     </button>
 
-    <p *ngIf="mensagem" class="text-green-600 mt-3 text-center">
+    <p *ngIf="erro" class="text-red-600 text-center mb-2 font-semibold">
+      {{ erro }}
+    </p>
+
+    <p *ngIf="mensagem" class="text-green-600 text-center mb-2 font-semibold">
       {{ mensagem }}
     </p>
 

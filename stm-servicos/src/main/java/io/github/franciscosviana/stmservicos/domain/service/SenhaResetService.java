@@ -79,10 +79,11 @@ public class SenhaResetService {
 
         Usuario user = prt.getUsuario();
 
-        user.setSenha(encoder.encode(novaSenha));
-
+        // 👉 VALIDAR PRIMEIRO
         authService.validarUltimasSenhas(user, novaSenha);
 
+        // 👉 Só depois atualizar
+        user.setSenha(encoder.encode(novaSenha));
         usuarioRepo.save(user);
 
         historicoSenhaRepo.save(

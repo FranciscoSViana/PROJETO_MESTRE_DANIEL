@@ -4,6 +4,7 @@ import io.github.franciscosviana.stmservicos.api.model.input.AuthRequest;
 import io.github.franciscosviana.stmservicos.api.model.input.RegisterRequest;
 import io.github.franciscosviana.stmservicos.api.model.output.AuthResponse;
 import io.github.franciscosviana.stmservicos.common.validation.RoleException;
+import io.github.franciscosviana.stmservicos.common.validation.SenhaRepetidaException;
 import io.github.franciscosviana.stmservicos.common.validation.UsuarioException;
 import io.github.franciscosviana.stmservicos.domain.model.HistoricoSenha;
 import io.github.franciscosviana.stmservicos.domain.model.Usuario;
@@ -165,7 +166,9 @@ public class AuthService {
 
         for (HistoricoSenha h : ultimas) {
             if (passwordEncoder.matches(novaSenha, h.getSenhaHash())) {
-                throw new UsuarioException("Você não pode reutilizar nenhuma das últimas 5 senhas.");
+                throw new SenhaRepetidaException(
+                        "A nova senha não pode ser igual às últimas 5 senhas utilizadas."
+                );
             }
         }
     }

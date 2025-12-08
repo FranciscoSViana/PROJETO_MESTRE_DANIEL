@@ -12,14 +12,16 @@ import { AuthService } from '../../auth.service';
 export class ResetSenhaComponent implements OnInit {
 
   token!: string;
-  mensagem = '';
+  mensagem = '';   // sucesso
+  erro = '';       // erro do backend
   forca = 0;
   classe = '';
 
   form = new FormGroup({
     senha: new FormControl('', [
       Validators.required,
-      Validators.minLength(8)
+      Validators.minLength(8),
+      Validators.pattern(/^(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/)
     ])
   });
 
@@ -33,7 +35,10 @@ export class ResetSenhaComponent implements OnInit {
     this.token = this.route.snapshot.queryParamMap.get('token')!;
 
     // ✅ OBSERVA DIGITAÇÃO DA SENHA EM TEMPO REAL
+    // 👉 Assim que começar a digitar, apaga erros e recalcula força
     this.form.get('senha')!.valueChanges.subscribe(value => {
+      this.erro = '';       // limpa erro
+      this.mensagem = '';   // limpa sucesso
       this.calcularForcaSenha(value || '');
     });
   }
@@ -60,12 +65,37 @@ export class ResetSenhaComponent implements OnInit {
   }
 
   resetar() {
-    if (this.form.invalid) return;
+    this.form.markAllAsTouched();
+
+    // ❌ NÃO bloqueie o envio quando inválido
+    // if (this.form.invalid) return;
+
+    this.erro = '';
+    this.mensagem = '';
 
     this.auth.resetSenha(this.token, this.form.value.senha!)
-      .subscribe(() => {
-        this.mensagem = '✅ Senha atualizada com sucesso!';
-        setTimeout(() => this.router.navigate(['/']), 2000);
+      .subscribe({
+
+        next: () => {
+          this.mensagem = 'Senha atualizada com sucesso!';
+          setTimeout(() => this.router.navigate(['/']), 2000);
+        },
+
+        error: (err) => {
+          console.log("ERRO BACKEND:", err);
+
+          if (err.status === 401) {
+            this.erro = "❌ O link expirou. Solicite um novo link para redefinir sua senha.";
+            return;
+          }
+
+          // mensagens 400 vindas do backend
+          this.erro = err.error?.detail
+            || err.error?.error
+            || 'Erro ao atualizar senha.';
+        }
+
       });
   }
+
 }

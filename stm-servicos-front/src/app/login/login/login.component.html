@@ -21,38 +21,18 @@
         </div>
 
         <!-- Senha -->
-        <!-- <div class="mb-6">
-            <label class="block text-gray-600 font-medium mb-2">Senha</label>
-
-            <input type="password" formControlName="senha" placeholder="Digite sua senha"
-                class="w-full p-3 border border-gray-300 rounded shadow-sm focus:ring focus:ring-blue-400" />
-
-            <span class="text-red-500 text-sm" *ngIf="isCampoInvalido('senha')">
-                Senha é obrigatória.
-            </span>
-        </div> -->
-        <!-- Senha -->
         <div class="mb-2">
             <label class="block text-gray-600 font-medium mb-2">Senha</label>
 
-            <input type="password" formControlName="senha" placeholder="Digite sua senha" (input)="avaliarForcaSenha()"
-                (paste)="bloquearColar($event)" class="w-full p-3 border rounded shadow-sm focus:ring" [ngClass]="{
-      'border-red-500': isCampoInvalido('senha'),
-      'border-green-500': !isCampoInvalido('senha') && camposForm.get('senha')?.value
-    }" />
+            <input type="password" formControlName="senha" placeholder="Digite sua senha" 
+                   class="w-full p-3 border rounded shadow-sm focus:ring" [ngClass]="{
+                   'border-red-500': isCampoInvalido('senha'),
+                   'border-green-500': !isCampoInvalido('senha') && camposForm.get('senha')?.value }" />
 
             <!-- Mensagem de erro -->
             <span class="text-red-500 text-sm" *ngIf="isCampoInvalido('senha')">
                 A senha é obrigatória.
             </span>
-
-            <!-- Barra de força -->
-            <div class="h-2 mt-2 bg-gray-200 rounded">
-                <div class="h-2 rounded transition-all" [ngClass]="forcaSenhaClasse" [style.width.%]="forcaSenha">
-                </div>
-            </div>
-
-            <small class="text-gray-600">{{ forcaSenhaTexto }}</small>
         </div>
 
 

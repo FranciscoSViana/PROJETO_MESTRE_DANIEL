@@ -5,6 +5,7 @@ import io.github.franciscosviana.stmservicos.api.model.input.RegisterRequest;
 import io.github.franciscosviana.stmservicos.api.model.input.ResetSenhaRequest;
 import io.github.franciscosviana.stmservicos.api.model.input.UpdateUsuarioRequest;
 import io.github.franciscosviana.stmservicos.common.validation.RoleException;
+import io.github.franciscosviana.stmservicos.common.validation.SenhaRepetidaException;
 import io.github.franciscosviana.stmservicos.common.validation.UsuarioException;
 import io.github.franciscosviana.stmservicos.domain.model.Usuario;
 import io.github.franciscosviana.stmservicos.domain.service.AuthService;
@@ -94,12 +95,22 @@ public class AuthController {
     @PostMapping("/reset-senha")
     public ResponseEntity<?> resetPassword(@RequestBody @Valid ResetSenhaRequest resetSenhaRequest) {
 
-        boolean ok = senhaResetService.resetPassword(resetSenhaRequest.getToken(), resetSenhaRequest.getNovaSenha());
+        try {
+            boolean ok = senhaResetService.resetPassword(
+                    resetSenhaRequest.getToken(),
+                    resetSenhaRequest.getNovaSenha()
+            );
 
-        if (ok)
-            return ResponseEntity.ok(Map.of("message", "Senha atualizada"));
+            if (ok) {
+                return ResponseEntity.ok(Map.of("message", "Senha atualizada"));
+            }
 
-        return ResponseEntity.badRequest()
-                .body(Map.of("error", "Token inválido ou expirado"));
+            return ResponseEntity.badRequest()
+                    .body(Map.of("error", "Token inválido ou expirado"));
+
+        } catch (SenhaRepetidaException e) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("error", e.getMessage()));
+        }
     }
 }

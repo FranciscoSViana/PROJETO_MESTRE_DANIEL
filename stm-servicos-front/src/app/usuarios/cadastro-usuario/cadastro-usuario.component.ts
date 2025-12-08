@@ -16,6 +16,10 @@ export class CadastroUsuarioComponent implements OnInit {
   rolesDisponiveis = ['ADMIN', 'USER'];
   tituloFormulario = 'Cadastro de Usuário'; // 🎯 título dinâmico
   usuarioId?: string; // para edição
+  forcaSenha: number | null = null;
+  forcaSenhaTexto = '';
+  forcaSenhaClasse = '';
+
 
   constructor(
     private service: AuthService,
@@ -83,43 +87,6 @@ export class CadastroUsuarioComponent implements OnInit {
     });
   }
 
-  // salvar() {
-  //   this.cadastroForm.markAllAsTouched();
-
-  //   if (this.cadastroForm.valid) {
-  //     const formValue = this.cadastroForm.getRawValue();
-
-  //     // Converte roles de string para array (ex.: "ADMIN,USER" → ["ADMIN","USER"])
-  //     const rolesArray = formValue.roles.split(',').map((r: string) => r.trim());
-
-  //     const usuario = {
-  //       usuario: formValue.usuario,
-  //       email: formValue.email,
-  //       senha: formValue.senha,
-  //       roles: rolesArray,
-  //       enabled: true
-  //     };
-
-  //     this.service.cadastrar(usuario).subscribe({
-  //       next: () => {
-  //         alert('Usuário cadastrado com sucesso');
-  //         this.router.navigate(['/']);
-  //       },
-  //       error: (err) => {
-  //         console.log(err.error);
-
-  //         if (Array.isArray(err.error)) {
-  //           err.error.forEach((e: { campo: string; mensagem: string }) => {
-  //             alert(`${e.campo}: ${e.mensagem}`);
-  //           });
-  //         } else {
-  //           alert(err.error.erro || 'Erro ao cadastrar');
-  //         }
-  //       }
-  //     });
-  //   }
-  // }
-
   salvar() {
     this.cadastroForm.markAllAsTouched();
 
@@ -168,7 +135,7 @@ export class CadastroUsuarioComponent implements OnInit {
         next: (res) => {
           console.log('✅ Atualização OK:', res);
           alert('Usuário atualizado com sucesso!');
-          this.router.navigate(['/usuarios']); 
+          this.router.navigate(['/usuarios']);
         },
         error: (err) => {
           console.error('❌ Erro ao atualizar usuário:', err);
@@ -211,9 +178,53 @@ export class CadastroUsuarioComponent implements OnInit {
     console.log('--- FIM DO SALVAR ---');
   }
 
-
   isCampoInvalido(nomeCampo: string): boolean {
     const campo = this.cadastroForm.get(nomeCampo);
     return campo?.invalid && campo.touched && campo.errors?.['required'];
+  }
+
+  avaliarForcaSenha() {
+    const senha = this.cadastroForm.get('senha')?.value || '';
+
+    if (!senha) {
+      this.forcaSenha = null;     // ainda não digitou
+      this.forcaSenhaTexto = '';
+      this.forcaSenhaClasse = '';
+      return;
+    }
+
+    let score = 0;
+
+    if (senha.length >= 8) score += 25;
+    if (/[A-Z]/.test(senha)) score += 25;
+    if (/[0-9]/.test(senha)) score += 25;
+    if (/[^A-Za-z0-9]/.test(senha)) score += 25;
+
+    this.forcaSenha = score;
+
+    if (score <= 25) {
+      this.forcaSenhaTexto = 'Senha fraca';
+      this.forcaSenhaClasse = 'bg-red-500';
+    } else if (score <= 50) {
+      this.forcaSenhaTexto = 'Senha média';
+      this.forcaSenhaClasse = 'bg-yellow-500';
+    } else if (score <= 75) {
+      this.forcaSenhaTexto = 'Senha boa';
+      this.forcaSenhaClasse = 'bg-blue-500';
+    } else {
+      this.forcaSenhaTexto = 'Senha forte';
+      this.forcaSenhaClasse = 'bg-green-500';
+    }
+  }
+
+  bloquearColar(event: ClipboardEvent) {
+    const texto = event.clipboardData?.getData('text') || '';
+
+    const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
+
+    if (!regex.test(texto)) {
+      event.preventDefault();
+      alert('⚠️ Não é permitido colar senha fraca.');
+    }
   }
 }
