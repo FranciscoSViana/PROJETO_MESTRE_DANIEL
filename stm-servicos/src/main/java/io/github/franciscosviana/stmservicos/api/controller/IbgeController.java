@@ -4,14 +4,16 @@ import io.github.franciscosviana.stmservicos.api.model.output.EstadoOutput;
 import io.github.franciscosviana.stmservicos.api.model.output.MunicipioOutput;
 import io.github.franciscosviana.stmservicos.domain.service.IbgeService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/ibge")
-@CrossOrigin(origins = "http://localhost:4200")
 public class IbgeController {
 
     private final IbgeService ibgeService;
