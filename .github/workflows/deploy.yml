@@ -48,7 +48,7 @@ jobs:
       # ✅ Deploy no Cloud Run (imagem do Docker Hub)
       - name: Deploy no Cloud Run (Backend)
         run: |
-          gcloud run deploy stm-backend \
+          gcloud run deploy stm-servicos \
             --image docker.io/${{ secrets.DOCKER_USERNAME }}/guardian:latest \
             --platform managed \
             --region ${{ secrets.GCP_REGION }} \
