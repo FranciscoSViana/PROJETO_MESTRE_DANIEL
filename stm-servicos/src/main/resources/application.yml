@@ -42,7 +42,7 @@ spring:
 
 app:
   frontend:
-    reset-url: http://localhost:4200/reset-senha?token=
+    reset-url: ${TOKEN_URL}
 
 logging:
   level:

@@ -85,7 +85,7 @@ export class ConsultaOrdemComponent implements OnInit {
   }
 
 
-  excluir(id?: number) {
+  excluir(id?: string) {
     if (!id) return alert('ID inválido para exclusão.');
 
     if (confirm('Tem certeza que deseja excluir esta OS?')) {
