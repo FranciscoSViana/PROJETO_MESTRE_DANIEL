@@ -19,14 +19,17 @@ RUN npm run build -- --configuration production --project=stm-servicos-front
 # ===============================
 FROM nginx:alpine
 
-# Remove conteúdo padrão do NGINX
-RUN rm -rf /usr/share/nginx/html/*
+# Remove config padrão
+RUN rm /etc/nginx/conf.d/default.conf
+
+# Copia config customizada (porta 8080)
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Copia os arquivos buildados
 COPY --from=build /app/dist/stm-servicos-front/browser /usr/share/nginx/html
 
 # Porta exigida pelo Cloud Run
-EXPOSE 80
+EXPOSE 8080
 
 # ✅ FORMA CORRETA de iniciar nginx
 CMD ["nginx", "-g", "daemon off;"]
