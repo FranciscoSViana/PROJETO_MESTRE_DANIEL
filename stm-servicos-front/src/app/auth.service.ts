@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { environment } from '../environments/environment.development';
+import { environment } from '../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, tap } from 'rxjs';
 
@@ -14,7 +14,9 @@ export class AuthService {
   private usuarioSubject = new BehaviorSubject<string | null>(this.getUsuarioDoToken());
   usuario$ = this.usuarioSubject.asObservable();
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {
+    console.log('API URL:', this.apiUrl);
+  }
 
   login(data: { usuario: string, senha: string }) {
     return this.http.post<any>(`${this.apiUrl}/login`, data).pipe(
