@@ -4,14 +4,9 @@
 FROM node:22-alpine AS build
 
 WORKDIR /app
-
 COPY ./package.json ./package-lock.json ./
-
 RUN npm install
-
 COPY . .
-
-# Angular 19 - build de produção
 RUN npm run build -- --configuration production --project=stm-servicos-front
 
 # ===============================
@@ -22,14 +17,14 @@ FROM nginx:alpine
 # Remove config padrão
 RUN rm /etc/nginx/conf.d/default.conf
 
-# Copia config customizada (porta 8080)
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Copia template
+COPY nginx.conf.template /etc/nginx/templates/default.conf.template
 
-# Copia os arquivos buildados
+# Copia build Angular
 COPY --from=build /app/dist/stm-servicos-front/browser /usr/share/nginx/html
 
-# Porta exigida pelo Cloud Run
+# Cloud Run
 EXPOSE 8080
 
-# ✅ FORMA CORRETA de iniciar nginx
-CMD ["nginx", "-g", "daemon off;"]
+# 🔥 CONVERTE ${PORT} EM TEMPO DE EXECUÇÃO
+CMD /bin/sh -c "envsubst '\$PORT' < /etc/nginx/templates/default.conf.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"
