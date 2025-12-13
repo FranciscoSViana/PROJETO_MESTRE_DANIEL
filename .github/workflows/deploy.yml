@@ -88,7 +88,7 @@ jobs:
       # ✅ Build da imagem Frontend
       - name: Build da imagem Docker (Frontend)
         run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/guardian-front:latest ./stm-servicos-front
+          docker build --no-cache -t ${{ secrets.DOCKER_USERNAME }}/guardian-front:latest ./stm-servicos-front
 
       # ✅ Push da imagem no Docker Hub
       - name: Push da imagem (Frontend)
@@ -102,4 +102,5 @@ jobs:
             --image docker.io/${{ secrets.DOCKER_USERNAME }}/guardian-front:latest \
             --platform managed \
             --region ${{ secrets.GCP_REGION }} \
-            --allow-unauthenticated
+            --allow-unauthenticated \
+            --port 80
