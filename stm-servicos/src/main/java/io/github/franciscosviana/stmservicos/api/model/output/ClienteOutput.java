@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -14,7 +15,6 @@ public class ClienteOutput {
 
     private Long codigo;
 
-    private String contrato;
     private String nome;
 
     private BigDecimal valorChamado;
@@ -23,4 +23,6 @@ public class ClienteOutput {
     private String cnpj;
     private String inscricaoEstadual;
     private String razaoSocial;
+
+    private List<ContratoOutput> contratos;
 }

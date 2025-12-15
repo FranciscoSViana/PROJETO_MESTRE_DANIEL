@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -19,8 +21,11 @@ public class Cliente {
     @Column(unique = true)
     private Long codigo;
 
-    private String contrato;
     private String nome;
+
+    @Builder.Default
+    @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Contrato> contratos = new ArrayList<>();
 
     private BigDecimal valorChamado;
     private BigDecimal valorKm;
@@ -28,4 +33,11 @@ public class Cliente {
     private String cnpj;
     private String inscricaoEstadual;
     private String razaoSocial;
+
+    @PrePersist
+    public void gerarId() {
+        if (id == null) {
+            id = UUID.randomUUID();
+        }
+    }
 }

@@ -5,13 +5,13 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class ClienteInput {
 
-    private String contrato;
     private String nome;
 
     private BigDecimal valorChamado;
@@ -20,4 +20,6 @@ public class ClienteInput {
     private String cnpj;
     private String inscricaoEstadual;
     private String razaoSocial;
+
+    private List<ContratoInput> contratos;
 }

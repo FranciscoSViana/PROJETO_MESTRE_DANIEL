@@ -23,9 +23,9 @@ public class OrdemServicoInput {
     // Relacionamentos (apenas IDs)
     private UUID clienteId;
     private UUID credenciadoId;
+    private UUID contratoId;
 
     // Informações administrativas
-    private String contrato;
     private String contato;
     private String departamento;
     private String telefone;

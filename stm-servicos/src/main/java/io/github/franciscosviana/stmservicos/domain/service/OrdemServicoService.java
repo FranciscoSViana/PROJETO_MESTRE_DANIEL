@@ -4,7 +4,10 @@ import io.github.franciscosviana.stmservicos.api.assembler.OrdemServicoInputDisa
 import io.github.franciscosviana.stmservicos.api.assembler.OrdemServicoOutputAssembler;
 import io.github.franciscosviana.stmservicos.api.model.input.OrdemServicoInput;
 import io.github.franciscosviana.stmservicos.api.model.output.OrdemServicoOutput;
+import io.github.franciscosviana.stmservicos.common.validation.ContratoException;
 import io.github.franciscosviana.stmservicos.common.validation.OrdemServicoException;
+import io.github.franciscosviana.stmservicos.domain.model.Cliente;
+import io.github.franciscosviana.stmservicos.domain.model.Contrato;
 import io.github.franciscosviana.stmservicos.domain.model.OrdemServico;
 import io.github.franciscosviana.stmservicos.domain.repository.OrdemServicoRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +22,8 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class OrdemServicoService {
 
+    private final ClienteService clienteService;
+    private final ContratoService contratoService;
     private final OrdemServicoRepository repository;
     private final OrdemServicoOutputAssembler assembler;
     private final OrdemServicoInputDisassembler disassembler;
@@ -27,6 +32,19 @@ public class OrdemServicoService {
         OrdemServico ordem = disassembler.toDomainObject(input);
 
         ordem.setId(UUID.randomUUID());
+
+        // 🔹 Buscar cliente e contrato reais
+        var cliente = clienteService.buscarOuFalhar(ordem.getCliente().getId());
+        var contrato = contratoService.buscarOuFalhar(ordem.getContrato().getId());
+
+        // 🔴 REGRA DE NEGÓCIO AQUI
+        if (!contrato.getCliente().getId().equals(cliente.getId())) {
+            throw new ContratoException("Contrato não pertence ao cliente");
+        }
+
+        // 🔹 Setar as entidades gerenciadas pelo JPA
+        ordem.setCliente(cliente);
+        ordem.setContrato(contrato);
 
         repository.save(ordem);
         return assembler.toModel(ordem);
@@ -46,7 +64,18 @@ public class OrdemServicoService {
 
     public OrdemServicoOutput atualizar(UUID id, OrdemServicoInput input) {
         OrdemServico atual = buscarOuFalhar(id);
+
         disassembler.copyToDomainObject(input, atual);
+
+        Cliente cliente = clienteService.buscarOuFalhar(atual.getCliente().getId());
+        Contrato contrato = contratoService.buscarOuFalhar(atual.getContrato().getId());
+
+        if (!contrato.getCliente().getId().equals(cliente.getId())) {
+            throw new ContratoException("Contrato não pertence ao cliente");
+        }
+
+        atual.setCliente(cliente);
+        atual.setContrato(contrato);
         repository.save(atual);
         return assembler.toModel(atual);
     }

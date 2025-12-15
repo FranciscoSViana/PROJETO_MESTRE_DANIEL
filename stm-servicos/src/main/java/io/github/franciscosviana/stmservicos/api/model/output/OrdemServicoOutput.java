@@ -23,7 +23,7 @@ public class OrdemServicoOutput {
     private ClienteOutput cliente;
     private CredenciadoOutput credenciado;
 
-    private String contrato;
+    private ContratoOutput contrato;
     private String contato;
     private String departamento;
     private String telefone;

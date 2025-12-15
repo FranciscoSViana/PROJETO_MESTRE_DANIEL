@@ -39,7 +39,13 @@ public class OrdemServicoInputDisassembler {
             );
         }
 
-        ordem.setContrato(input.getContrato());
+        if (input.getContratoId() != null) {
+            ordem.setContrato(
+                    Contrato.builder()
+                            .id(input.getContratoId())
+                            .build()
+            );
+        }
         ordem.setContato(input.getContato());
         ordem.setDepartamento(input.getDepartamento());
         ordem.setTelefone(input.getTelefone());

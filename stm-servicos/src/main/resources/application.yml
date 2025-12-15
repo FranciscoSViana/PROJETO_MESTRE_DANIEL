@@ -17,6 +17,7 @@ spring:
     show-sql: false
     database-platform: org.hibernate.dialect.PostgreSQLDialect
 
+
 #  jwt:
 #    secret: ${JWT_SECRET}
 #    expiration-ms: 3600000         # 1 hora

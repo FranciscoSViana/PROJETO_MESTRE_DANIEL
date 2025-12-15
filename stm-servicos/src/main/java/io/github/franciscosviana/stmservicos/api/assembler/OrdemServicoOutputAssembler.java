@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 public class OrdemServicoOutputAssembler {
 
     private final CredenciadoOutputAssembler credenciadoAssembler;
+    private final ContratoOutputAssembler contratoOutputAssembler;
 
     public OrdemServicoOutput toModel(OrdemServico os) {
         if (os == null) return null;
@@ -24,7 +25,9 @@ public class OrdemServicoOutputAssembler {
                 .credenciado(os.getCredenciado() != null
                         ? credenciadoAssembler.toModel(os.getCredenciado())
                         : null)
-                .contrato(os.getContrato())
+                .contrato(os.getContrato() != null
+                        ? contratoOutputAssembler.toModel(os.getContrato())
+                        : null)
                 .contato(os.getContato())
                 .departamento(os.getDepartamento())
                 .telefone(os.getTelefone())
@@ -46,14 +49,9 @@ public class OrdemServicoOutputAssembler {
         return ClienteOutput.builder()
                 .id(cliente.getId())
                 .codigo(cliente.getCodigo())
-                .contrato(cliente.getContrato())
                 .nome(cliente.getNome())
-                .valorChamado(cliente.getValorChamado())
-                .valorKm(cliente.getValorKm())
-                .cnpj(cliente.getCnpj())
-                .inscricaoEstadual(cliente.getInscricaoEstadual())
-                .razaoSocial(cliente.getRazaoSocial())
                 .build();
+
     }
 
     private EnderecoOutput toEndereco(Endereco e) {

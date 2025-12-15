@@ -35,7 +35,9 @@ public class OrdemServico {
     @ManyToOne
     private Credenciado credenciado;
 
-    private String contrato;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "contrato_id", nullable = false)
+    private Contrato contrato;
     private String contato;
     private String departamento;
     private String telefone;

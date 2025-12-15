@@ -1,6 +1,7 @@
 package io.github.franciscosviana.stmservicos.api.controller;
 
 import io.github.franciscosviana.stmservicos.api.model.input.ClienteInput;
+import io.github.franciscosviana.stmservicos.api.model.input.ContratoInput;
 import io.github.franciscosviana.stmservicos.api.model.output.ClienteOutput;
 import io.github.franciscosviana.stmservicos.common.client.model.ReceitaWsResponse;
 import io.github.franciscosviana.stmservicos.domain.service.ClienteService;
@@ -13,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -60,6 +62,17 @@ public class ClienteController {
 
         ClienteOutput clienteOutput = clienteService.atualizar(id, clienteInput);
         return ResponseEntity.ok(clienteOutput);
+    }
+
+    @PostMapping("/{clienteId}/contratos")
+    public ResponseEntity<ClienteOutput> adicionarContratos(
+            @PathVariable UUID clienteId,
+            @RequestBody ContratoInput contratoInput) {
+
+        ClienteOutput clienteAtualizado =
+                clienteService.adicionarContratos(clienteId, contratoInput);
+
+        return ResponseEntity.ok(clienteAtualizado);
     }
 
     @GetMapping("/codigo/{codigo}")
