@@ -68,7 +68,7 @@ export class ConsultaOrdemComponent implements OnInit {
         this.ordensServico = (res.content ?? []).map(os => ({
           ...os,
           clienteNome: os.cliente?.razaoSocial || os.cliente?.nome || '-',
-          credenciadoNome: os.credenciado?.tecnico || '-'
+          credenciadoNome: os.credenciado?.rag || '-'
         }));
 
         this.totalElements = res.totalElements ?? this.ordensServico.length;

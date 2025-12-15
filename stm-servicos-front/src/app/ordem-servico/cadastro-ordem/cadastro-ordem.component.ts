@@ -31,7 +31,7 @@ export class CadastroOrdemComponent implements OnInit {
 
       osClt: new FormControl<string | null>(null),
       osg: new FormControl<string | null>({ value: '', disabled: true }),
-      status: new FormControl<string | null>(null),
+      status: new FormControl<string>({ value: 'ABERTA', disabled: true }),
       rag: new FormControl<string | null>(null),
 
       dataHora: new FormControl<string | null>(null),
@@ -75,7 +75,10 @@ export class CadastroOrdemComponent implements OnInit {
     // 👉 Se NÃO tiver ID → é NOVA OS → gerar OSG automaticamente
     if (!idStr) {
       this.service.buscarProximoOsg().subscribe(osg => {
-        this.camposForm.patchValue({ osg });
+        this.camposForm.patchValue({ 
+          osg, 
+          status: 'ABERTA'
+        });
       });
       return;
     }
@@ -90,19 +93,15 @@ export class CadastroOrdemComponent implements OnInit {
         osClt: os.osClt,
         osg: os.osg,
         status: os.status,
-        rag: os.rag,
         dataHora: os.dataHora,
 
-        // clienteId: os.clienteId,
-        // credenciadoId: os.credenciadoId,
-        // Extrair do objeto cliente e credenciado
         clienteId: os.cliente?.id || null,
         codigoCliente: os.cliente?.codigo || null,
         nomeCliente: os.cliente?.razaoSocial || os.cliente?.nome || '',
 
         credenciadoId: os.credenciado?.id || null,
         codigoCredenciado: os.credenciado?.codigo || null,
-        nomeCredenciado: os.credenciado?.tecnico || '',
+        nomeCredenciado: os.credenciado?.rag || '',
 
         contrato: os.contrato,
         contato: os.contato,
@@ -181,19 +180,25 @@ export class CadastroOrdemComponent implements OnInit {
   buscarCredenciadoPorCodigo() {
     const codigo = this.camposForm.get('codigoCredenciado')?.value;
     if (!codigo) {
-      this.camposForm.patchValue({ nomeCredenciado: '', credenciadoId: null });
+      this.camposForm.patchValue({ 
+        nomeCredenciado: '', 
+        credenciadoId: null 
+      });
       return;
     }
 
     this.credenciadoService.buscarPorCodigo(codigo).pipe(
       catchError(err => {
-        this.camposForm.patchValue({ nomeCredenciado: '', credenciadoId: null });
+        this.camposForm.patchValue({ 
+          nomeCredenciado: '', 
+          credenciadoId: null 
+        });
         return of(null);
       })
     ).subscribe(credenciado => {
       if (credenciado) {
         this.camposForm.patchValue({
-          nomeCredenciado: credenciado.tecnico, // ajuste de acordo com o campo do modelo Credenciado
+          nomeCredenciado: credenciado.rag,
           credenciadoId: credenciado.id
         });
       } else {
@@ -216,7 +221,6 @@ export class CadastroOrdemComponent implements OnInit {
       osClt: f.osClt,
       osg: f.osg,
       status: f.status,
-      rag: f.rag,
 
       dataHora: f.dataHora, // string ISO
 

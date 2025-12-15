@@ -52,4 +52,8 @@ export class CredenciadoService {
     return this.http.get<any[]>(this.apiUrl + `/api/credenciados/municipios/${uf}`);
   }
 
+  buscarCep(cep: string) : Observable<any> {
+    return this.http.get(this.apiUrl + `/api/enderecos/cep/${cep}`);
+  }
+
 }

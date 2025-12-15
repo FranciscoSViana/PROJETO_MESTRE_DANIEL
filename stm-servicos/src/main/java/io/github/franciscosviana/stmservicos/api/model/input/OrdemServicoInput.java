@@ -18,7 +18,6 @@ public class OrdemServicoInput {
     private String osClt;
     private String osg;
     private String status;
-    private String rag;
     private OffsetDateTime dataHora;
 
     // Relacionamentos (apenas IDs)

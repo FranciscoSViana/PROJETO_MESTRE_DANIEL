@@ -31,13 +31,8 @@
     <div class="grid grid-cols-2 gap-4 mb-4">
       <div>
         <label class="block text-gray-600 font-medium mb-2">Status</label>
-        <input type="text" formControlName="status" placeholder="ABERTA / FECHADA"
-          class="w-full p-3 border border-gray-300 rounded shadow-sm" />
-      </div>
-
-      <div>
-        <label class="block text-gray-600 font-medium mb-2">RAG</label>
-        <input type="text" formControlName="rag" class="w-full p-3 border border-gray-300 rounded shadow-sm" />
+        <input type="text" formControlName="status"
+          class="w-full p-3 border border-gray-300 rounded shadow-sm" readonly />
       </div>
     </div>
 
@@ -65,7 +60,7 @@
       </div>
 
       <div>
-        <label class="block text-gray-600 font-medium mb-2">Credenciado:</label>
+        <label class="block text-gray-600 font-medium mb-2">RAG:</label>
         <input type="text" formControlName="nomeCredenciado" class="w-full p-3 border border-gray-300 rounded shadow-sm"
           readonly />
       </div>

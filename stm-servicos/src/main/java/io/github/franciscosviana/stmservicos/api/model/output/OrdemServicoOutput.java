@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.OffsetDateTime;
+import java.util.UUID;
 
 @Data
 @Builder
@@ -13,11 +14,10 @@ import java.time.OffsetDateTime;
 @AllArgsConstructor
 public class OrdemServicoOutput {
 
-    private Long id;
+    private UUID id;
     private String osClt;
     private String osg;
     private String status;
-    private String rag;
     private OffsetDateTime dataHora;
 
     private ClienteOutput cliente;

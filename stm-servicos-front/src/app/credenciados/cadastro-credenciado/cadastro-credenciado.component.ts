@@ -12,128 +12,211 @@ import { ActivatedRoute, Router } from '@angular/router';
 export class CadastroCredenciadoComponent implements OnInit {
 
   camposForm: FormGroup;
-  ufs: any[] = [];
-  cidades: any[] = [];
+  tipoPessoaSelecionado: number | null = null;
 
   constructor(private service: CredenciadoService, private router: Router, private route: ActivatedRoute) {
     this.camposForm = new FormGroup({
       id: new FormControl(),
       codigo: new FormControl(),
-      rag: new FormControl(),
-      cidade: new FormControl(),
-      uf: new FormControl(),
-      tipo: new FormControl(),
+
+      rag: new FormControl('', Validators.required),
+
+      tipoPessoa: new FormControl<number | null>(null, {
+        nonNullable: false,
+        validators: Validators.required
+      }),
+      numeroPessoa: new FormControl('', Validators.required),
+
       valorChamado: new FormControl(),
       valorKm: new FormControl(),
+
       quantidadeOSAtendidas: new FormControl(),
+
       contato: new FormControl(),
       telefones: new FormControl(),
       email: new FormControl(),
-      tecnico: new FormControl(),
-      cpf: new FormControl('', Validators.required),
-      base: new FormControl()
+
+      logradouro: new FormControl<string | null>(null),
+      numero: new FormControl<string | null>(null),
+      bairro: new FormControl<string | null>(null),
+      cidade: new FormControl<string | null>(null),
+      estado: new FormControl<string | null>(null),
+      complemento: new FormControl<string | null>(null),
+      cep: new FormControl<string | null>(null),
     });
   }
 
   ngOnInit(): void {
-    this.carregarEstados();
 
-    // Atualiza as cidades quando UF muda
-    this.camposForm.get('uf')?.valueChanges.subscribe(uf => {
-      if (uf) {
-        this.carregarCidades(uf);
-      } else {
-        this.cidades = [];
-        this.camposForm.get('cidade')?.setValue('');
+    // 🔹 Observa SEMPRE o valor real do form
+    this.camposForm.get('tipoPessoa')?.valueChanges.subscribe(value => {
+      const tipo = value !== null && value !== undefined
+        ? Number(value)
+        : null;
+
+      this.tipoPessoaSelecionado = tipo;
+
+      if (tipo !== null) {
+        this.configurarValidacaoDocumento(tipo);
       }
     });
 
-    // Se vier um ID na rota, carregar o credenciado para edição
     const id = this.route.snapshot.paramMap.get('id');
+
     if (id) {
+      console.log('🟡 ID recebido pela rota:', id);
+
       this.service.buscarPorId(id).subscribe({
         next: credenciado => {
-          this.camposForm.patchValue(credenciado);
-          if (credenciado.uf) {
-            this.carregarCidades(credenciado.uf);
+
+          console.log('🟢 Credenciado bruto vindo da API:', credenciado);
+          console.log('🟢 Endereço vindo da API:', credenciado.endereco);
+
+          const tipoConvertido = this.converterTipoPessoa(credenciado.tipoPessoa);
+
+          console.log('➡ tipoPessoa:', credenciado.tipoPessoa);
+          console.log('🟣 tipoPessoa convertido:', tipoConvertido);
+
+          // 1️⃣ Patch geral
+          this.camposForm.patchValue({
+            id: credenciado.id,
+            codigo: credenciado.codigo,
+            rag: credenciado.rag,
+            tipoPessoa: tipoConvertido,
+            numeroPessoa: credenciado.numeroPessoa,
+            valorChamado: credenciado.valorChamado,
+            valorKm: credenciado.valorKm,
+            quantidadeOSAtendidas: credenciado.quantidadeOSAtendidas,
+            contato: credenciado.contato,
+            telefones: credenciado.telefones,
+            email: credenciado.email,
+
+            // Endereço
+            cep: credenciado.endereco?.cep,
+            logradouro: credenciado.endereco?.logradouro,
+            numero: credenciado.endereco?.numero,
+            bairro: credenciado.endereco?.bairro,
+            cidade: credenciado.endereco?.cidade,
+            estado: credenciado.endereco?.estado,
+            complemento: credenciado.endereco?.complemento
+          });
+
+          // 2️⃣ Atualiza controle visual
+          this.tipoPessoaSelecionado = tipoConvertido;
+
+          // 3️⃣ Aplica validação correta
+          if (tipoConvertido !== null) {
+            this.configurarValidacaoDocumento(tipoConvertido);
           }
-        },
-        error: err => console.error('Erro ao carregar credenciado', err)
+        }
       });
     }
   }
 
-  carregarEstados() {
-    this.service.listarEstados().subscribe({
-      next: (estados) => this.ufs = estados,
-      error: (err) => console.error('Erro ao carregar estados', err)
-    });
-  }
 
-  carregarCidades(uf: string) {
-    this.service.listarMunicipios(uf).subscribe({
-      next: (municipios) => this.cidades = municipios,
-      error: (err) => console.error('Erro ao carregar municípios', err)
-    });
-  }
-
-  isCampoInvalido(campo: string): boolean {
-    const controle = this.camposForm.get(campo);
-    return controle ? controle.invalid && (controle.dirty || controle.touched) : false;
-  }
-
-  salvar() {
-    console.log('Salvar chamado');
+  salvar(): void {
     this.camposForm.markAllAsTouched();
 
-    if (this.camposForm.valid) {
-
-      const id = this.camposForm.get('id')?.value;
-      const credenciado = this.camposForm.getRawValue();
-      
-      const parseValor = (value: any): number | null => {
-        if (value === null || value === undefined || value === '') return null;
-
-        // Se já for number, apenas retorna
-        if (typeof value === 'number') return value;
-
-        // Se for string formatada: "1.000,50"
-        let s = String(value);
-        s = s.replace(/\./g, '');  // remove separador de milhar
-        s = s.replace(',', '.');  // troca vírgula por ponto
-
-        const n = Number(s);
-        return isNaN(n) ? null : n;
-      };
-
-      credenciado.valorChamado = parseValor(credenciado.valorChamado);
-      credenciado.valorKm = parseValor(credenciado.valorKm);
-
-      if (id) {
-        // EDITAR
-        this.service.atualizar(id, credenciado).subscribe({
-          next: () => {
-            this.router.navigate(['/credenciados']);
-          },
-          error: err => {
-            console.error('Erro ao atualizar credenciado', err);
-            alert('Erro ao atualizar credenciado.');
-          }
-        });
-
-      } else {
-        // CRIAR
-        this.service.salvar(credenciado).subscribe({
-          next: () => {
-            this.router.navigate(['/credenciados']);
-          },
-          error: err => {
-            console.error('Erro ao salvar credenciado', err);
-            const mensagem = err?.error?.userMessage || 'Erro ao salvar credenciado';
-            alert(mensagem);
-          }
-        });
-      }
+    if (this.camposForm.invalid) {
+      return;
     }
+
+    const formValue = this.camposForm.getRawValue();
+
+    const parseValor = (value: any): number | null => {
+      if (!value) return null;
+      if (typeof value === 'number') return value;
+      return Number(String(value).replace(/\./g, '').replace(',', '.'));
+    };
+
+    const credenciado = {
+      rag: formValue.rag,
+      tipoPessoa: formValue.tipoPessoa,
+      numeroPessoa: formValue.numeroPessoa,
+      valorChamado: parseValor(formValue.valorChamado),
+      valorKm: parseValor(formValue.valorKm),
+      quantidadeOSAtendidas: formValue.quantidadeOSAtendidas,
+      contato: formValue.contato,
+      telefones: formValue.telefones,
+      email: formValue.email,
+      endereco: {
+        cep: formValue.cep,
+        logradouro: formValue.logradouro,
+        numero: formValue.numero,
+        bairro: formValue.bairro,
+        cidade: formValue.cidade,
+        estado: formValue.estado,
+        complemento: formValue.complemento
+      }
+    };
+
+    if (formValue.id) {
+      this.service.atualizar(formValue.id, credenciado).subscribe({
+        next: () => this.router.navigate(['/credenciados'])
+      });
+    } else {
+      this.service.salvar(credenciado).subscribe({
+        next: () => this.router.navigate(['/credenciados'])
+      });
+    }
+  }
+
+  buscarCep() {
+    const cep = this.camposForm.get('cep')?.value;
+
+    if (!cep || cep.length < 8) return;
+
+    this.service.buscarCep(cep).subscribe(dados => {
+      this.camposForm.patchValue({
+        logradouro: dados.logradouro,
+        bairro: dados.bairro,
+        cidade: dados.localidade,
+        estado: dados.uf,
+        complemento: dados.complemento
+      });
+    });
+  }
+
+  private configurarValidacaoDocumento(tipo: number) {
+    const ctrl = this.camposForm.get('numeroPessoa');
+
+    if (!ctrl) return;
+
+    ctrl.clearValidators();
+
+    if (tipo === 1) {
+      // CPF → 11 dígitos
+      ctrl.setValidators([
+        Validators.required,
+        Validators.minLength(11)
+      ]);
+    } else if (tipo === 2) {
+      // CNPJ → 14 dígitos
+      ctrl.setValidators([
+        Validators.required,
+        Validators.minLength(14)
+      ]);
+    }
+
+    ctrl.updateValueAndValidity();
+  }
+
+  private converterTipoPessoa(tipo: any): number | null {
+    if (tipo === null || tipo === undefined) return null;
+
+    // Já veio número
+    if (typeof tipo === 'number') {
+      return tipo;
+    }
+
+    // Veio string (caso atual)
+    if (typeof tipo === 'string') {
+      const normalizado = tipo.toLowerCase();
+
+      if (normalizado.includes('física')) return 1;
+      if (normalizado.includes('jurídica')) return 2;
+    }
+
+    return null;
   }
 }

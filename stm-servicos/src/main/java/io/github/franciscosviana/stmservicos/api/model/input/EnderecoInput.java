@@ -17,4 +17,5 @@ public class EnderecoInput {
     private String numero;
     private String complemento;
     private String cidade;
+    private String estado;
 }

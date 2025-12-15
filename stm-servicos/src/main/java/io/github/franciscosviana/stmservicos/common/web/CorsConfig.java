@@ -1,4 +1,4 @@
-package io.github.franciscosviana.stmservicos.api.config.web;
+package io.github.franciscosviana.stmservicos.common.web;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

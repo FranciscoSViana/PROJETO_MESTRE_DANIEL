@@ -1,14 +1,15 @@
 package io.github.franciscosviana.stmservicos.domain.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import io.github.franciscosviana.stmservicos.domain.model.enums.TipoPessoa;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -25,9 +26,10 @@ public class Credenciado {
     private Long codigo;
 
     private String rag;
-    private String cidade;
-    private String uf;
-    private String tipo;
+
+    @Enumerated(EnumType.STRING)
+    private TipoPessoa tipoPessoa;
+    private String numeroPessoa;
 
     private BigDecimal valorChamado;
     private BigDecimal valorKm;
@@ -38,7 +40,9 @@ public class Credenciado {
     private String telefones;
     private String email;
 
-    private String tecnico;
-    private String cpf;
-    private String base;
+    @OneToMany(mappedBy = "credenciado", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Tecnico> tecnicos = new ArrayList<>();
+
+    @Embedded
+    private Endereco endereco;
 }

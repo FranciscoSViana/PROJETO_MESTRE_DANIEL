@@ -4,15 +4,15 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Data
 @Builder
 public class CredenciadoInput {
 
     private String rag;
-    private String cidade;
-    private String uf;
-    private String tipo;
+    private Integer tipoPessoa;
+    private String numeroPessoa;
 
     private BigDecimal valorChamado;
     private BigDecimal valorKm;
@@ -23,7 +23,5 @@ public class CredenciadoInput {
     private String telefones;
     private String email;
 
-    private String tecnico;
-    private String cpf;
-    private String base;
+    private EnderecoInput endereco;
 }

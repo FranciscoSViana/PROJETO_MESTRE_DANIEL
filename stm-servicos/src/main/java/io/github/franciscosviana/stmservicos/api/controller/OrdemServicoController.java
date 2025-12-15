@@ -3,7 +3,6 @@ package io.github.franciscosviana.stmservicos.api.controller;
 
 import io.github.franciscosviana.stmservicos.api.model.input.OrdemServicoInput;
 import io.github.franciscosviana.stmservicos.api.model.output.OrdemServicoOutput;
-import io.github.franciscosviana.stmservicos.domain.model.OrdemServico;
 import io.github.franciscosviana.stmservicos.domain.service.OrdemServicoService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,6 +11,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 @Slf4j
 @RestController
@@ -29,6 +30,8 @@ public class OrdemServicoController {
         log.info("Input {}", ordemServicoInput);
         OrdemServicoOutput ordemServicoOutput = ordemServicoService.salvar(ordemServicoInput);
 
+        log.info("OrdemServicoOutput {}", ordemServicoOutput);
+
         return ResponseEntity.ok(ordemServicoOutput);
     }
 
@@ -39,22 +42,22 @@ public class OrdemServicoController {
 
 
     @GetMapping("/{id}")
-    public OrdemServicoOutput buscar(@PathVariable Long id) {
-        OrdemServico ordemServico = ordemServicoService.buscarPorId(id);
+    public ResponseEntity<OrdemServicoOutput> buscar(@PathVariable UUID id) {
+        OrdemServicoOutput ordemServicoOutput = ordemServicoService.buscarPorId(id);
 
-        return ordemServicoService.converterOrdem(ordemServico);
+        return ResponseEntity.ok(ordemServicoOutput);
     }
 
 
     @PutMapping("/{id}")
-    public ResponseEntity<OrdemServicoOutput> atualizar(@PathVariable Long id, @RequestBody OrdemServicoInput input) {
+    public ResponseEntity<OrdemServicoOutput> atualizar(@PathVariable UUID id, @RequestBody OrdemServicoInput input) {
         OrdemServicoOutput ordemServicoOutput = ordemServicoService.atualizar(id, input);
 
         return ResponseEntity.ok(ordemServicoOutput);
     }
 
     @DeleteMapping("/{id}")
-    public void deletar(@PathVariable Long id) {
+    public void deletar(@PathVariable UUID id) {
         ordemServicoService.deletar(id);
     }
 

@@ -1,6 +1,6 @@
 package io.github.franciscosviana.stmservicos.domain.model;
 
-import io.github.franciscosviana.stmservicos.api.model.input.OrdemServicoInput;
+import io.github.franciscosviana.stmservicos.domain.model.enums.StatusOrdem;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.OffsetDateTime;
+import java.util.UUID;
 
 @Data
 @Entity
@@ -17,15 +18,13 @@ import java.time.OffsetDateTime;
 public class OrdemServico {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private UUID id;
 
     private String osClt;
 
     @Column(unique = true)
     private String osg;
-    private String status;
-    private String rag;
+    private StatusOrdem status = StatusOrdem.ABERTA;
 
     private OffsetDateTime dataHora;
 
@@ -43,7 +42,6 @@ public class OrdemServico {
 
     @Embedded
     private Endereco endereco;
-//    private String cidade;
     private String acionador;
     private String equipamento;
     private String serie;
@@ -56,51 +54,4 @@ public class OrdemServico {
 
     @OneToOne(mappedBy = "ordemServico", cascade = CascadeType.ALL)
     private FaturamentoOS faturamento;
-
-    public static OrdemServico from(OrdemServicoInput input) {
-        if (input == null) return null;
-
-        OrdemServico os = OrdemServico.builder()
-                .osClt(input.getOsClt())
-                .osg(input.getOsg())
-                .status(input.getStatus())
-                .rag(input.getRag())
-                .dataHora(input.getDataHora())
-                .cliente(input.getClienteId() != null ? Cliente.builder()
-                        .id(input.getClienteId())
-                        .build() : null)
-                .credenciado(input.getCredenciadoId() != null ? Credenciado.builder()
-                        .id(input.getCredenciadoId())
-                        .build() : null)
-                .contrato(input.getContrato())
-                .contato(input.getContato())
-                .departamento(input.getDepartamento())
-                .telefone(input.getTelefone())
-                .endereco(Endereco.from(input.getEndereco()))
-//                .cidade(input.getCidade())
-                .acionador(input.getAcionador())
-                .equipamento(input.getEquipamento())
-                .serie(input.getSerie())
-                .pib(input.getPib())
-                .defeito(input.getDefeito())
-                .rastreio(input.getRastreio())
-                .build();
-
-        // Solução
-        if (input.getSolucao() != null) {
-            SolucaoOS solucao = SolucaoOS.from(input.getSolucao());
-            solucao.setOrdemServico(os); // vínculo bidirecional
-            os.setSolucao(solucao);
-        }
-
-        // Faturamento
-        if (input.getFaturamento() != null) {
-            FaturamentoOS faturamento = FaturamentoOS.from(input.getFaturamento());
-            faturamento.setOrdemServico(os); // vínculo bidirecional
-            os.setFaturamento(faturamento);
-        }
-
-        return os;
-    }
-
 }

@@ -1,23 +1,26 @@
 package io.github.franciscosviana.stmservicos.api.model.output;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.UUID;
 
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class CredenciadoOutput {
 
     private UUID id;
-
     private Long codigo;
 
     private String rag;
-    private String cidade;
-    private String uf;
-    private String tipo;
+    private String tipoPessoa;
+    private String numeroPessoa;
 
     private BigDecimal valorChamado;
     private BigDecimal valorKm;
@@ -28,7 +31,6 @@ public class CredenciadoOutput {
     private String telefones;
     private String email;
 
-    private String tecnico;
-    private String cpf;
-    private String base;
+    private List<TecnicoOutput> tecnicos;
+    private EnderecoOutput endereco;
 }

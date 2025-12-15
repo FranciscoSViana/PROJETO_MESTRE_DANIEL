@@ -17,6 +17,8 @@ public class EnderecoOutput {
     private String bairro;
     private String numero;
     private String complemento;
+    private String cidade;
+    private String estado;
 
     public static EnderecoOutput from(Endereco e) {
         if (e == null) return null;
@@ -26,6 +28,8 @@ public class EnderecoOutput {
                 .bairro(e.getBairro())
                 .numero(e.getNumero())
                 .complemento(e.getComplemento())
+                .cidade(e.getCidade())
+                .estado(e.getEstado())
                 .build();
     }
 }

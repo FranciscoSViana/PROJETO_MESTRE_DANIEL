@@ -32,6 +32,9 @@ public class Endereco {
     @JoinColumn(name = "endereco_cidade")
     private String cidade;
 
+    @JoinColumn(name = "endereco_estado")
+    private String estado;
+
     public static Endereco from(EnderecoInput input) {
         if (input == null) return null;
 
@@ -42,6 +45,7 @@ public class Endereco {
                 .complemento(input.getComplemento())
                 .bairro(input.getBairro())
                 .cidade(input.getCidade())
+                .estado(input.getEstado())
                 .build();
     }
 }
