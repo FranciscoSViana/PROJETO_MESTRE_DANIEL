@@ -11,6 +11,7 @@ import io.github.franciscosviana.stmservicos.common.client.model.ReceitaWsRespon
 import io.github.franciscosviana.stmservicos.common.validation.ClienteException;
 import io.github.franciscosviana.stmservicos.domain.model.Cliente;
 import io.github.franciscosviana.stmservicos.domain.model.Contrato;
+import io.github.franciscosviana.stmservicos.domain.model.Endereco;
 import io.github.franciscosviana.stmservicos.domain.repository.ClienteRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -43,6 +44,18 @@ public class ClienteService {
         Cliente cliente = clienteInputDisassembler.toDomainObject(clienteInput);
         cliente.setCodigo(proximoCodigo);
         cliente.setRazaoSocial(dadosCnpj.getRazaoSocial());
+
+        cliente.setEndereco(
+                Endereco.builder()
+                        .cep(dadosCnpj.getCep())
+                        .logradouro(dadosCnpj.getLogradouro())
+                        .bairro(dadosCnpj.getBairro())
+                        .numero(dadosCnpj.getNumero())
+                        .complemento(dadosCnpj.getComplemento())
+                        .cidade(dadosCnpj.getMunicipio())
+                        .estado(dadosCnpj.getUf())
+                        .build()
+        );
 
         clienteRepository.save(cliente);
 

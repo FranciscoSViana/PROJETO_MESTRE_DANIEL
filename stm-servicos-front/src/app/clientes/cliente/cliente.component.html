@@ -1,5 +1,5 @@
 <div class="p-6 max-w-lg mx-auto bg-white shadow-lg rounded-lg mt-6">
-  
+
   <h2 class="text-2x1 font-semibold text-gray-700 mb-4">Novo Cliente</h2>
   <hr>
 
@@ -20,10 +20,8 @@
     <!-- Nome -->
     <div class="mb-4">
       <label class="block text-gray-600 font-medium mb-2">Nome</label>
-      <input type="text"
-             formControlName="nome"
-             placeholder="Ex.: Cliente XPTO"
-             class="w-full p-3 border border-gray-300 rounded shadow-sm focus:ring focus:ring-blue-400" />
+      <input type="text" formControlName="nome" placeholder="Ex.: Cliente XPTO"
+        class="w-full p-3 border border-gray-300 rounded shadow-sm focus:ring focus:ring-blue-400" />
       <span class="text-red-500 text-sm" *ngIf="isCampoInvalido('nome')">
         Campo obrigatório.
       </span>
@@ -33,16 +31,14 @@
     <div class="grid grid-cols-2 gap-4 mb-4">
       <div>
         <label class="block text-gray-600 font-medium mb-2">Valor Chamado</label>
-        <input type="text" mask="separator.2" thousandSeparator="." decimalMarker=","
-               formControlName="valorChamado"
-               class="w-full p-3 border border-gray-300 rounded shadow-sm focus:ring focus:ring-blue-400 no-spinner" />
+        <input type="text" mask="separator.2" thousandSeparator="." decimalMarker="," formControlName="valorChamado"
+          class="w-full p-3 border border-gray-300 rounded shadow-sm focus:ring focus:ring-blue-400 no-spinner" />
       </div>
 
       <div>
         <label class="block text-gray-600 font-medium mb-2">Valor KM</label>
-        <input type="text" mask="separator.2" thousandSeparator="." decimalMarker=","
-               formControlName="valorKm"
-               class="w-full p-3 border border-gray-300 rounded shadow-sm focus:ring focus:ring-blue-400 no-spinner" />
+        <input type="text" mask="separator.2" thousandSeparator="." decimalMarker="," formControlName="valorKm"
+          class="w-full p-3 border border-gray-300 rounded shadow-sm focus:ring focus:ring-blue-400 no-spinner" />
       </div>
     </div>
 
@@ -51,12 +47,9 @@
       <label class="block text-gray-600 font-medium mb-2">CNPJ</label>
 
       <div class="flex gap-2">
-        <input type="text"
-               formControlName="cnpj"
-               mask="00.000.000/0000-00"
-               [dropSpecialCharacters]="true"
-               placeholder="00.000.000/0000-00"
-               class="w-full p-3 border border-gray-300 rounded shadow-sm focus:ring focus:ring-blue-400" />
+        <input type="text" formControlName="cnpj" mask="00.000.000/0000-00" [dropSpecialCharacters]="true"
+          placeholder="00.000.000/0000-00"
+          class="w-full p-3 border border-gray-300 rounded shadow-sm focus:ring focus:ring-blue-400" />
       </div>
 
       <span class="text-red-500 text-sm" *ngIf="isCampoInvalido('cnpj')">
@@ -67,22 +60,63 @@
     <!-- Razão Social -->
     <div class="mb-4">
       <label class="block text-gray-600 font-medium mb-2">Razão Social</label>
-      <input type="text"
-             formControlName="razaoSocial"
-             class="w-full p-3 bg-gray-100 border border-gray-300 rounded shadow-sm" />
+      <input type="text" formControlName="razaoSocial"
+        class="w-full p-3 bg-gray-100 border border-gray-300 rounded shadow-sm" />
     </div>
 
     <!-- Inscrição Estadual -->
     <div class="mb-4">
       <label class="block text-gray-600 font-medium mb-2">Inscrição Estadual</label>
-      <input type="text"
-             formControlName="inscricaoEstadual"
-             class="w-full p-3 border border-gray-300 rounded shadow-sm focus:ring focus:ring-blue-400" />
+      <input type="text" formControlName="inscricaoEstadual"
+        class="w-full p-3 border border-gray-300 rounded shadow-sm focus:ring focus:ring-blue-400" />
+    </div>
+
+    <!-- ENDEREÇO -->
+    <h3 class="text-x1 font-semibold text-gray-700 mt-6 mb-2">Endereço</h3>
+
+    <div class="grid grid-cols-3 gap-4 mb-4">
+
+      <div>
+        <label class="block text-gray-600 font-medium mb-2">CEP</label>
+        <input formControlName="cep" type="text" mask="00000-000"
+          class="w-full p-3 border border-gray-300 rounded shadow-sm" (blur)="buscarCep()" />
+      </div>
+
+      <div>
+        <label class="block text-gray-600 font-medium mb-2">Logradouro</label>
+        <input formControlName="logradouro" type="text" class="w-full p-3 border border-gray-300 rounded shadow-sm" />
+      </div>
+
+      <div>
+        <label class="block text-gray-600 font-medium mb-2">Número</label>
+        <input formControlName="numero" type="text" class="w-full p-3 border border-gray-300 rounded shadow-sm" />
+      </div>
+
+      <div>
+        <label class="block text-gray-600 font-medium mb-2">Bairro</label>
+        <input formControlName="bairro" type="text" class="w-full p-3 border border-gray-300 rounded shadow-sm" />
+      </div>
+
+      <div>
+        <label class="block text-gray-600 font-medium mb-2">Cidade</label>
+        <input formControlName="cidade" type="text" class="w-full p-3 border border-gray-300 rounded shadow-sm" />
+      </div>
+
+      <div>
+        <label class="block text-gray-600 font-medium mb-2">Estado (UF)</label>
+        <input formControlName="estado" maxlength="2" type="text"
+          class="w-full p-3 border border-gray-300 rounded shadow-sm" />
+      </div>
+
+      <div class="col-span-3">
+        <label class="block text-gray-600 font-medium mb-2">Complemento</label>
+        <input formControlName="complemento" type="text" class="w-full p-3 border border-gray-300 rounded shadow-sm" />
+      </div>
+
     </div>
 
     <!-- Botão -->
-    <button type="submit"
-      class="w-full bg-green-600 text-white font-semibold p-3 rounded shadow hover:bg-green-700">
+    <button type="submit" class="w-full bg-green-600 text-white font-semibold p-3 rounded shadow hover:bg-green-700">
       Salvar Cliente
     </button>
 

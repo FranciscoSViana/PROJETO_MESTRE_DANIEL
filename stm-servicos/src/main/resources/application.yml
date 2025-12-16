@@ -3,31 +3,23 @@ spring:
     name: stm-servicos
 
   datasource:
-#    url: jdbc:mysql://localhost:3306/db_guardian?createDatabaseIfNotExist=true&serverTimezone=UTC
-    url: ${DB_URL}
-    username: ${DB_USER}
-    password: ${DB_PASS}
     driver-class-name: org.postgresql.Driver
     hikari:
       maximum-pool-size: 5
 
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
     show-sql: false
     database-platform: org.hibernate.dialect.PostgreSQLDialect
-
-
-#  jwt:
-#    secret: ${JWT_SECRET}
-#    expiration-ms: 3600000         # 1 hora
-#    refresh-expiration-ms: 86400000 # 24 horas, opcional
+    flyway:
+      enabled: true
 
   security:
     oauth2:
       resourceserver:
         jwt:
-          secret-key: RoyOYArS6nxGRWywigKUxoOmdNkJUOGFskNpfMhNVd5Z #${JWT_SECRET}
+          secret-key: ${JWT_SECRET}
 
   mail:
     host: ${MAIL_HOST}

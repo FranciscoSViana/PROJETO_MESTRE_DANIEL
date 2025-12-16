@@ -34,6 +34,9 @@ public class Cliente {
     private String inscricaoEstadual;
     private String razaoSocial;
 
+    @Embedded
+    private Endereco endereco;
+
     @PrePersist
     public void gerarId() {
         if (id == null) {

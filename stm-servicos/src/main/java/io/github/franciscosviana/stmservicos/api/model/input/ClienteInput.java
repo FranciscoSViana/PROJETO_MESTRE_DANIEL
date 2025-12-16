@@ -14,6 +14,8 @@ public class ClienteInput {
 
     private String nome;
 
+    private List<ContratoInput> contratos;
+
     private BigDecimal valorChamado;
     private BigDecimal valorKm;
 
@@ -21,5 +23,5 @@ public class ClienteInput {
     private String inscricaoEstadual;
     private String razaoSocial;
 
-    private List<ContratoInput> contratos;
+    private EnderecoInput endereco;
 }

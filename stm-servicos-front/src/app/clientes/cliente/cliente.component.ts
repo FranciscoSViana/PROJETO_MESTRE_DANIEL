@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ClienteService } from '../cliente.service';
 import { ActivatedRoute, Router } from '@angular/router';
+import { CredenciadoService } from '../../credenciados/credenciado.service';
 
 @Component({
   selector: 'app-cliente',
@@ -13,7 +14,12 @@ export class ClienteComponent implements OnInit {
 
   camposForm: FormGroup;
 
-  constructor(private service: ClienteService, private router: Router, private route: ActivatedRoute) {
+  constructor(
+    private service: ClienteService,
+    private credenciadoService: CredenciadoService,
+    private router: Router,
+    private route: ActivatedRoute
+  ) {
     this.camposForm = new FormGroup({
       id: new FormControl(),
       contrato: new FormControl(),
@@ -22,7 +28,15 @@ export class ClienteComponent implements OnInit {
       valorKm: new FormControl(),
       cnpj: new FormControl(),
       inscricaoEstadual: new FormControl(),
-      razaoSocial: new FormControl({ value: '', disabled: true })
+      razaoSocial: new FormControl({ value: '', disabled: true }),
+
+      cep: new FormControl<string | null>(null),
+      logradouro: new FormControl<string | null>(null),
+      numero: new FormControl<string | null>(null),
+      bairro: new FormControl<string | null>(null),
+      cidade: new FormControl<string | null>(null),
+      estado: new FormControl<string | null>(null),
+      complemento: new FormControl<string | null>(null)
     });
 
     this.camposForm.get('cnpj')?.valueChanges.subscribe(cnpj => {
@@ -47,13 +61,30 @@ export class ClienteComponent implements OnInit {
 
   buscarCnpj(cnpj: string) {
     console.log('[DEBUG] Chamando API do backend com CNPJ:', cnpj);
+
     this.service.consultarCnpj(cnpj).subscribe({
       next: dados => {
-        this.camposForm.get('razaoSocial')?.setValue(dados.razao_social ?? '')
+
+        this.camposForm.patchValue({
+          razaoSocial: dados.razao_social ?? '',
+
+          cep: dados.cep ?? null,
+          logradouro: dados.logradouro ?? null,
+          numero: dados.numero ?? null,
+          bairro: dados.bairro ?? null,
+
+          // ReceitaWS → seu formulário
+          cidade: dados.municipio ?? null,
+          estado: dados.uf ?? null,
+
+          complemento: dados.complemento ?? null
+        });
+
       },
       error: err => console.log('Erro ao consultar CNPJ', err)
     });
   }
+
 
   salvar() {
     this.camposForm.markAllAsTouched();
@@ -61,25 +92,41 @@ export class ClienteComponent implements OnInit {
     if (this.camposForm.valid) {
 
       const id = this.camposForm.get('id')?.value;
-      const cliente: any = this.camposForm.getRawValue();
+
+      const raw = this.camposForm.getRawValue();
+
+      const cliente: any = {
+        id: raw.id,
+        contrato: raw.contrato,
+        nome: raw.nome,
+        cnpj: raw.cnpj,
+        inscricaoEstadual: raw.inscricaoEstadual,
+        razaoSocial: raw.razaoSocial,
+        valorChamado: null,
+        valorKm: null,
+
+        endereco: {
+          cep: raw.cep,
+          logradouro: raw.logradouro,
+          numero: raw.numero,
+          bairro: raw.bairro,
+          municipio: raw.cidade, // ✔ converte
+          uf: raw.estado,         // ✔ converte
+          complemento: raw.complemento
+        }
+      };
 
       const parseValor = (value: any): number | null => {
         if (value === null || value === undefined || value === '') return null;
-
-        // Se já for number, apenas retorna
         if (typeof value === 'number') return value;
 
-        // Se for string formatada: "1.000,50"
-        let s = String(value);
-        s = s.replace(/\./g, '');  // remove separador de milhar
-        s = s.replace(',', '.');  // troca vírgula por ponto
-
+        let s = String(value).replace(/\./g, '').replace(',', '.');
         const n = Number(s);
         return isNaN(n) ? null : n;
       };
 
-      cliente.valorChamado = parseValor(cliente.valorChamado);
-      cliente.valorKm = parseValor(cliente.valorKm);
+      cliente.valorChamado = parseValor(raw.valorChamado);
+      cliente.valorKm = parseValor(raw.valorKm);
 
       if (id) {
         this.service.atualizar(id, cliente).subscribe({
@@ -95,10 +142,30 @@ export class ClienteComponent implements OnInit {
     }
   }
 
+
   isCampoInvalido(nomeCampo: string): boolean {
 
     const campo = this.camposForm.get(nomeCampo);
 
     return campo?.invalid && campo.touched && campo.errors?.['required'];
+  }
+
+  buscarCep() {
+    const cep = this.camposForm.get('cep')?.value;
+
+    if (!cep || cep.replace(/\D/g, '').length < 8) return;
+
+    this.credenciadoService.buscarCep(cep).subscribe({
+      next: dados => {
+        this.camposForm.patchValue({
+          logradouro: dados.logradouro,
+          bairro: dados.bairro,
+          cidade: dados.localidade,
+          estado: dados.uf,
+          complemento: dados.complemento
+        });
+      },
+      error: err => console.error('Erro ao buscar CEP', err)
+    });
   }
 }

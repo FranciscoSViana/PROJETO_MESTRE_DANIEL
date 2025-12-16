@@ -13,9 +13,6 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 @Slf4j
@@ -27,7 +24,7 @@ public class ClienteController {
     private final ClienteService clienteService;
 
     @PostMapping
-    public ResponseEntity<ClienteOutput> salvar(@RequestBody ClienteInput clienteInput){
+    public ResponseEntity<ClienteOutput> salvar(@RequestBody ClienteInput clienteInput) {
         ClienteOutput clienteOutput = clienteService.salvar(clienteInput);
 
         return ResponseEntity.ok(clienteOutput);
@@ -51,7 +48,7 @@ public class ClienteController {
 
 
     @GetMapping
-    public Page<ClienteOutput> listar(@PageableDefault Pageable pageable){
+    public Page<ClienteOutput> listar(@PageableDefault Pageable pageable) {
 
         return clienteService.listar(pageable);
     }
@@ -82,14 +79,8 @@ public class ClienteController {
     }
 
     @GetMapping("/cnpj/{cnpj}")
-    public ResponseEntity<ReceitaWsResponse> consultarCnpj(@PathVariable String cnpj){
+    public ResponseEntity<ReceitaWsResponse> consultarCnpj(@PathVariable String cnpj) {
         ReceitaWsResponse receitaWsResponse = clienteService.consultarCnpj(cnpj);
-
-        Map<String, Object> mapa = new HashMap<>();
-        mapa.put("razaoSocial", receitaWsResponse.getRazaoSocial());
-        mapa.put("nomeFantasia", receitaWsResponse.getNomeFantasia());
-        mapa.put("situacaoCadastral", receitaWsResponse.getSituacaoCadastral());
-        mapa.put("cnpj", cnpj);
 
         log.info("CNPJ: {}", receitaWsResponse.getRazaoSocial());
 

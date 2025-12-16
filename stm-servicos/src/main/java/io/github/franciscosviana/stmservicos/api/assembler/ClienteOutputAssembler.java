@@ -1,6 +1,7 @@
 package io.github.franciscosviana.stmservicos.api.assembler;
 
 import io.github.franciscosviana.stmservicos.api.model.output.ClienteOutput;
+import io.github.franciscosviana.stmservicos.api.model.output.EnderecoOutput;
 import io.github.franciscosviana.stmservicos.domain.model.Cliente;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -23,6 +24,7 @@ public class ClienteOutputAssembler {
                 .cnpj(cliente.getCnpj())
                 .inscricaoEstadual(cliente.getInscricaoEstadual())
                 .razaoSocial(cliente.getRazaoSocial())
+                .endereco(EnderecoOutput.from(cliente.getEndereco()))
                 .contratos(
                         cliente.getContratos() == null
                                 ? List.of()

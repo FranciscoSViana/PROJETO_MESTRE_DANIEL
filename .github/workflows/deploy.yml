@@ -53,7 +53,7 @@ jobs:
             --platform managed \
             --region ${{ secrets.GCP_REGION }} \
             --allow-unauthenticated \
-            --set-env-vars DB_URL=${{ secrets.DB_URL }},DB_USER=${{ secrets.DB_USER }},DB_PASS=${{ secrets.DB_PASS }},JWT_SECRET=${{ secrets.JWT_SECRET }},MAIL_HOST=${{ secrets.MAIL_HOST }},MAIL_PORT=${{ secrets.MAIL_PORT }},MAIL_USER=${{ secrets.MAIL_USER }},MAIL_PASS=${{ secrets.MAIL_PASS }},TOKEN_URL=${{ secrets.TOKEN_URL }}
+            --set-env-vars SPRING_DATASOURCE_URL=${{ secrets.DB_URL }},SPRING_DATASOURCE_USERNAME=${{ secrets.DB_USER }},SPRING_DATASOURCE_PASSWORD=${{ secrets.DB_PASS }},SPRING_JPA_HIBERNATE_DDL_AUTO=validate,JWT_SECRET=${{ secrets.JWT_SECRET }},MAIL_HOST=${{ secrets.MAIL_HOST }},MAIL_PORT=${{ secrets.MAIL_PORT }},MAIL_USER=${{ secrets.MAIL_USER }},MAIL_PASS=${{ secrets.MAIL_PASS }},TOKEN_URL=${{ secrets.TOKEN_URL }}
 
 # ================================
 # ✅ FRONTEND - CLOUD RUN

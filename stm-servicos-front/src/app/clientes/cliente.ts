@@ -1,3 +1,4 @@
+import { Endereco } from "../ordem-servico/endereco";
 import { Contrato } from "./contrato";
 
 export class Cliente {
@@ -11,4 +12,5 @@ export class Cliente {
     cnpj?: string;
     inscricaoEstadual?: string;
     razaoSocial?: string;
+    endereco?: Endereco;
 }

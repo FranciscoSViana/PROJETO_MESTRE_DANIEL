@@ -17,6 +17,8 @@ public class ClienteOutput {
 
     private String nome;
 
+    private List<ContratoOutput> contratos;
+
     private BigDecimal valorChamado;
     private BigDecimal valorKm;
 
@@ -24,5 +26,5 @@ public class ClienteOutput {
     private String inscricaoEstadual;
     private String razaoSocial;
 
-    private List<ContratoOutput> contratos;
+    private EnderecoOutput endereco;
 }

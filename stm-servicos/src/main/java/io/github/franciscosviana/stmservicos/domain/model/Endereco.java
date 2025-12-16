@@ -1,7 +1,8 @@
 package io.github.franciscosviana.stmservicos.domain.model;
 
 import io.github.franciscosviana.stmservicos.api.model.input.EnderecoInput;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -29,10 +30,10 @@ public class Endereco {
     @Column(name = "endereco_bairro")
     private String bairro;
 
-    @JoinColumn(name = "endereco_cidade")
+    @Column(name = "endereco_cidade")
     private String cidade;
 
-    @JoinColumn(name = "endereco_estado")
+    @Column(name = "endereco_estado")
     private String estado;
 
     public static Endereco from(EnderecoInput input) {

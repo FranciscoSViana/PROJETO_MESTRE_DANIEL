@@ -24,6 +24,9 @@ public class OrdemServico {
 
     @Column(unique = true)
     private String osg;
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private StatusOrdem status = StatusOrdem.ABERTA;
 
     private OffsetDateTime dataHora;
