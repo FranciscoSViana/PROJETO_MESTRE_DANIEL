@@ -1,5 +1,5 @@
 import { Endereco } from '../ordem-servico/endereco';
-import { Tecnico } from '../tecnicos/tecnico';
+import { Tecnico } from './tecnico';
 
 export class Credenciado {
 

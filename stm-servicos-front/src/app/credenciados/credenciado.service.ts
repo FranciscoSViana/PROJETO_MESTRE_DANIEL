@@ -4,6 +4,7 @@ import { Credenciado } from './credenciado';
 import { Observable } from 'rxjs';
 import { Page } from '../template/utils/page';
 import { environment } from '../../environments/environment';
+import { Tecnico } from './tecnico';
 
 @Injectable({
   providedIn: 'root'
@@ -42,6 +43,61 @@ export class CredenciadoService {
     return this.http.get<Credenciado>(this.apiUrl + `/api/credenciados/credenciado/0${codigo}`);
   }
 
+  // ===================== TÉCNICOS =====================
+
+  /** POST /api/credenciados/{credenciadoId}/tecnicos */
+  adicionarTecnico(
+    credenciadoId: string,
+    tecnico: Tecnico
+  ): Observable<Tecnico> {
+    return this.http.post<Tecnico>(
+      `${this.apiUrl}/api/credenciados/${credenciadoId}/tecnicos`,
+      tecnico
+    );
+  }
+
+  /** GET /api/credenciados/{credenciadoId}/tecnicos */
+  listarTecnicos(
+    credenciadoId: string,
+    page: number = 0,
+    size: number = 10
+  ): Observable<Page<Tecnico>> {
+
+    const params = new HttpParams()
+      .set('page', page)
+      .set('size', size);
+
+    return this.http.get<Page<Tecnico>>(
+      `${this.apiUrl}/api/credenciados/${credenciadoId}/tecnicos`,
+      { params }
+    );
+  }
+
+  /** GET /api/credenciados/tecnicos/{tecnicoId} */
+  buscarTecnico(tecnicoId: string): Observable<Tecnico> {
+    return this.http.get<Tecnico>(
+      `${this.apiUrl}/api/credenciados/tecnicos/${tecnicoId}`
+    );
+  }
+
+  /** PUT /api/credenciados/tecnicos/{tecnicoId} */
+  atualizarTecnico(
+    tecnicoId: string,
+    tecnico: Tecnico
+  ): Observable<Tecnico> {
+    return this.http.put<Tecnico>(
+      `${this.apiUrl}/api/credenciados/tecnicos/${tecnicoId}`,
+      tecnico
+    );
+  }
+
+  /** DELETE /api/credenciados/tecnicos/{tecnicoId} */
+  excluirTecnico(tecnicoId: string): Observable<void> {
+    return this.http.delete<void>(
+      `${this.apiUrl}/api/credenciados/tecnicos/${tecnicoId}`
+    );
+  }
+
   /** Lista todos os Estados (UFs) */
   listarEstados(): Observable<any[]> {
     return this.http.get<any[]>(this.apiUrl + `/api/credenciados/estados`);
@@ -52,7 +108,7 @@ export class CredenciadoService {
     return this.http.get<any[]>(this.apiUrl + `/api/credenciados/municipios/${uf}`);
   }
 
-  buscarCep(cep: string) : Observable<any> {
+  buscarCep(cep: string): Observable<any> {
     return this.http.get(this.apiUrl + `/api/enderecos/cep/${cep}`);
   }
 

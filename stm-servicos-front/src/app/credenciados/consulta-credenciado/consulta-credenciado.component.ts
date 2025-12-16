@@ -19,7 +19,7 @@ export class ConsultaCredenciadoComponent implements OnInit {
   loading = false;
   errorMessage = '';
 
-  constructor(private service: CredenciadoService, private router: Router) {}
+  constructor(private service: CredenciadoService, private router: Router) { }
 
   ngOnInit(): void {
     this.carregarCredenciados();
@@ -90,5 +90,11 @@ export class ConsultaCredenciadoComponent implements OnInit {
   editar(id?: string) {
     console.log('🟢 Clicou no editar, ID:', id);
     this.router.navigate(['/credenciados/editar', id]);
+  }
+
+  irParaTecnicos(id?: string) {
+    if (!id) return;
+
+    this.router.navigate(['/credenciados', id, 'tecnicos']);
   }
 }

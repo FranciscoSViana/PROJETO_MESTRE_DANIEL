@@ -1,0 +1,160 @@
+<div class="p-6 max-w-5x1 mx-auto bg-white shadow-lg rounded-lg mt-6">
+
+    <!-- TOPO: Credenciado + Botão -->
+    <div class="flex justify-between items-start gap-x-12 mb-8">
+
+        <!-- Credenciado -->
+        <div>
+            <p class="text-lg font-semibold text-gray-800">
+                {{ credenciado?.rag }}
+                {{ credenciado?.tipoPessoa === '1' ? 'CPF' : credenciado?.tipoPessoa === '2' ? 'CNPJ' : '' }}:
+                {{ credenciado?.numeroPessoa }}
+            </p>
+
+            <p class="text-sm text-gray-600 mt-1">
+                {{ credenciado?.endereco?.cidade }} - {{ credenciado?.endereco?.estado }}
+            </p>
+        </div>
+
+        <!-- Botão -->
+        <button type="button" (click)="abrirModal()" class="h-[32px] px-6 bg-green-600 text-white rounded-md shadow
+             hover:bg-green-700 transition">
+            + Novo Técnico
+        </button>
+    </div>
+
+    <!-- TÍTULO -->
+    <h2 class="text-x1 font-semibold text-gray-800 mb-6">
+        Técnicos do Credenciado
+    </h2>
+
+    <!-- TABELA -->
+    <table class="min-w-full border-collapse">
+        <thead class="bg-gray-100">
+            <tr>
+                <th class="p-4 border text-left">Código</th>
+                <th class="p-4 border text-left">Nome</th>
+                <th class="p-4 border text-left">CPF</th>
+                <th class="p-4 border text-left">Telefone</th>
+                <th class="p-4 border text-left">E-mail</th>
+                <th class="p-4 border text-left">Cidade</th>
+                <th class="p-4 border text-left">Estado</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            <tr *ngFor="let t of tecnicos" class="hover:bg-gray-50">
+                <td class="p-4 border">{{ t.codigo }}</td>
+                <td class="p-4 border">{{ t.nome }}</td>
+                <td class="p-4 border">{{ t.cpf }}</td>
+                <td class="p-4 border">{{ t.telefone }}</td>
+                <td class="p-4 border">{{ t.email }}</td>
+                <td class="p-4 border">{{ t.endereco?.cidade }}</td>
+                <td class="p-4 border">{{ t.endereco?.estado }}</td>
+            </tr>
+
+            <tr *ngIf="tecnicos.length === 0">
+                <td colspan="5" class="p-4 text-center text-gray-500">
+                    Nenhum técnico cadastrado.
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+</div>
+
+<!-- MODAL -->
+<div *ngIf="modalAberto" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 p-4">
+
+    <div class="bg-white w-full max-w-3x1 rounded-lg shadow-lg p-6 max-h-[90vh] overflow-y-auto">
+
+        <h3 class="text-x1 font-semibold text-gray-700 mb-4">
+            Novo Técnico
+        </h3>
+
+        <form [formGroup]="tecnicoForm" (ngSubmit)="salvarTecnico()">
+
+            <!-- GRID 2 COLUNAS -->
+            <div class="grid grid-cols-2 gap-4 mb-3">
+                <div>
+                    <label class="block text-gray-600 mb-1">Nome</label>
+                    <input type="text" formControlName="nome" class="w-full p-2 border rounded" />
+                </div>
+
+                <div>
+                    <label class="block text-gray-600 mb-1">CPF</label>
+                    <input type="text" formControlName="cpf" mask="000.000.000-00" class="w-full p-2 border rounded" />
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4 mb-3">
+                <div>
+                    <label class="block text-gray-600 mb-1">Telefone</label>
+                    <input type="text" formControlName="telefone" mask="(00) 00000-0000"
+                        class="w-full p-2 border rounded" />
+                </div>
+
+                <div>
+                    <label class="block text-gray-600 mb-1">E-mail</label>
+                    <input type="email" formControlName="email" class="w-full p-2 border rounded" />
+                </div>
+            </div>
+
+            <!-- ENDEREÇO -->
+            <h4 class="text-md font-semibold text-gray-700 mt-4 mb-2">
+                Endereço
+            </h4>
+
+            <div formGroupName="endereco" class="grid grid-cols-2 gap-4">
+
+                <div>
+                    <label class="block text-gray-600 mb-1">CEP</label>
+                    <input type="text" formControlName="cep" class="w-full p-2 border rounded" mask="00000-000"
+                        (blur)="buscarCep()" />
+                </div>
+
+                <div>
+                    <label class="block text-gray-600 mb-1">Número</label>
+                    <input type="text" formControlName="numero" class="w-full p-2 border rounded" />
+                </div>
+
+                <div>
+                    <label class="block text-gray-600 mb-1">Logradouro</label>
+                    <input type="text" formControlName="logradouro" class="w-full p-2 border rounded" />
+                </div>
+
+                <div>
+                    <label class="block text-gray-600 mb-1">Bairro</label>
+                    <input type="text" formControlName="bairro" class="w-full p-2 border rounded" />
+                </div>
+
+                <div>
+                    <label class="block text-gray-600 mb-1">Cidade</label>
+                    <input type="text" formControlName="cidade" class="w-full p-2 border rounded" />
+                </div>
+
+                <div>
+                    <label class="block text-gray-600 mb-1">Estado</label>
+                    <input type="text" formControlName="estado" class="w-full p-2 border rounded" />
+                </div>
+
+                <div>
+                    <label class="block text-gray-600 mb-1">Complemento</label>
+                    <input type="text" formControlName="complemento" class="w-full p-2 border rounded" />
+                </div>
+            </div>
+
+            <!-- BOTÕES -->
+            <div class="flex justify-end gap-3 mt-4">
+                <button type="button" (click)="fecharModal()" class="px-4 py-2 bg-gray-300 rounded">
+                    Cancelar
+                </button>
+
+                <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded">
+                    Salvar
+                </button>
+            </div>
+
+        </form>
+    </div>
+</div>

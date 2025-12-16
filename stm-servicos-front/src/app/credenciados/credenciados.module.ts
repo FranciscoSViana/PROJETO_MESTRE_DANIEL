@@ -6,12 +6,14 @@ import { CadastroCredenciadoComponent } from './cadastro-credenciado/cadastro-cr
 import { ReactiveFormsModule } from '@angular/forms';
 import { NgxMaskDirective } from 'ngx-mask';
 import { ConsultaCredenciadoComponent } from './consulta-credenciado/consulta-credenciado.component';
+import { TecnicosComponent } from './tecnicos/tecnicos.component';
 
 
 @NgModule({
   declarations: [
     CadastroCredenciadoComponent,
-    ConsultaCredenciadoComponent
+    ConsultaCredenciadoComponent,
+    TecnicosComponent
   ],
   imports: [
     CommonModule,

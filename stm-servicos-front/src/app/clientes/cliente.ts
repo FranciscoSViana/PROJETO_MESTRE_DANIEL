@@ -1,8 +1,10 @@
+import { Contrato } from "./contrato";
+
 export class Cliente {
 
-    id?: string;             // UUID (opcional quando for criar)
-    codigo?: number
-    contrato?: string;
+    id?: string;
+    codigo?: number;
+    contratos?: Contrato[];
     nome?: string;
     valorChamado?: number;
     valorKm?: number;

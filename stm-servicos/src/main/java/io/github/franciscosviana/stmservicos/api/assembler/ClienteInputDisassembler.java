@@ -7,8 +7,6 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 
-import java.util.UUID;
-
 @Component
 @RequiredArgsConstructor
 public class ClienteInputDisassembler {
@@ -32,14 +30,9 @@ public class ClienteInputDisassembler {
 
     public void copyToDomainObject(ClienteInput input, Cliente cliente) {
 
-        modelMapper.map(input, cliente);
+        modelMapper.typeMap(ClienteInput.class, Cliente.class)
+                .addMappings(mapper -> mapper.skip(Cliente::setContratos));
 
-        if (input.getContratos() != null) {
-            input.getContratos().forEach(c -> {
-                Contrato contrato = contratoDisassembler.toDomainObject(c);
-                contrato.setCliente(cliente);
-                cliente.getContratos().add(contrato);
-            });
-        }
+        modelMapper.map(input, cliente);
     }
 }

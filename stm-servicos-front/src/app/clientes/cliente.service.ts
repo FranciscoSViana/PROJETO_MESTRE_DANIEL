@@ -4,6 +4,7 @@ import { Cliente } from './cliente';
 import { Observable } from 'rxjs';
 import { Page } from '../template/utils/page';
 import { environment } from '../../environments/environment';
+import { Contrato } from './contrato';
 
 @Injectable({
   providedIn: 'root'
@@ -31,6 +32,10 @@ export class ClienteService {
 
   excluir(id: string): Observable<any> {
     return this.http.delete(this.apiUrl + `/api/clientes/${id}`);
+  }
+
+  adicionarContratos(id: string, contrato: Contrato) : Observable<Contrato> {
+    return this.http.post<Contrato>(this.apiUrl + `/api/clientes/${id}/contratos`, contrato);
   }
 
   buscarPorId(id: string): Observable<Cliente> {

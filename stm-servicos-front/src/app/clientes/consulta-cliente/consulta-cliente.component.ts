@@ -98,4 +98,9 @@ export class ConsultaClienteComponent implements OnInit {
     console.log('🟢 Clicou no editar, ID:', id);
     this.router.navigate(['/clientes/editar', id]);
   }
+
+  abrirContratos(id?: string) {
+    if (!id) return;
+    this.router.navigate(['/clientes', id, 'contratos']);
+  }
 }
