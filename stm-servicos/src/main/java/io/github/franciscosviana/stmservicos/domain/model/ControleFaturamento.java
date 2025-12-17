@@ -26,8 +26,7 @@ public class ControleFaturamento {
     @ManyToOne
     private Cliente cliente;
 
-    @Column(name = "planilha_os")
-    private String planilhaOS;
+    private String planilha;
 
     private String notaFiscal;
 

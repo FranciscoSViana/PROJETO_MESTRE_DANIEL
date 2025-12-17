@@ -208,7 +208,7 @@ CREATE TABLE controle_faturamento
     id          BIGSERIAL PRIMARY KEY,
     emissao     TIMESTAMP WITH TIME ZONE NOT NULL,
     cliente_id  UUID,
-    planilha_os VARCHAR(255),
+    planilha VARCHAR(255),
     nota_fiscal VARCHAR(255),
     valor_nf    NUMERIC(19, 2),
     vl_medio    NUMERIC(19, 2),
