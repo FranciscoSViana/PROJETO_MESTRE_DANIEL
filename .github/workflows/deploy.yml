@@ -54,7 +54,7 @@ jobs:
             --region ${{ secrets.GCP_REGION }} \
             --allow-unauthenticated \
             --timeout 600s \
-            --set-env-vars PORT=8080 SPRING_DATASOURCE_URL=${{ secrets.SPRING_DATASOURCE_URL }},SPRING_DATASOURCE_USERNAME=${{ secrets.SPRING_DATASOURCE_USERNAME }},SPRING_DATASOURCE_PASSWORD=${{ secrets.SPRING_DATASOURCE_PASSWORD }},SPRING_JPA_HIBERNATE_DDL_AUTO=validate,JWT_SECRET=${{ secrets.JWT_SECRET }},MAIL_HOST=${{ secrets.MAIL_HOST }},MAIL_PORT=${{ secrets.MAIL_PORT }},MAIL_USER=${{ secrets.MAIL_USER }},MAIL_PASS=${{ secrets.MAIL_PASS }},TOKEN_URL=${{ secrets.TOKEN_URL }},GOOGLE_MAPS=${{secrets.GOOGLE_MAPS}}
+            --set-env-vars PORT=8080,SPRING_DATASOURCE_URL=${{ secrets.SPRING_DATASOURCE_URL }},SPRING_DATASOURCE_USERNAME=${{ secrets.SPRING_DATASOURCE_USERNAME }},SPRING_DATASOURCE_PASSWORD=${{ secrets.SPRING_DATASOURCE_PASSWORD }},SPRING_JPA_HIBERNATE_DDL_AUTO=validate,JWT_SECRET=${{ secrets.JWT_SECRET }},MAIL_HOST=${{ secrets.MAIL_HOST }},MAIL_PORT=${{ secrets.MAIL_PORT }},MAIL_USER=${{ secrets.MAIL_USER }},MAIL_PASS=${{ secrets.MAIL_PASS }},TOKEN_URL=${{ secrets.TOKEN_URL }},GOOGLE_MAPS=${{secrets.GOOGLE_MAPS}}
 
 # ================================
 # ✅ FRONTEND - CLOUD RUN
