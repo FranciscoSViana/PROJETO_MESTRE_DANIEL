@@ -205,7 +205,7 @@ CREATE TABLE faturamento_os
 -- =========================
 CREATE TABLE controle_faturamento
 (
-    id          BIGSERIAL PRIMARY KEY,
+    id          UUID PRIMARY KEY,
     emissao     TIMESTAMP WITH TIME ZONE NOT NULL,
     cliente_id  UUID,
     planilha VARCHAR(255),

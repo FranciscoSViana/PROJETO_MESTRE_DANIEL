@@ -18,8 +18,7 @@ import java.util.UUID;
 public class ControleFaturamento {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private UUID id;
 
     @Column(nullable = false)
     private OffsetDateTime emissao;
@@ -29,6 +28,7 @@ public class ControleFaturamento {
 
     @Column(name = "planilhaos")
     private String planilha;
+
 
     private String notaFiscal;
 
@@ -44,4 +44,11 @@ public class ControleFaturamento {
     private BigDecimal imposto;
     private BigDecimal lucro;
     private BigDecimal lucroMedio;
+
+    @PrePersist
+    public void gerarId() {
+        if (id == null) {
+            id = UUID.randomUUID();
+        }
+    }
 }
