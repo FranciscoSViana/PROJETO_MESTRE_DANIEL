@@ -167,7 +167,7 @@ CREATE TABLE solucao_os
 -- =========================
 CREATE TABLE faturamento_os
 (
-    id               BIGSERIAL PRIMARY KEY,
+    id               UUID PRIMARY KEY,
     ordem_servico_id UUID UNIQUE,
 
     cliente          VARCHAR(255),

@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
+import java.util.UUID;
 
 @Data
 @Entity
@@ -17,8 +18,7 @@ import java.time.OffsetDateTime;
 public class ControleFaturamento {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private UUID id;
 
     @Column(nullable = false)
     private OffsetDateTime emissao;
@@ -26,9 +26,12 @@ public class ControleFaturamento {
     @ManyToOne
     private Cliente cliente;
 
+    @Column(name = "planilha_os")
     private String planilhaOS;
 
     private String notaFiscal;
+
+    @Column(name = "valor_nf")
     private BigDecimal valorNF;
     private BigDecimal vlMedio;
 
