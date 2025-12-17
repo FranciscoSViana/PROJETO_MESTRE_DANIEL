@@ -43,4 +43,11 @@ public class ControleFaturamento {
     private BigDecimal imposto;
     private BigDecimal lucro;
     private BigDecimal lucroMedio;
+
+    @PrePersist
+    public void gerarId() {
+        if (id == null) {
+            id = UUID.randomUUID();
+        }
+    }
 }
