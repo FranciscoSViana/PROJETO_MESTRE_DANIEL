@@ -33,4 +33,6 @@ public class CredenciadoOutput {
 
     private List<TecnicoOutput> tecnicos;
     private EnderecoOutput endereco;
+
+    private GeoLocationOutput geoLocation;
 }

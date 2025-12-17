@@ -24,4 +24,5 @@ public class CredenciadoInput {
     private String email;
 
     private EnderecoInput endereco;
+
 }

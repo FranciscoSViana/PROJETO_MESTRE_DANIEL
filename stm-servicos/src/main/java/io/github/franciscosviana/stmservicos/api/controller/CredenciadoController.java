@@ -5,10 +5,12 @@ import io.github.franciscosviana.stmservicos.api.model.output.CredenciadoOutput;
 import io.github.franciscosviana.stmservicos.common.client.model.EstadoResponse;
 import io.github.franciscosviana.stmservicos.common.client.model.MunicipioResponse;
 import io.github.franciscosviana.stmservicos.domain.service.CredenciadoService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,10 +25,10 @@ public class CredenciadoController {
     private final CredenciadoService credenciadoService;
 
     @PostMapping
-    public ResponseEntity<CredenciadoOutput> salvar(@RequestBody CredenciadoInput credenciadoInput) {
+    public ResponseEntity<CredenciadoOutput> salvar(@RequestBody @Valid CredenciadoInput credenciadoInput) {
         CredenciadoOutput credenciadoOutput = credenciadoService.salvar(credenciadoInput);
 
-        return ResponseEntity.ok(credenciadoOutput);
+        return ResponseEntity.status(HttpStatus.CREATED).body(credenciadoOutput);
     }
 
     @GetMapping("/{id}")
@@ -63,6 +65,16 @@ public class CredenciadoController {
         CredenciadoOutput credenciadoOutput = credenciadoService.buscarPorCodigo(codigo);
         return ResponseEntity.ok(credenciadoOutput);
     }
+
+    @GetMapping("/proximos")
+    public ResponseEntity<List<CredenciadoOutput>> buscarProximos(
+            @RequestParam String cep) {
+
+        List<CredenciadoOutput> credenciados = credenciadoService.buscarProximosPorCep(cep);
+
+        return ResponseEntity.ok(credenciados);
+    }
+
 
     // Endpoint para listar todos os estados
     @GetMapping("/estados")

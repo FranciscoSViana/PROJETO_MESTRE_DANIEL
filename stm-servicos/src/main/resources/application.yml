@@ -9,7 +9,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: none
+      ddl-auto: update
     show-sql: false
     database-platform: org.hibernate.dialect.PostgreSQLDialect
   flyway:
@@ -32,7 +32,9 @@ spring:
           auth: true
           starttls:
             enable: true
-
+google:
+  maps:
+    api-key: ${GOOGLE_MAPS}
 app:
   frontend:
     reset-url: ${TOKEN_URL}

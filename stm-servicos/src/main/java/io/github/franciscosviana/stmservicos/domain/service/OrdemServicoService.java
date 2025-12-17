@@ -10,6 +10,7 @@ import io.github.franciscosviana.stmservicos.domain.model.Cliente;
 import io.github.franciscosviana.stmservicos.domain.model.Contrato;
 import io.github.franciscosviana.stmservicos.domain.model.OrdemServico;
 import io.github.franciscosviana.stmservicos.domain.repository.OrdemServicoRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -28,6 +29,7 @@ public class OrdemServicoService {
     private final OrdemServicoOutputAssembler assembler;
     private final OrdemServicoInputDisassembler disassembler;
 
+    @Transactional
     public OrdemServicoOutput salvar(OrdemServicoInput input) {
         OrdemServico ordem = disassembler.toDomainObject(input);
 

@@ -18,6 +18,10 @@ import { Credenciado } from '../../credenciados/credenciado';
 export class CadastroOrdemComponent implements OnInit {
 
   camposForm: FormGroup;
+  contratosCliente: any[] = [];
+  credenciadosProximos: Credenciado[] = [];
+  tecnicosCredenciado: any[] = [];
+
 
   constructor(
     private service: OrdemServicoService,
@@ -75,8 +79,8 @@ export class CadastroOrdemComponent implements OnInit {
     // 👉 Se NÃO tiver ID → é NOVA OS → gerar OSG automaticamente
     if (!idStr) {
       this.service.buscarProximoOsg().subscribe(osg => {
-        this.camposForm.patchValue({ 
-          osg, 
+        this.camposForm.patchValue({
+          osg,
           status: 'ABERTA'
         });
       });
@@ -126,88 +130,201 @@ export class CadastroOrdemComponent implements OnInit {
     });
   }
 
+  // salvar() {
+  //   this.camposForm.markAllAsTouched();
+
+  //   const id = this.camposForm.get('id')?.value;
+
+  //   const os: OrdemServico = this.montarObjeto();
+
+  //   if (id) {
+  //     // EDITAR
+  //     this.service.atualizar(id, os).subscribe({
+  //       next: () => this.router.navigate(['/ordem-servico'])
+  //     });
+  //   } else {
+  //     // CRIAR
+  //     this.service.salvar(os).subscribe({
+  //       next: () => this.router.navigate(['/ordem-servico'])
+  //     });
+  //   }
+  //   console.log("ENDEREÇO: ", os.endereco);
+  //   console.log('OBJETO', this.montarObjeto());
+  //   console.log('OS', os);
+  // }
+
   salvar() {
     this.camposForm.markAllAsTouched();
 
-    const id = this.camposForm.get('id')?.value;
+    const os = this.montarObjeto();
+    const id = os.id;
 
-    const os: OrdemServico = this.montarObjeto();
+    const acao$ = id
+      ? this.service.atualizar(id, os)
+      : this.service.salvar(os);
 
-    if (id) {
-      // EDITAR
-      this.service.atualizar(id, os).subscribe({
-        next: () => this.router.navigate(['/ordem-servico'])
-      });
-    } else {
-      // CRIAR
-      this.service.salvar(os).subscribe({
-        next: () => this.router.navigate(['/ordem-servico'])
-      });
-    }
-    console.log("ENDEREÇO: ", os.endereco);
-    console.log('OBJETO', this.montarObjeto());
-    console.log('OS', os);
+    acao$.subscribe({
+      next: () => this.router.navigate(['/ordem-servico'])
+    });
   }
+
+  // buscarClientePorCodigo() {
+  //   const codigo = this.camposForm.get('codigoCliente')?.value;
+  //   if (!codigo) {
+  //     this.camposForm.patchValue({ nomeCliente: '', clienteId: null });
+  //     return;
+  //   }
+
+  //   this.clienteService.buscarPorCodigo(codigo).pipe(
+  //     catchError(err => {
+  //       // Se não encontrar cliente ou erro na busca
+  //       this.camposForm.patchValue({ nomeCliente: '', clienteId: null });
+  //       return of(null);
+  //     })
+  //   ).subscribe(cliente => {
+  //     if (cliente) {
+  //       this.camposForm.patchValue({
+  //         nomeCliente: cliente.razaoSocial,
+  //         clienteId: cliente.id
+  //       });
+  //     } else {
+  //       this.camposForm.patchValue({
+  //         nomeCliente: '',
+  //         clienteId: null
+  //       });
+  //     }
+  //   });
+  // }
 
   buscarClientePorCodigo() {
     const codigo = this.camposForm.get('codigoCliente')?.value;
+
     if (!codigo) {
-      this.camposForm.patchValue({ nomeCliente: '', clienteId: null });
+      this.resetCliente();
       return;
     }
 
     this.clienteService.buscarPorCodigo(codigo).pipe(
-      catchError(err => {
-        // Se não encontrar cliente ou erro na busca
-        this.camposForm.patchValue({ nomeCliente: '', clienteId: null });
+      catchError(() => {
+        this.resetCliente();
         return of(null);
       })
     ).subscribe(cliente => {
-      if (cliente) {
-        this.camposForm.patchValue({
-          nomeCliente: cliente.razaoSocial,
-          clienteId: cliente.id
-        });
-      } else {
-        this.camposForm.patchValue({
-          nomeCliente: '',
-          clienteId: null
-        });
+      if (!cliente) {
+        this.resetCliente();
+        return;
+      }
+
+      // 👉 Dados básicos
+      this.camposForm.patchValue({
+        clienteId: cliente.id,
+        nomeCliente: cliente.razaoSocial || cliente.nome,
+
+        logradouro: cliente.endereco?.logradouro,
+        numero: cliente.endereco?.numero,
+        bairro: cliente.endereco?.bairro,
+        cidade: cliente.endereco?.cidade,
+        estado: cliente.endereco?.estado,
+        cep: cliente.endereco?.cep,
+        complemento: cliente.endereco?.complemento
+      });
+
+      // 👉 Contratos
+      this.contratosCliente = cliente.contratos ?? [];
+
+      // 👉 Credenciados próximos
+      if (cliente.endereco?.cep) {
+        this.credenciadoService
+          .buscarProximosPorCep(cliente.endereco.cep)
+          .subscribe(credenciados => {
+            this.credenciadosProximos = credenciados;
+          });
       }
     });
   }
 
+  private resetCliente() {
+    this.camposForm.patchValue({
+      nomeCliente: '',
+      clienteId: null
+    });
+    this.contratosCliente = [];
+    this.credenciadosProximos = [];
+  }
+
+
+  // buscarCredenciadoPorCodigo() {
+  //   const codigo = this.camposForm.get('codigoCredenciado')?.value;
+  //   if (!codigo) {
+  //     this.camposForm.patchValue({
+  //       nomeCredenciado: '',
+  //       credenciadoId: null
+  //     });
+  //     return;
+  //   }
+
+  //   this.credenciadoService.buscarPorCodigo(codigo).pipe(
+  //     catchError(err => {
+  //       this.camposForm.patchValue({
+  //         nomeCredenciado: '',
+  //         credenciadoId: null
+  //       });
+  //       return of(null);
+  //     })
+  //   ).subscribe(credenciado => {
+  //     if (credenciado) {
+  //       this.camposForm.patchValue({
+  //         nomeCredenciado: credenciado.rag,
+  //         credenciadoId: credenciado.id
+  //       });
+  //     } else {
+  //       this.camposForm.patchValue({
+  //         nomeCredenciado: '',
+  //         credenciadoId: null
+  //       });
+  //     }
+  //   });
+  // }
+
   buscarCredenciadoPorCodigo() {
     const codigo = this.camposForm.get('codigoCredenciado')?.value;
+
     if (!codigo) {
-      this.camposForm.patchValue({ 
-        nomeCredenciado: '', 
-        credenciadoId: null 
-      });
+      this.resetCredenciado();
       return;
     }
 
     this.credenciadoService.buscarPorCodigo(codigo).pipe(
-      catchError(err => {
-        this.camposForm.patchValue({ 
-          nomeCredenciado: '', 
-          credenciadoId: null 
-        });
+      catchError(() => {
+        this.resetCredenciado();
         return of(null);
       })
     ).subscribe(credenciado => {
-      if (credenciado) {
-        this.camposForm.patchValue({
-          nomeCredenciado: credenciado.rag,
-          credenciadoId: credenciado.id
-        });
-      } else {
-        this.camposForm.patchValue({
-          nomeCredenciado: '',
-          credenciadoId: null
-        });
+      if (!credenciado) {
+        this.resetCredenciado();
+        return;
       }
+
+      this.camposForm.patchValue({
+        credenciadoId: credenciado.id,
+        nomeCredenciado: credenciado.rag
+      });
+
+      // 👉 Buscar técnicos
+      this.credenciadoService
+        .listarTecnicos(credenciado.id!)
+        .subscribe(page => {
+          this.tecnicosCredenciado = page.content;
+        });
     });
+  }
+
+  private resetCredenciado() {
+    this.camposForm.patchValue({
+      nomeCredenciado: '',
+      credenciadoId: null
+    });
+    this.tecnicosCredenciado = [];
   }
 
 

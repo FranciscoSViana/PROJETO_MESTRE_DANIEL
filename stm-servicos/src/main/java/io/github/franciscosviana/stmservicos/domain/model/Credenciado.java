@@ -45,4 +45,7 @@ public class Credenciado {
 
     @Embedded
     private Endereco endereco;
+
+    @Embedded
+    private GeoLocation geoLocation;
 }

@@ -40,8 +40,14 @@ export class CredenciadoService {
   }
 
   buscarPorCodigo(codigo: number): Observable<Credenciado> {
-    return this.http.get<Credenciado>(this.apiUrl + `/api/credenciados/credenciado/0${codigo}`);
+    return this.http.get<Credenciado>(this.apiUrl + `/api/credenciados/credenciado/${codigo}`);
   }
+
+  buscarProximosPorCep(cep: string): Observable<Credenciado[]> {
+    return this.http.get<Credenciado[]>(`${this.apiUrl}/api/credenciados/proximos`, { params: { cep } }
+    );
+  }
+
 
   // ===================== TÉCNICOS =====================
 

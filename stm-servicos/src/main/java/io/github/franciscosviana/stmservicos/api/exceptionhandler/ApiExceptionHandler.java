@@ -2,6 +2,7 @@ package io.github.franciscosviana.stmservicos.api.exceptionhandler;
 
 import io.github.franciscosviana.stmservicos.api.model.input.CampoErro;
 import io.github.franciscosviana.stmservicos.common.validation.CPFInvalidoException;
+import io.github.franciscosviana.stmservicos.common.validation.CepSemGeolocalizacaoException;
 import io.github.franciscosviana.stmservicos.common.validation.UsuarioException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -16,6 +17,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @ControllerAdvice
@@ -111,6 +113,16 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 
         return handleExceptionInternal(ex, problem, headers, HttpStatus.BAD_REQUEST, request);
     }
+
+    @ExceptionHandler(CepSemGeolocalizacaoException.class)
+    public ResponseEntity<?> handleCepSemGeo(CepSemGeolocalizacaoException ex) {
+        return ResponseEntity
+                .badRequest()
+                .body(Map.of(
+                        "erro", ex.getMessage()
+                ));
+    }
+
 
     // ============================
     // ✅ BUILDER PADRÃO DO PROBLEM

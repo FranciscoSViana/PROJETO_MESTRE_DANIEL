@@ -6,6 +6,8 @@ import io.github.franciscosviana.stmservicos.domain.model.enums.StatusOrdem;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.time.OffsetDateTime;
+
 @Component
 @RequiredArgsConstructor
 public class OrdemServicoInputDisassembler {
@@ -17,7 +19,7 @@ public class OrdemServicoInputDisassembler {
 
         ordem.setOsClt(input.getOsClt());
         ordem.setOsg(input.getOsg());
-        ordem.setDataHora(input.getDataHora());
+        ordem.setDataHora(OffsetDateTime.now());
 
         if (input.getStatus() != null) {
             ordem.setStatus(StatusOrdem.valueOf(input.getStatus()));

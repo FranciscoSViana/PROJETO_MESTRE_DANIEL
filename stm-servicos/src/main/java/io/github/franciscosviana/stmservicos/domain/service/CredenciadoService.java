@@ -5,14 +5,18 @@ import io.github.franciscosviana.stmservicos.api.assembler.CredenciadoOutputAsse
 import io.github.franciscosviana.stmservicos.api.model.input.CredenciadoInput;
 import io.github.franciscosviana.stmservicos.api.model.output.CredenciadoOutput;
 import io.github.franciscosviana.stmservicos.common.client.BrasilAPIClient;
+import io.github.franciscosviana.stmservicos.common.client.GoogleMapsClient;
 import io.github.franciscosviana.stmservicos.common.client.model.EstadoResponse;
 import io.github.franciscosviana.stmservicos.common.client.model.MunicipioResponse;
 import io.github.franciscosviana.stmservicos.common.validation.CredenciadoException;
 import io.github.franciscosviana.stmservicos.domain.model.Credenciado;
+import io.github.franciscosviana.stmservicos.domain.model.Endereco;
+import io.github.franciscosviana.stmservicos.domain.model.GeoLocation;
 import io.github.franciscosviana.stmservicos.domain.model.enums.TipoPessoa;
 import io.github.franciscosviana.stmservicos.domain.repository.CredenciadoRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -20,34 +24,187 @@ import org.springframework.stereotype.Service;
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CredenciadoService {
 
+    private static final double RAIO_KM = 50.0;
+
     private final BrasilAPIClient brasilAPIClient;
+    private final GoogleMapsClient googleMapsClient;
     private final CredenciadoOutputAssembler assembler;
     private final CredenciadoInputDisassembler disassembler;
     private final CredenciadoRepository credenciadoRepository;
 
+    /* ============================
+      SALVAR
+      ============================ */
     @Transactional
-    public CredenciadoOutput salvar(CredenciadoInput credenciadoInput) {
+    public CredenciadoOutput salvar(CredenciadoInput input) {
 
-        validarNumeroPessoa(credenciadoInput.getTipoPessoa(), credenciadoInput.getNumeroPessoa());
+        log.info("📥 Iniciando salvamento de credenciado");
+        log.info("➡️ Input recebido: {}", input);
+
+        validarNumeroPessoa(input.getTipoPessoa(), input.getNumeroPessoa());
 
         Long ultimo = credenciadoRepository.buscarUltimoCodigo();
         Long proximoCodigo = ultimo + 1;
 
-        Credenciado credenciado = disassembler.toDomainObject(credenciadoInput);
-
+        Credenciado credenciado = disassembler.toDomainObject(input);
         credenciado.setId(UUID.randomUUID());
         credenciado.setCodigo(proximoCodigo);
 
+        log.info("📦 Endereço após disassembler: {}", credenciado.getEndereco());
+
+        resolverGeoCredenciado(credenciado);
+
+        log.info("✅ Credenciado salvo com sucesso. {}", credenciado);
+
         credenciadoRepository.save(credenciado);
+
+        log.info("✅ Credenciado salvo com sucesso. Código: {}", credenciado.getCodigo());
 
         return assembler.toModel(credenciado);
     }
 
+    /* ============================
+       ATUALIZAR
+       ============================ */
+    @Transactional
+    public CredenciadoOutput atualizar(UUID id, CredenciadoInput input) {
+
+        Credenciado credenciado = buscarOuFalhar(id);
+        disassembler.copyToDomainObject(input, credenciado);
+
+        resolverGeoCredenciado(credenciado);
+
+        credenciadoRepository.save(credenciado);
+        return assembler.toModel(credenciado);
+    }
+
+
+    @Transactional
+    public void excluir(UUID id) {
+
+        Credenciado credenciado = buscarOuFalhar(id);
+
+        credenciadoRepository.delete(credenciado);
+    }
+
+    @Transactional
+    public void atualizarGeoTodos() {
+        List<Credenciado> credenciados = credenciadoRepository.findAll();
+
+        for (Credenciado c : credenciados) {
+            if (c.getGeoLocation() == null) {
+                Endereco e = c.getEndereco();
+
+                String enderecoCompleto = String.format(
+                        "%s, %s, %s, %s, Brasil",
+                        e.getLogradouro(),
+                        e.getNumero(),
+                        e.getCidade(),
+                        e.getEstado()
+                );
+
+                try {
+                    GeoLocation geo = googleMapsClient.buscarPorEndereco(enderecoCompleto);
+                    c.setGeoLocation(geo);
+                } catch (Exception ex) {
+                    log.warn("Não foi possível geocodificar credenciado {}", c.getCodigo());
+                }
+            }
+        }
+    }
+
+    /* ============================
+       GEOLOCALIZAÇÃO
+       ============================ */
+    private void resolverGeoCredenciado(Credenciado credenciado) {
+
+        Endereco e = credenciado.getEndereco();
+
+        log.info("📍 Resolvendo geolocalização do credenciado {}", credenciado.getCodigo());
+
+        // Endereço completo detalhado
+        String enderecoCompleto = String.format(
+                "%s, %s, %s, %s, %s, Brasil",
+                e.getLogradouro(),
+                e.getNumero(),
+                e.getBairro(),
+                e.getCidade(),
+                e.getEstado()
+        );
+
+        GeoLocation geo = null;
+
+        try {
+            geo = googleMapsClient.buscarPorEndereco(enderecoCompleto);
+            log.info("📌 Geolocalização obtida pelo endereço completo: lat={}, lng={}",
+                    geo.getLatitude(), geo.getLongitude());
+        } catch (Exception ex) {
+            log.warn("❌ Endereço completo não encontrado, tentando pelo CEP: {}", e.getCep());
+
+            // Fallback: buscar apenas pelo CEP
+            try {
+                geo = googleMapsClient.buscarPorEndereco(e.getCep() + ", Brasil");
+                log.info("📌 Geolocalização obtida pelo CEP: lat={}, lng={}",
+                        geo.getLatitude(), geo.getLongitude());
+            } catch (Exception ex2) {
+                log.error("🚨 Não foi possível geocodificar endereço nem CEP: {}", e.getCep());
+                throw new CredenciadoException(
+                        "CEP não possui geolocalização: Endereço sem geolocalização"
+                );
+            }
+        }
+
+        credenciado.setGeoLocation(geo);
+    }
+
+
+
+    /* ============================
+       BUSCAR PRÓXIMOS
+       ============================ */
+    public List<CredenciadoOutput> buscarProximosPorCep(String cep) {
+        GeoLocation origem = null;
+
+        try {
+            // Tenta buscar a geolocalização do CEP
+            origem = googleMapsClient.buscarPorEndereco(cep + ", Brasil");
+        } catch (Exception e) {
+            // Caso haja falha, loga o erro e não realiza a busca
+            log.warn("Falha ao buscar geolocalização para o CEP: {}. Erro: {}", cep, e.getMessage());
+            throw new RuntimeException("Não foi possível buscar a geolocalização para o CEP fornecido.");
+        }
+
+        // Se a geolocalização foi encontrada, realiza a busca dos credenciados próximos
+        if (origem != null) {
+            log.info("Geolocalização encontrada para o CEP: {}. Latitude: {}, Longitude: {}", cep, origem.getLatitude(), origem.getLongitude());
+
+            // Busca no repositório os credenciados dentro do raio de 50 km
+            List<CredenciadoOutput> credenciadosProximos = credenciadoRepository.buscarPorRaio(
+                            origem.getLatitude(),
+                            origem.getLongitude(),
+                            RAIO_KM
+                    ).stream()
+                    .map(assembler::toModel)
+                    .collect(Collectors.toList());
+
+            if (credenciadosProximos.isEmpty()) {
+                log.info("Nenhum credenciado encontrado dentro do raio de {} km para o CEP: {}", RAIO_KM, cep);
+            }
+
+            return credenciadosProximos;
+        }
+
+        // Caso não tenha sido possível encontrar a geolocalização
+        log.error("Não foi possível encontrar credenciados próximos para o CEP: {}", cep);
+        return List.of();
+    }
 
     public CredenciadoOutput buscarPorId(UUID id) {
 
@@ -60,26 +217,6 @@ public class CredenciadoService {
 
         return credenciadoRepository.findAll(pageable)
                 .map(assembler::toModel);
-    }
-
-    @Transactional
-    public CredenciadoOutput atualizar(UUID id, CredenciadoInput credenciadoInput) {
-
-        Credenciado credenciado = buscarOuFalhar(id);
-
-        disassembler.copyToDomainObject(credenciadoInput, credenciado);
-
-        credenciadoRepository.save(credenciado);
-
-        return assembler.toModel(credenciado);
-    }
-
-    @Transactional
-    public void excluir(UUID id) {
-
-        Credenciado credenciado = buscarOuFalhar(id);
-
-        credenciadoRepository.delete(credenciado);
     }
 
     public CredenciadoOutput buscarPorCodigo(Long codigo) {

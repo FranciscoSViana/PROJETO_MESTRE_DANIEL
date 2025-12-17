@@ -1,5 +1,6 @@
 package io.github.franciscosviana.stmservicos.common.client;
 
+import io.github.franciscosviana.stmservicos.common.client.model.CepGeoResponse;
 import io.github.franciscosviana.stmservicos.common.client.model.EstadoResponse;
 import io.github.franciscosviana.stmservicos.common.client.model.MunicipioResponse;
 import io.github.franciscosviana.stmservicos.common.client.model.ReceitaWsResponse;
@@ -17,7 +18,7 @@ public class BrasilAPIClient {
 
     private final RestTemplate restTemplate;
 
-    public ReceitaWsResponse consultarCnpj(String cnpj){
+    public ReceitaWsResponse consultarCnpj(String cnpj) {
         String url = BRASILAPI + "/cnpj/v1/" + cnpj;
 
         try {
@@ -41,5 +42,16 @@ public class BrasilAPIClient {
         MunicipioResponse[] municipios = restTemplate.getForObject(url, MunicipioResponse[].class);
 
         return List.of(municipios);
+    }
+
+    public CepGeoResponse consultarCep(String cep) {
+
+        String url = BRASILAPI + "/cep/v2/" + cep;
+
+        try {
+            return restTemplate.getForObject(url, CepGeoResponse.class);
+        } catch (Exception e) {
+            throw new RuntimeException("Erro ao consultar CEP: " + e.getMessage());
+        }
     }
 }
