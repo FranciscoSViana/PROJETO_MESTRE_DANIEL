@@ -25,6 +25,7 @@ WORKDIR /app
 COPY --from=build /app/build/libs/*.jar app.jar
 
 # Porta que a aplicação vai expor
+ENV PORT=8080
 EXPOSE 8080
 
 ENTRYPOINT ["java", "-XX:MaxRAMPercentage=75.0", "-jar", "app.jar"]
