@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { OrdemServicoService } from '../ordem-servico.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { OrdemServico } from '../ordem-servico';
 import { ClienteService } from '../../clientes/cliente.service';
-import { catchError, of } from 'rxjs';
+import { BehaviorSubject, catchError, forkJoin, of } from 'rxjs';
 import { CredenciadoService } from '../../credenciados/credenciado.service';
 import { Cliente } from '../../clientes/cliente';
 import { Credenciado } from '../../credenciados/credenciado';
@@ -18,10 +18,11 @@ import { Credenciado } from '../../credenciados/credenciado';
 export class CadastroOrdemComponent implements OnInit {
 
   camposForm: FormGroup;
-  contratosCliente: any[] = [];
-  credenciadosProximos: Credenciado[] = [];
-  tecnicosCredenciado: any[] = [];
 
+  // Agora reativos
+  contratosCliente$ = new BehaviorSubject<any[]>([]);
+  credenciadosProximos$ = new BehaviorSubject<Credenciado[]>([]);
+  tecnicosCredenciado: any[] = [];
 
   constructor(
     private service: OrdemServicoService,
@@ -32,12 +33,10 @@ export class CadastroOrdemComponent implements OnInit {
   ) {
     this.camposForm = new FormGroup({
       id: new FormControl<number | null>(null),
-
       osClt: new FormControl<string | null>(null),
       osg: new FormControl<string | null>({ value: '', disabled: true }),
       status: new FormControl<string>({ value: 'ABERTA', disabled: true }),
       rag: new FormControl<string | null>(null),
-
       dataHora: new FormControl<string | null>(null),
 
       clienteId: new FormControl<string | null>(null),
@@ -48,12 +47,11 @@ export class CadastroOrdemComponent implements OnInit {
       codigoCredenciado: new FormControl<string | null>(null),
       nomeCredenciado: new FormControl<string | null>({ value: '', disabled: true }),
 
-      contrato: new FormControl<string | null>(null),
+      contratoId: new FormControl<string | null>(null, Validators.required),
       contato: new FormControl<string | null>(null),
       departamento: new FormControl<string | null>(null),
       telefone: new FormControl<string | null>(null),
 
-      // Endereço
       logradouro: new FormControl<string | null>(null),
       numero: new FormControl<string | null>(null),
       bairro: new FormControl<string | null>(null),
@@ -62,7 +60,6 @@ export class CadastroOrdemComponent implements OnInit {
       complemento: new FormControl<string | null>(null),
       cep: new FormControl<string | null>(null),
 
-      // Dados da OS
       acionador: new FormControl<string | null>(null),
       equipamento: new FormControl<string | null>(null),
       serie: new FormControl<string | null>(null),
@@ -70,286 +67,169 @@ export class CadastroOrdemComponent implements OnInit {
       defeito: new FormControl<string | null>(null),
       rastreio: new FormControl<string | null>(null),
     });
-
   }
 
   ngOnInit(): void {
     const idStr = this.route.snapshot.paramMap.get('id');
 
-    // 👉 Se NÃO tiver ID → é NOVA OS → gerar OSG automaticamente
     if (!idStr) {
-      this.service.buscarProximoOsg().subscribe(osg => {
-        this.camposForm.patchValue({
-          osg,
-          status: 'ABERTA'
-        });
+      this.service.buscarProximoOsg().subscribe({
+        next: osg => this.camposForm.patchValue({ osg, status: 'ABERTA' }),
+        error: err => console.error('Erro ao buscar próximo OSG:', err)
       });
       return;
     }
 
-    this.camposForm.valueChanges.subscribe(v => console.log("FORM:", v));
+    this.service.buscarPorId(idStr).subscribe({
+      next: os => {
+        // Observables de contratos e credenciados
+        const contratos$ = of(os.cliente?.contratos ?? []);
+        const credenciados$ = os.cliente?.endereco?.cep
+          ? this.credenciadoService.buscarProximosPorCep(os.cliente.endereco.cep)
+            .pipe(catchError(() => of([] as Credenciado[])))
+          : of([] as Credenciado[]);
 
-    // 👉 Se tiver ID → é edição → carregar a OS existente
-    const id = Number(idStr);
-    this.service.buscarPorId(idStr).subscribe(os => {
-      this.camposForm.patchValue({
-        id: os.id,
-        osClt: os.osClt,
-        osg: os.osg,
-        status: os.status,
-        dataHora: os.dataHora,
+        forkJoin([contratos$, credenciados$]).subscribe(([contratos, credenciados]) => {
+          // Atualiza BehaviorSubjects
+          this.contratosCliente$.next(contratos);
 
-        clienteId: os.cliente?.id || null,
-        codigoCliente: os.cliente?.codigo || null,
-        nomeCliente: os.cliente?.razaoSocial || os.cliente?.nome || '',
+          const listaCredenciados = [...credenciados];
+          if (os.credenciado && !listaCredenciados.find(c => c.id === os.credenciado?.id)) {
+            listaCredenciados.push({
+              id: os.credenciado.id,
+              rag: os.credenciado.rag,
+              codigo: os.credenciado.codigo
+            });
+          }
+          this.credenciadosProximos$.next(listaCredenciados);
 
-        credenciadoId: os.credenciado?.id || null,
-        codigoCredenciado: os.credenciado?.codigo || null,
-        nomeCredenciado: os.credenciado?.rag || '',
+          // Patch no formulário
+          this.camposForm.patchValue({
+            id: os.id,
+            osClt: os.osClt,
+            osg: os.osg,
+            status: os.status,
+            dataHora: os.dataHora,
+            clienteId: os.cliente?.id || null,
+            codigoCliente: os.cliente?.codigo || null,
+            nomeCliente: os.cliente?.razaoSocial || os.cliente?.nome || '',
+            credenciadoId: os.credenciado?.id || null,
+            codigoCredenciado: os.credenciado?.codigo || null,
+            nomeCredenciado: os.credenciado?.rag || '',
+            contratoId: os.contrato?.id || null,
+            contato: os.contato,
+            departamento: os.departamento,
+            telefone: os.telefone,
+            logradouro: os.cliente?.endereco?.logradouro,
+            numero: os.cliente?.endereco?.numero,
+            bairro: os.cliente?.endereco?.bairro,
+            cidade: os.cliente?.endereco?.cidade,
+            estado: os.cliente?.endereco?.estado,
+            complemento: os.cliente?.endereco?.complemento,
+            cep: os.cliente?.endereco?.cep,
+            acionador: os.acionador,
+            equipamento: os.equipamento,
+            serie: os.serie,
+            pib: os.pib,
+            defeito: os.defeito,
+            rastreio: os.rastreio
+          });
 
-        contrato: os.contrato,
-        contato: os.contato,
-        departamento: os.departamento,
-        telefone: os.telefone,
-
-        logradouro: os.endereco?.logradouro,
-        numero: os.endereco?.numero,
-        bairro: os.endereco?.bairro,
-        cidade: os.endereco?.cidade,
-        estado: os.endereco?.estado,
-        complemento: os.endereco?.complemento,
-        cep: os.endereco?.cep,
-
-        acionador: os.acionador,
-        equipamento: os.equipamento,
-        serie: os.serie,
-        pib: os.pib,
-        defeito: os.defeito,
-        rastreio: os.rastreio
-      });
+          if (os.credenciado?.id) {
+            this.buscarTecnicosDoCredenciado(os.credenciado.id);
+          }
+        });
+      },
+      error: err => console.error('Erro ao buscar OS:', err)
     });
   }
-
-  // salvar() {
-  //   this.camposForm.markAllAsTouched();
-
-  //   const id = this.camposForm.get('id')?.value;
-
-  //   const os: OrdemServico = this.montarObjeto();
-
-  //   if (id) {
-  //     // EDITAR
-  //     this.service.atualizar(id, os).subscribe({
-  //       next: () => this.router.navigate(['/ordem-servico'])
-  //     });
-  //   } else {
-  //     // CRIAR
-  //     this.service.salvar(os).subscribe({
-  //       next: () => this.router.navigate(['/ordem-servico'])
-  //     });
-  //   }
-  //   console.log("ENDEREÇO: ", os.endereco);
-  //   console.log('OBJETO', this.montarObjeto());
-  //   console.log('OS', os);
-  // }
 
   salvar() {
     this.camposForm.markAllAsTouched();
-
     const os = this.montarObjeto();
-    const id = os.id;
-
-    const acao$ = id
-      ? this.service.atualizar(id, os)
-      : this.service.salvar(os);
+    const acao$ = os.id ? this.service.atualizar(os.id, os) : this.service.salvar(os);
 
     acao$.subscribe({
-      next: () => this.router.navigate(['/ordem-servico'])
+      next: () => this.router.navigate(['/ordem-servico']),
+      error: err => console.error('Erro ao salvar OS:', err)
     });
   }
 
-  // buscarClientePorCodigo() {
-  //   const codigo = this.camposForm.get('codigoCliente')?.value;
-  //   if (!codigo) {
-  //     this.camposForm.patchValue({ nomeCliente: '', clienteId: null });
-  //     return;
-  //   }
-
-  //   this.clienteService.buscarPorCodigo(codigo).pipe(
-  //     catchError(err => {
-  //       // Se não encontrar cliente ou erro na busca
-  //       this.camposForm.patchValue({ nomeCliente: '', clienteId: null });
-  //       return of(null);
-  //     })
-  //   ).subscribe(cliente => {
-  //     if (cliente) {
-  //       this.camposForm.patchValue({
-  //         nomeCliente: cliente.razaoSocial,
-  //         clienteId: cliente.id
-  //       });
-  //     } else {
-  //       this.camposForm.patchValue({
-  //         nomeCliente: '',
-  //         clienteId: null
-  //       });
-  //     }
-  //   });
-  // }
-
   buscarClientePorCodigo() {
     const codigo = this.camposForm.get('codigoCliente')?.value;
+    if (!codigo) { this.resetCliente(); return; }
 
-    if (!codigo) {
-      this.resetCliente();
-      return;
-    }
+    this.clienteService.buscarPorCodigo(codigo)
+      .pipe(catchError(() => { this.resetCliente(); return of(null); }))
+      .subscribe((cliente: Cliente | null) => {
+        if (!cliente) return;
 
-    this.clienteService.buscarPorCodigo(codigo).pipe(
-      catchError(() => {
-        this.resetCliente();
-        return of(null);
-      })
-    ).subscribe(cliente => {
-      if (!cliente) {
-        this.resetCliente();
-        return;
-      }
+        this.camposForm.patchValue({
+          clienteId: cliente.id,
+          nomeCliente: cliente.razaoSocial || cliente.nome,
+          logradouro: cliente.endereco?.logradouro,
+          numero: cliente.endereco?.numero,
+          bairro: cliente.endereco?.bairro,
+          cidade: cliente.endereco?.cidade,
+          estado: cliente.endereco?.estado,
+          cep: cliente.endereco?.cep,
+          complemento: cliente.endereco?.complemento
+        });
 
-      // 👉 Dados básicos
-      this.camposForm.patchValue({
-        clienteId: cliente.id,
-        nomeCliente: cliente.razaoSocial || cliente.nome,
+        this.contratosCliente$.next(cliente.contratos ?? []);
 
-        logradouro: cliente.endereco?.logradouro,
-        numero: cliente.endereco?.numero,
-        bairro: cliente.endereco?.bairro,
-        cidade: cliente.endereco?.cidade,
-        estado: cliente.endereco?.estado,
-        cep: cliente.endereco?.cep,
-        complemento: cliente.endereco?.complemento
+        if (cliente.endereco?.cep) {
+          this.credenciadoService.buscarProximosPorCep(cliente.endereco.cep)
+            .subscribe(c => this.credenciadosProximos$.next(c));
+        }
       });
+  }
 
-      // 👉 Contratos
-      this.contratosCliente = cliente.contratos ?? [];
+  buscarCredenciadoPorCodigo() {
+    const codigo = this.camposForm.get('codigoCredenciado')?.value;
+    if (!codigo) { this.resetCredenciado(); return; }
 
-      // 👉 Credenciados próximos
-      if (cliente.endereco?.cep) {
-        this.credenciadoService
-          .buscarProximosPorCep(cliente.endereco.cep)
-          .subscribe(credenciados => {
-            this.credenciadosProximos = credenciados;
-          });
-      }
-    });
+    this.credenciadoService.buscarPorCodigo(codigo)
+      .pipe(catchError(() => { this.resetCredenciado(); return of(null); }))
+      .subscribe(c => {
+        if (!c) return;
+
+        this.camposForm.patchValue({
+          credenciadoId: c.id,
+          nomeCredenciado: c.rag
+        });
+        this.buscarTecnicosDoCredenciado(c.id!);
+      });
   }
 
   private resetCliente() {
     this.camposForm.patchValue({
-      nomeCliente: '',
-      clienteId: null
+      nomeCliente: '', clienteId: null,
+      logradouro: '', numero: '', bairro: '', cidade: '', estado: '', cep: '', complemento: ''
     });
-    this.contratosCliente = [];
-    this.credenciadosProximos = [];
-  }
-
-
-  // buscarCredenciadoPorCodigo() {
-  //   const codigo = this.camposForm.get('codigoCredenciado')?.value;
-  //   if (!codigo) {
-  //     this.camposForm.patchValue({
-  //       nomeCredenciado: '',
-  //       credenciadoId: null
-  //     });
-  //     return;
-  //   }
-
-  //   this.credenciadoService.buscarPorCodigo(codigo).pipe(
-  //     catchError(err => {
-  //       this.camposForm.patchValue({
-  //         nomeCredenciado: '',
-  //         credenciadoId: null
-  //       });
-  //       return of(null);
-  //     })
-  //   ).subscribe(credenciado => {
-  //     if (credenciado) {
-  //       this.camposForm.patchValue({
-  //         nomeCredenciado: credenciado.rag,
-  //         credenciadoId: credenciado.id
-  //       });
-  //     } else {
-  //       this.camposForm.patchValue({
-  //         nomeCredenciado: '',
-  //         credenciadoId: null
-  //       });
-  //     }
-  //   });
-  // }
-
-  buscarCredenciadoPorCodigo() {
-    const codigo = this.camposForm.get('codigoCredenciado')?.value;
-
-    if (!codigo) {
-      this.resetCredenciado();
-      return;
-    }
-
-    this.credenciadoService.buscarPorCodigo(codigo).pipe(
-      catchError(() => {
-        this.resetCredenciado();
-        return of(null);
-      })
-    ).subscribe(credenciado => {
-      if (!credenciado) {
-        this.resetCredenciado();
-        return;
-      }
-
-      this.camposForm.patchValue({
-        credenciadoId: credenciado.id,
-        nomeCredenciado: credenciado.rag
-      });
-
-      // 👉 Buscar técnicos
-      this.credenciadoService
-        .listarTecnicos(credenciado.id!)
-        .subscribe(page => {
-          this.tecnicosCredenciado = page.content;
-        });
-    });
+    this.contratosCliente$.next([]);
+    this.credenciadosProximos$.next([]);
   }
 
   private resetCredenciado() {
-    this.camposForm.patchValue({
-      nomeCredenciado: '',
-      credenciadoId: null
-    });
+    this.camposForm.patchValue({ nomeCredenciado: '', credenciadoId: null });
     this.tecnicosCredenciado = [];
   }
 
-
-  /** Transforma campos isolados → objeto OrdemServico completo */
   private montarObjeto(): OrdemServico {
     const f = this.camposForm.getRawValue();
-
     return {
       id: f.id,
-
       osClt: f.osClt,
       osg: f.osg,
       status: f.status,
-
-      dataHora: f.dataHora, // string ISO
-
+      dataHora: f.dataHora,
       clienteId: f.clienteId,
       credenciadoId: f.credenciadoId,
-
-
-      contrato: f.contrato,
+      contrato: f.contratoId,
       contato: f.contato,
       departamento: f.departamento,
       telefone: f.telefone,
-
       endereco: {
         logradouro: f.logradouro,
         numero: f.numero,
@@ -359,7 +239,6 @@ export class CadastroOrdemComponent implements OnInit {
         cep: f.cep,
         complemento: f.complemento
       },
-
       acionador: f.acionador,
       equipamento: f.equipamento,
       serie: f.serie,
@@ -371,25 +250,30 @@ export class CadastroOrdemComponent implements OnInit {
 
   buscarCep() {
     const cep = this.camposForm.get('cep')?.value;
-
-    if (!cep || cep.length < 8) {
-      return;
-    }
+    if (!cep || cep.length < 8) return;
 
     this.service.buscarCep(cep).subscribe({
-      next: (dados) => {
-        this.camposForm.patchValue({
-          logradouro: dados.logradouro,
-          bairro: dados.bairro,
-          cidade: dados.localidade,
-          estado: dados.uf,
-          complemento: dados.complemento
-        });
-      },
-      error: () => {
-        console.error("CEP não encontrado");
-      }
+      next: d => this.camposForm.patchValue({
+        logradouro: d.logradouro,
+        bairro: d.bairro,
+        cidade: d.localidade,
+        estado: d.uf,
+        complemento: d.complemento
+      }),
+      error: () => console.error("CEP não encontrado")
     });
   }
 
+  onCredenciadoChange(event: any) {
+    const id = event.target.value;
+    if (!id) return;
+    this.camposForm.patchValue({ credenciadoId: id });
+    this.buscarTecnicosDoCredenciado(id);
+  }
+
+  buscarTecnicosDoCredenciado(id: string) {
+    this.credenciadoService.listarTecnicos(id).subscribe(page => {
+      this.tecnicosCredenciado = page.content;
+    });
+  }
 }

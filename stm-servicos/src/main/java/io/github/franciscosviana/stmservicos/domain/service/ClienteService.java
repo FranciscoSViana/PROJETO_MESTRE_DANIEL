@@ -15,6 +15,7 @@ import io.github.franciscosviana.stmservicos.domain.model.Endereco;
 import io.github.franciscosviana.stmservicos.domain.repository.ClienteRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ClienteService {
@@ -45,17 +47,20 @@ public class ClienteService {
         cliente.setCodigo(proximoCodigo);
         cliente.setRazaoSocial(dadosCnpj.getRazaoSocial());
 
-        cliente.setEndereco(
-                Endereco.builder()
-                        .cep(dadosCnpj.getCep())
-                        .logradouro(dadosCnpj.getLogradouro())
-                        .bairro(dadosCnpj.getBairro())
-                        .numero(dadosCnpj.getNumero())
-                        .complemento(dadosCnpj.getComplemento())
-                        .cidade(dadosCnpj.getMunicipio())
-                        .estado(dadosCnpj.getUf())
-                        .build()
-        );
+        Endereco endereco = Endereco.builder()
+                .cep(dadosCnpj.getCep() != null ? dadosCnpj.getCep() : clienteInput.getEndereco().getCep())
+                .logradouro(dadosCnpj.getLogradouro() != null ? dadosCnpj.getLogradouro() : clienteInput.getEndereco().getLogradouro())
+                .bairro(dadosCnpj.getBairro() != null ? dadosCnpj.getBairro() : clienteInput.getEndereco().getBairro())
+                .numero(dadosCnpj.getNumero() != null ? dadosCnpj.getNumero() : clienteInput.getEndereco().getNumero())
+                .complemento(dadosCnpj.getComplemento() != null ? dadosCnpj.getComplemento() : clienteInput.getEndereco().getComplemento())
+                .cidade(dadosCnpj.getMunicipio() != null ? dadosCnpj.getMunicipio() : clienteInput.getEndereco().getCidade())
+                .estado(dadosCnpj.getUf() != null ? dadosCnpj.getUf() : clienteInput.getEndereco().getEstado())
+                .build();
+
+        cliente.setEndereco(endereco);
+
+        log.info("Cliente a ser salvo: {}", cliente);
+        log.info("Endereco: {}", cliente.getEndereco());
 
         clienteRepository.save(cliente);
 

@@ -42,11 +42,10 @@ public class OrdemServicoInputDisassembler {
         }
 
         if (input.getContratoId() != null) {
-            ordem.setContrato(
-                    Contrato.builder()
-                            .id(input.getContratoId())
-                            .build()
-            );
+            Contrato contrato = new Contrato();
+
+            contrato.setId(input.getContratoId());
+            ordem.setContrato(contrato);
         }
         ordem.setContato(input.getContato());
         ordem.setDepartamento(input.getDepartamento());

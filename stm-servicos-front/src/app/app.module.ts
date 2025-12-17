@@ -19,7 +19,7 @@ import { RouterModule } from '@angular/router';
     NgxMaskDirective,
     NgxMaskPipe,
     ReactiveFormsModule,
-    RouterModule
+    RouterModule,
   ],
   providers: [
     provideHttpClient(withFetch(), withInterceptorsFromDi()),

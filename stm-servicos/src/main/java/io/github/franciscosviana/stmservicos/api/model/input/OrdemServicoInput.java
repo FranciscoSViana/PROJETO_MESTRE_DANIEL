@@ -1,5 +1,6 @@
 package io.github.franciscosviana.stmservicos.api.model.input;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -23,6 +24,8 @@ public class OrdemServicoInput {
     // Relacionamentos (apenas IDs)
     private UUID clienteId;
     private UUID credenciadoId;
+
+    @JsonProperty("contrato")
     private UUID contratoId;
 
     // Informações administrativas

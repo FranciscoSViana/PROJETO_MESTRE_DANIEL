@@ -7,7 +7,6 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { NgxMaskDirective } from 'ngx-mask';
 import { ConsultaOrdemComponent } from './consulta-ordem/consulta-ordem.component';
 
-
 @NgModule({
   declarations: [
     CadastroOrdemComponent,
@@ -17,7 +16,7 @@ import { ConsultaOrdemComponent } from './consulta-ordem/consulta-ordem.componen
     CommonModule,
     OrdemServicoRoutingModule,
     ReactiveFormsModule,
-    NgxMaskDirective
+    NgxMaskDirective,
   ]
 })
 export class OrdemServicoModule { }

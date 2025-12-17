@@ -12,6 +12,7 @@ import io.github.franciscosviana.stmservicos.domain.model.OrdemServico;
 import io.github.franciscosviana.stmservicos.domain.repository.OrdemServicoRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Service;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class OrdemServicoService {
@@ -33,10 +35,16 @@ public class OrdemServicoService {
     public OrdemServicoOutput salvar(OrdemServicoInput input) {
         OrdemServico ordem = disassembler.toDomainObject(input);
 
+        log.info("Salvando OrdemServico: {}", ordem);
+
         ordem.setId(UUID.randomUUID());
 
         // 🔹 Buscar cliente e contrato reais
         var cliente = clienteService.buscarOuFalhar(ordem.getCliente().getId());
+
+        if (ordem.getContrato() == null || ordem.getContrato().getId() == null) {
+            throw new ContratoException("Contrato não informado.");
+        }
         var contrato = contratoService.buscarOuFalhar(ordem.getContrato().getId());
 
         // 🔴 REGRA DE NEGÓCIO AQUI
@@ -70,7 +78,13 @@ public class OrdemServicoService {
         disassembler.copyToDomainObject(input, atual);
 
         Cliente cliente = clienteService.buscarOuFalhar(atual.getCliente().getId());
+
+        if (atual.getContrato() == null || atual.getContrato().getId() == null) {
+            throw new ContratoException("Contrato não informado");
+        }
+
         Contrato contrato = contratoService.buscarOuFalhar(atual.getContrato().getId());
+
 
         if (!contrato.getCliente().getId().equals(cliente.getId())) {
             throw new ContratoException("Contrato não pertence ao cliente");

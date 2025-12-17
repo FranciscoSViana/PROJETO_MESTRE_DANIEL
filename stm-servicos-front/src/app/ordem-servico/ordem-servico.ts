@@ -1,3 +1,4 @@
+import { Cliente } from "../clientes/cliente";
 import { Faturamento } from "../faturamento/faturamento";
 import { Solucao } from "../solucao/solucao";
 import { Endereco } from "./endereco";
@@ -16,14 +17,14 @@ export class OrdemServico {
     credenciadoId?: string | null;
 
     // Mantendo os objetos parciais
-    cliente?: { id: string; razaoSocial?: string, nome?: string, codigo?: string };
+    cliente?: Cliente;
     credenciado?: { id: string; rag?: string, codigo?: string };
 
     // Propriedades auxiliares para exibição
     clienteNome?: string;
     credenciadoNome?: string;
 
-    contrato?: string;
+    contrato?: { id: string; descricao?: string };
     contato?: string;
     departamento?: string;
     telefone?: string;
