@@ -9,15 +9,18 @@ import io.github.franciscosviana.stmservicos.common.validation.OrdemServicoExcep
 import io.github.franciscosviana.stmservicos.domain.model.Cliente;
 import io.github.franciscosviana.stmservicos.domain.model.Contrato;
 import io.github.franciscosviana.stmservicos.domain.model.OrdemServico;
+import io.github.franciscosviana.stmservicos.domain.model.Tecnico;
 import io.github.franciscosviana.stmservicos.domain.repository.OrdemServicoRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -25,6 +28,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class OrdemServicoService {
 
+    private final TecnicoService tecnicoService;
     private final ClienteService clienteService;
     private final ContratoService contratoService;
     private final OrdemServicoRepository repository;
@@ -33,36 +37,51 @@ public class OrdemServicoService {
 
     @Transactional
     public OrdemServicoOutput salvar(OrdemServicoInput input) {
+
         OrdemServico ordem = disassembler.toDomainObject(input);
-
-        log.info("Salvando OrdemServico: {}", ordem);
-
         ordem.setId(UUID.randomUUID());
 
-        // 🔹 Buscar cliente e contrato reais
-        var cliente = clienteService.buscarOuFalhar(ordem.getCliente().getId());
+        ordem.setOsg(gerarProximoOsg());
 
-        if (ordem.getContrato() == null || ordem.getContrato().getId() == null) {
+        // Cliente
+        var cliente = clienteService.buscarOuFalhar(input.getClienteId());
+
+        // Contrato
+        if (input.getContratoId() == null) {
             throw new ContratoException("Contrato não informado.");
         }
-        var contrato = contratoService.buscarOuFalhar(ordem.getContrato().getId());
+        var contrato = contratoService.buscarOuFalhar(input.getContratoId());
 
-        // 🔴 REGRA DE NEGÓCIO AQUI
         if (!contrato.getCliente().getId().equals(cliente.getId())) {
             throw new ContratoException("Contrato não pertence ao cliente");
         }
 
-        // 🔹 Setar as entidades gerenciadas pelo JPA
+        // 🔥 Técnico (OBRIGATÓRIO)
+        if (input.getTecnicoId() == null) {
+            throw new OrdemServicoException("Técnico é obrigatório para criação da OS");
+        }
+
+        Tecnico tecnico = tecnicoService.buscarOuFalhar(input.getTecnicoId());
+
+        // 🔐 Integridade: técnico pertence ao credenciado?
+        if (!tecnico.getCredenciado().getId().equals(input.getCredenciadoId())) {
+            throw new OrdemServicoException("Técnico não pertence ao credenciado informado");
+        }
+
+        // Set entidades gerenciadas
         ordem.setCliente(cliente);
         ordem.setContrato(contrato);
+        ordem.setTecnico(tecnico);
 
         repository.save(ordem);
         return assembler.toModel(ordem);
     }
 
+
     public OrdemServicoOutput buscarPorId(UUID id) {
 
-        OrdemServico ordemServico = buscarOuFalhar(id);
+        OrdemServico ordemServico = repository.buscarCompleta(id)
+                .orElseThrow(() -> new OrdemServicoException("Ordem de Serviço não encontrada"));
 
         return assembler.toModel(ordemServico);
     }
@@ -104,13 +123,16 @@ public class OrdemServicoService {
     }
 
     public String gerarProximoOsg() {
-        String anoAtual = String.valueOf(OffsetDateTime.now().getYear() % 100);
-        anoAtual = String.format("%02d", Integer.parseInt(anoAtual));
-        String ultimoOsg = repository.findLastOsg();
 
-        if (ultimoOsg == null) {
+        String anoAtual = String.format("%02d", OffsetDateTime.now().getYear() % 100);
+
+        List<String> result = repository.findLastOsg(PageRequest.of(0, 1));
+
+        if (result.isEmpty()) {
             return "OSG" + anoAtual + "0001";
         }
+
+        String ultimoOsg = result.get(0);
 
         String anoUltimo = ultimoOsg.substring(3, 5);
         int sequencia = Integer.parseInt(ultimoOsg.substring(5));
@@ -120,11 +142,8 @@ public class OrdemServicoService {
         }
 
         sequencia++;
-        String seq = sequencia <= 9999
-                ? String.format("%04d", sequencia)
-                : String.valueOf(sequencia);
 
-        return "OSG" + anoAtual + seq;
+        return "OSG" + anoAtual + String.format("%04d", sequencia);
     }
 
     private OrdemServico buscarOuFalhar(UUID id) {

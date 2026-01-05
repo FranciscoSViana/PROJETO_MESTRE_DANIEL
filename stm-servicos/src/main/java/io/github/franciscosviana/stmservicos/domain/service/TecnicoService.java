@@ -4,6 +4,7 @@ import io.github.franciscosviana.stmservicos.api.assembler.TecnicoInputDisassemb
 import io.github.franciscosviana.stmservicos.api.assembler.TecnicoOutputAssembler;
 import io.github.franciscosviana.stmservicos.api.model.input.TecnicoInput;
 import io.github.franciscosviana.stmservicos.api.model.output.TecnicoOutput;
+import io.github.franciscosviana.stmservicos.common.validation.TecnicoException;
 import io.github.franciscosviana.stmservicos.domain.model.Credenciado;
 import io.github.franciscosviana.stmservicos.domain.model.Tecnico;
 import io.github.franciscosviana.stmservicos.domain.repository.CredenciadoRepository;
@@ -73,5 +74,10 @@ public class TecnicoService {
     @Transactional
     public void excluir(UUID tecnicoId) {
         tecnicoRepository.deleteById(tecnicoId);
+    }
+
+    public Tecnico buscarOuFalhar(UUID tecnicoId) {
+        return tecnicoRepository.findById(tecnicoId)
+                .orElseThrow(() -> new TecnicoException("Técnico não encontrado"));
     }
 }

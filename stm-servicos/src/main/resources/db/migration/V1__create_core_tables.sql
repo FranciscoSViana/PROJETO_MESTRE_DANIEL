@@ -1,3 +1,35 @@
+-- =========================================================
+-- RESET COMPLETO DO SCHEMA - STM SERVICOS
+-- PostgreSQL
+-- =========================================================
+
+-- =========================================================
+-- DROP TABLES (ORDEM REVERSA DE DEPENDÊNCIAS)
+-- =========================================================
+
+DROP TABLE IF EXISTS senha_reset_token CASCADE;
+DROP TABLE IF EXISTS historico_senha CASCADE;
+DROP TABLE IF EXISTS usuario_roles CASCADE;
+DROP TABLE IF EXISTS usuario CASCADE;
+
+DROP TABLE IF EXISTS controle_faturamento CASCADE;
+
+DROP TABLE IF EXISTS faturamento_os CASCADE;
+DROP TABLE IF EXISTS solucao_os CASCADE;
+DROP TABLE IF EXISTS ordem_servico CASCADE;
+
+DROP TABLE IF EXISTS pedagio CASCADE;
+DROP TABLE IF EXISTS cidade CASCADE;
+
+DROP TABLE IF EXISTS tecnico CASCADE;
+DROP TABLE IF EXISTS contrato CASCADE;
+DROP TABLE IF EXISTS credenciado CASCADE;
+DROP TABLE IF EXISTS cliente CASCADE;
+
+-- =========================================================
+-- CREATE TABLES
+-- =========================================================
+
 -- =========================
 -- CLIENTE
 -- =========================
@@ -25,7 +57,7 @@ CREATE TABLE credenciado
     numero_pessoa           VARCHAR(30),
     valor_chamado           NUMERIC(19, 2),
     valor_km                NUMERIC(19, 2),
-    quantidade_os_atendidas INTEGER,
+    quantidade_os_atendidas INTEGER DEFAULT 0,
     contato                 VARCHAR(255),
     telefones               VARCHAR(255),
     email                   VARCHAR(255),
@@ -104,7 +136,7 @@ CREATE TABLE pedagio
 );
 
 -- =========================
--- ORDEM DE SERVICO
+-- ORDEM SERVICO
 -- =========================
 CREATE TABLE ordem_servico
 (
@@ -137,9 +169,12 @@ CREATE TABLE ordem_servico
     defeito              TEXT,
     rastreio             VARCHAR(255),
 
-    CONSTRAINT fk_os_cliente FOREIGN KEY (cliente_id) REFERENCES cliente (id),
-    CONSTRAINT fk_os_credenciado FOREIGN KEY (credenciado_id) REFERENCES credenciado (id),
-    CONSTRAINT fk_os_contrato FOREIGN KEY (contrato_id) REFERENCES contrato (id)
+    CONSTRAINT fk_os_cliente
+        FOREIGN KEY (cliente_id) REFERENCES cliente (id),
+    CONSTRAINT fk_os_credenciado
+        FOREIGN KEY (credenciado_id) REFERENCES credenciado (id),
+    CONSTRAINT fk_os_contrato
+        FOREIGN KEY (contrato_id) REFERENCES contrato (id)
 );
 
 -- =========================
@@ -167,7 +202,7 @@ CREATE TABLE solucao_os
 -- =========================
 CREATE TABLE faturamento_os
 (
-    id               UUID PRIMARY KEY,
+    id               BIGSERIAL PRIMARY KEY,
     ordem_servico_id UUID UNIQUE,
 
     cliente          VARCHAR(255),
@@ -205,19 +240,19 @@ CREATE TABLE faturamento_os
 -- =========================
 CREATE TABLE controle_faturamento
 (
-    id          UUID PRIMARY KEY,
-    emissao     TIMESTAMP WITH TIME ZONE NOT NULL,
-    cliente_id  UUID,
-    planilha VARCHAR(255),
-    nota_fiscal VARCHAR(255),
-    valor_nf    NUMERIC(19, 2),
-    vl_medio    NUMERIC(19, 2),
-    previsao    TIMESTAMP WITH TIME ZONE,
-    pagamento   TIMESTAMP WITH TIME ZONE,
-    custos      NUMERIC(19, 2),
-    imposto     NUMERIC(19, 2),
-    lucro       NUMERIC(19, 2),
-    lucro_medio NUMERIC(19, 2),
+    id           UUID PRIMARY KEY,
+    emissao      TIMESTAMP WITH TIME ZONE NOT NULL,
+    cliente_id   UUID,
+    planilha     VARCHAR(255),
+    nota_fiscal  VARCHAR(255),
+    valor_nf     NUMERIC(19, 2),
+    vl_medio     NUMERIC(19, 2),
+    previsao     TIMESTAMP WITH TIME ZONE,
+    pagamento    TIMESTAMP WITH TIME ZONE,
+    custos       NUMERIC(19, 2),
+    imposto      NUMERIC(19, 2),
+    lucro        NUMERIC(19, 2),
+    lucro_medio  NUMERIC(19, 2),
     CONSTRAINT fk_controle_cliente
         FOREIGN KEY (cliente_id) REFERENCES cliente (id)
 );
@@ -268,3 +303,7 @@ CREATE TABLE senha_reset_token
     CONSTRAINT fk_reset_usuario
         FOREIGN KEY (usuario_id) REFERENCES usuario (id)
 );
+
+-- =========================================================
+-- FIM DO SCRIPT
+-- =========================================================

@@ -9,6 +9,8 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class OrdemServicoOutputAssembler {
 
+    private final TecnicoOutputAssembler tecnicoAssembler;
+    private final ClienteOutputAssembler clienteOutputAssembler;
     private final CredenciadoOutputAssembler credenciadoAssembler;
     private final ContratoOutputAssembler contratoOutputAssembler;
 
@@ -21,10 +23,11 @@ public class OrdemServicoOutputAssembler {
                 .osg(os.getOsg())
                 .status(os.getStatus() != null ? os.getStatus().name() : null)
                 .dataHora(os.getDataHora())
-                .cliente(toCliente(os.getCliente()))
+                .cliente(clienteOutputAssembler.toModel(os.getCliente()))
                 .credenciado(os.getCredenciado() != null
                         ? credenciadoAssembler.toModel(os.getCredenciado())
                         : null)
+                .tecnico(tecnicoAssembler.toModel(os.getTecnico()))
                 .contrato(os.getContrato() != null
                         ? contratoOutputAssembler.toModel(os.getContrato())
                         : null)
@@ -43,17 +46,6 @@ public class OrdemServicoOutputAssembler {
                 .build();
     }
 
-    private ClienteOutput toCliente(Cliente cliente) {
-        if (cliente == null) return null;
-
-        return ClienteOutput.builder()
-                .id(cliente.getId())
-                .codigo(cliente.getCodigo())
-                .nome(cliente.getNome())
-                .build();
-
-    }
-
     private EnderecoOutput toEndereco(Endereco e) {
         if (e == null) return null;
 
@@ -63,6 +55,8 @@ public class OrdemServicoOutputAssembler {
                 .bairro(e.getBairro())
                 .numero(e.getNumero())
                 .complemento(e.getComplemento())
+                .cidade(e.getCidade())
+                .estado(e.getEstado())
                 .build();
     }
 

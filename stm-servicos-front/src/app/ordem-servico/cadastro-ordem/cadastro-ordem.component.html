@@ -54,7 +54,7 @@
     <div class="grid grid-cols-2 gap-4 mb-4">
       <div>
         <label class="block text-gray-600 font-medium mb-2">Contrato</label>
-        <select formControlName="contratoId" class="w-full p-3 border border-gray-300 rounded shadow-sm">
+        <select formControlName="contratoId" [compareWith]="compareContrato" class="w-full p-3 border border-gray-300 rounded shadow-sm">
           <option value="" disabled>Escolha um contrato</option>
           <option *ngFor="let contrato of contratosCliente$ | async" [value]="contrato.id?.toString()">
             {{ contrato.numeroContrato }}
@@ -81,8 +81,26 @@
       </select>
     </div>
 
+    <div class="mt-4">
+      <label class="block text-gray-600 font-medium mb-2">Técnico</label>
 
+      <select formControlName="tecnicoId" class="w-full p-3 border border-gray-300 rounded shadow-sm"
+        [disabled]="tecnicosCredenciado.length === 0">
 
+        <option value="" disabled>
+          {{ tecnicosCredenciado.length ? 'Escolha um técnico' : 'Selecione um credenciado primeiro' }}
+        </option>
+
+        <option *ngFor="let tecnico of tecnicosCredenciado" [value]="tecnico.id">
+          {{ tecnico.nome }} - {{ tecnico.telefone }}
+        </option>
+      </select>
+
+      <div class="text-red-600 text-sm mt-1"
+        *ngIf="camposForm.get('tecnicoId')?.touched && camposForm.get('tecnicoId')?.invalid">
+        Técnico é obrigatório
+      </div>
+    </div>
 
     <!-- Contato + Telefone -->
     <div class="grid grid-cols-2 gap-4 mb-4">
@@ -97,8 +115,6 @@
           class="w-full p-3 border border-gray-300 rounded shadow-sm" />
       </div>
     </div>
-
-
 
     <!-- Equipamento / Série / PIB -->
     <div class="grid grid-cols-3 gap-4 mb-4">

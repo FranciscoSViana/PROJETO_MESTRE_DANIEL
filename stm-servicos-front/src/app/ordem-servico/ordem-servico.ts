@@ -15,10 +15,12 @@ export class OrdemServico {
 
     clienteId?: string | null;
     credenciadoId?: string | null;
+    tecnicoId?: string | null;
 
     // Mantendo os objetos parciais
     cliente?: Cliente;
     credenciado?: { id: string; rag?: string, codigo?: string };
+    tecnico?: { id: string; nome?: string };
 
     // Propriedades auxiliares para exibição
     clienteNome?: string;

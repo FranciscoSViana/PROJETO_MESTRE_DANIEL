@@ -15,6 +15,7 @@ import java.time.OffsetDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name = "solucao_os")
 public class SolucaoOS {
 
     @Id
@@ -22,6 +23,7 @@ public class SolucaoOS {
     private Long id;
 
     @OneToOne
+    @JoinColumn(name = "ordem_servico_id")
     private OrdemServico ordemServico;
 
     private String tecnico;

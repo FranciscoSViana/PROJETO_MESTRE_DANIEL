@@ -14,6 +14,7 @@ import java.math.BigDecimal;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name = "faturamento_os")
 public class FaturamentoOS {
 
     @Id
@@ -21,15 +22,20 @@ public class FaturamentoOS {
     private Long id;
 
     @OneToOne
+    @JoinColumn(name = "ordem_servico_id")
     private OrdemServico ordemServico;
 
     private String cliente;
     private String contrato;
+
+    @Column(name = "status_os")
     private String statusOs;
     private String rag;
 
     private String chamado;
     private BigDecimal deslocamento;
+
+    @Column(name = "ttl_km")
     private BigDecimal ttlKm;
     private BigDecimal pedagios;
     private BigDecimal estac;
@@ -41,14 +47,25 @@ public class FaturamentoOS {
 
     private BigDecimal km;
 
+    @Column(name = "total_geral")
     private BigDecimal totalGeral;
+
+    @Column(name = "nota_fiscal")
     private String notaFiscal;
 
     private BigDecimal faturado;
+
+    @Column(name = "saldo_mo")
     private BigDecimal saldoMO;
+
+    @Column(name = "saldo_km")
     private BigDecimal saldoKm;
+
+    @Column(name = "saldo_outros")
     private BigDecimal saldoOutros;
     private BigDecimal imposto;
+
+    @Column(name = "saldo_total")
     private BigDecimal saldoTotal;
 
     public static FaturamentoOS from(FaturamentoOSInput input) {

@@ -22,6 +22,7 @@ public class OrdemServicoOutput {
 
     private ClienteOutput cliente;
     private CredenciadoOutput credenciado;
+    private TecnicoOutput tecnico;
 
     private ContratoOutput contrato;
     private String contato;

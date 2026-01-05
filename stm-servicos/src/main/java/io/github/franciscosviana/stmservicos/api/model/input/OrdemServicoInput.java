@@ -25,6 +25,8 @@ public class OrdemServicoInput {
     private UUID clienteId;
     private UUID credenciadoId;
 
+    private UUID tecnicoId;
+
     @JsonProperty("contrato")
     private UUID contratoId;
 

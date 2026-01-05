@@ -4,7 +4,7 @@ import { OrdemServicoService } from '../ordem-servico.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { OrdemServico } from '../ordem-servico';
 import { ClienteService } from '../../clientes/cliente.service';
-import { BehaviorSubject, catchError, forkJoin, of } from 'rxjs';
+import { BehaviorSubject, catchError, forkJoin, map, of } from 'rxjs';
 import { CredenciadoService } from '../../credenciados/credenciado.service';
 import { Cliente } from '../../clientes/cliente';
 import { Credenciado } from '../../credenciados/credenciado';
@@ -46,6 +46,7 @@ export class CadastroOrdemComponent implements OnInit {
       credenciadoId: new FormControl<string | null>(null),
       codigoCredenciado: new FormControl<string | null>(null),
       nomeCredenciado: new FormControl<string | null>({ value: '', disabled: true }),
+      tecnicoId: new FormControl<string | null>(null),
 
       contratoId: new FormControl<string | null>(null, Validators.required),
       contato: new FormControl<string | null>(null),
@@ -83,16 +84,26 @@ export class CadastroOrdemComponent implements OnInit {
     this.service.buscarPorId(idStr).subscribe({
       next: os => {
         // Observables de contratos e credenciados
-        const contratos$ = of(os.cliente?.contratos ?? []);
+        const contratos$ = os.cliente?.id
+          ? this.clienteService.buscarPorId(os.cliente.id).pipe(
+            map(cliente => cliente.contratos ?? []),
+            catchError(() => of([]))
+          )
+          : of([]);
+
+        console.log('OS', os)
+
         const credenciados$ = os.cliente?.endereco?.cep
           ? this.credenciadoService.buscarProximosPorCep(os.cliente.endereco.cep)
             .pipe(catchError(() => of([] as Credenciado[])))
           : of([] as Credenciado[]);
 
         forkJoin([contratos$, credenciados$]).subscribe(([contratos, credenciados]) => {
-          // Atualiza BehaviorSubjects
+
+          // 1️⃣ Atualiza contratos ANTES
           this.contratosCliente$.next(contratos);
 
+          // 2️⃣ Atualiza credenciados
           const listaCredenciados = [...credenciados];
           if (os.credenciado && !listaCredenciados.find(c => c.id === os.credenciado?.id)) {
             listaCredenciados.push({
@@ -101,32 +112,41 @@ export class CadastroOrdemComponent implements OnInit {
               codigo: os.credenciado.codigo
             });
           }
+
+          console.log('Contrato salvo:', os.contrato?.id?.toString());
+          console.log(
+            'Contratos disponíveis:',
+            contratos.map(c => c.id!.toString())
+          );
+
           this.credenciadosProximos$.next(listaCredenciados);
 
-          // Patch no formulário
+          // 3️⃣ Patch geral (SEM contrato e técnico)
           this.camposForm.patchValue({
             id: os.id,
             osClt: os.osClt,
             osg: os.osg,
             status: os.status,
             dataHora: os.dataHora,
+
             clienteId: os.cliente?.id || null,
             codigoCliente: os.cliente?.codigo || null,
             nomeCliente: os.cliente?.razaoSocial || os.cliente?.nome || '',
+
             credenciadoId: os.credenciado?.id || null,
-            codigoCredenciado: os.credenciado?.codigo || null,
-            nomeCredenciado: os.credenciado?.rag || '',
-            contratoId: os.contrato?.id || null,
+
             contato: os.contato,
             departamento: os.departamento,
             telefone: os.telefone,
-            logradouro: os.cliente?.endereco?.logradouro,
-            numero: os.cliente?.endereco?.numero,
-            bairro: os.cliente?.endereco?.bairro,
-            cidade: os.cliente?.endereco?.cidade,
-            estado: os.cliente?.endereco?.estado,
-            complemento: os.cliente?.endereco?.complemento,
-            cep: os.cliente?.endereco?.cep,
+
+            logradouro: os.endereco?.logradouro,
+            numero: os.endereco?.numero,
+            bairro: os.endereco?.bairro,
+            cidade: os.endereco?.cidade,
+            estado: os.endereco?.estado,
+            complemento: os.endereco?.complemento,
+            cep: os.endereco?.cep,
+
             acionador: os.acionador,
             equipamento: os.equipamento,
             serie: os.serie,
@@ -135,10 +155,17 @@ export class CadastroOrdemComponent implements OnInit {
             rastreio: os.rastreio
           });
 
+          // 4️⃣ Agora SIM seta contrato (lista já existe)
+          if (os.contrato?.id) {
+            this.camposForm.get('contratoId')?.setValue(os.contrato.id.toString());
+          }
+
+          // 5️⃣ Carrega técnicos e seta técnico APÓS carregar
           if (os.credenciado?.id) {
-            this.buscarTecnicosDoCredenciado(os.credenciado.id);
+            this.buscarTecnicosDoCredenciado(os.credenciado.id, os.tecnico?.id);
           }
         });
+
       },
       error: err => console.error('Erro ao buscar OS:', err)
     });
@@ -212,7 +239,11 @@ export class CadastroOrdemComponent implements OnInit {
   }
 
   private resetCredenciado() {
-    this.camposForm.patchValue({ nomeCredenciado: '', credenciadoId: null });
+    this.camposForm.patchValue({
+      credenciadoId: null,
+      tecnicoId: null,
+      nomeCredenciado: ''
+    });
     this.tecnicosCredenciado = [];
   }
 
@@ -226,6 +257,7 @@ export class CadastroOrdemComponent implements OnInit {
       dataHora: f.dataHora,
       clienteId: f.clienteId,
       credenciadoId: f.credenciadoId,
+      tecnicoId: f.tecnicoId,
       contrato: f.contratoId,
       contato: f.contato,
       departamento: f.departamento,
@@ -265,15 +297,38 @@ export class CadastroOrdemComponent implements OnInit {
   }
 
   onCredenciadoChange(event: any) {
-    const id = event.target.value;
-    if (!id) return;
-    this.camposForm.patchValue({ credenciadoId: id });
-    this.buscarTecnicosDoCredenciado(id);
+    const credenciadoId = event.target.value;
+
+    this.camposForm.patchValue({
+      credenciadoId,
+      tecnicoId: null // reseta técnico
+    });
+
+    this.tecnicosCredenciado = [];
+
+    if (credenciadoId) {
+      this.buscarTecnicosDoCredenciado(credenciadoId);
+    }
   }
 
-  buscarTecnicosDoCredenciado(id: string) {
-    this.credenciadoService.listarTecnicos(id).subscribe(page => {
-      this.tecnicosCredenciado = page.content;
-    });
+  // 🔥 ALTERAÇÃO: aceita tecnicoId opcional para edição
+  buscarTecnicosDoCredenciado(credenciadoId: string, tecnicoId?: string) {
+    this.credenciadoService
+      .listarTecnicos(credenciadoId, 0, 50)
+      .subscribe({
+        next: page => {
+          this.tecnicosCredenciado = page.content;
+
+          // 🔥 AGORA o select já tem options → setValue funciona
+          if (tecnicoId) {
+            this.camposForm.get('tecnicoId')?.setValue(tecnicoId);
+          }
+        },
+        error: () => this.tecnicosCredenciado = []
+      });
   }
+
+  compareContrato = (a: string | null, b: string | null): boolean => {
+    return a === b;
+  };
 }

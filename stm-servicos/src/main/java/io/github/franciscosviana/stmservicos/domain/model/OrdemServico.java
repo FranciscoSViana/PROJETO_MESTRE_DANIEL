@@ -36,7 +36,12 @@ public class OrdemServico {
     private Cliente cliente;
 
     @ManyToOne
+    @JoinColumn(name = "credenciado_id")
     private Credenciado credenciado;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "tecnico_id", nullable = false)
+    private Tecnico tecnico;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "contrato_id", nullable = false)
