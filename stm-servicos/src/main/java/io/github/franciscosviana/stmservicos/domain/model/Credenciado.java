@@ -34,7 +34,8 @@ public class Credenciado {
     private BigDecimal valorChamado;
     private BigDecimal valorKm;
 
-    private int quantidadeOSAtendidas;
+    @Column(name = "quantidade_os_atendidas")
+    private int quantidadeOsAtendidas;
 
     private String contato;
     private String telefones;
