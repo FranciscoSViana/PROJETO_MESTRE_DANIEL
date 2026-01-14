@@ -38,18 +38,26 @@ export class ClienteService {
     return this.http.post<Contrato>(this.apiUrl + `/api/clientes/${id}/contratos`, contrato);
   }
 
-  atualizarContrato(contratoId: string, contrato: Contrato): Observable<Contrato> {
+  atualizarContrato(
+    clienteId: string,
+    contratoId: string,
+    contrato: Contrato
+  ): Observable<Contrato> {
     return this.http.put<Contrato>(
-      this.apiUrl + `/api/contratos/${contratoId}`,
+      this.apiUrl + `/api/clientes/${clienteId}/contratos/${contratoId}`,
       contrato
     );
   }
 
-  excluirContrato(contratoId: string): Observable<void> {
+  excluirContrato(
+    clienteId: string,
+    contratoId: string
+  ): Observable<void> {
     return this.http.delete<void>(
-      this.apiUrl + `/api/contratos/${contratoId}`
+      this.apiUrl + `/api/clientes/${clienteId}/contratos/${contratoId}`
     );
   }
+
 
   buscarPorId(id: string): Observable<Cliente> {
     return this.http.get<Cliente>(this.apiUrl + `/api/clientes/${id}`);

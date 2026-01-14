@@ -46,7 +46,12 @@ export class ContratoComponent implements OnInit {
 
     // 🔁 EDITAR
     if (this.contratoEmEdicao?.id) {
-      this.service.atualizarContrato(this.contratoEmEdicao.id, contratoPayload)
+      this.service
+        .atualizarContrato(
+          this.clienteId,
+          this.contratoEmEdicao.id,
+          contratoPayload
+        )
         .subscribe({
           next: () => {
             this.fecharModal();
@@ -78,19 +83,19 @@ export class ContratoComponent implements OnInit {
   excluirContrato(contrato: Contrato) {
     if (!contrato.id) return;
 
-    const confirmacao = confirm(
-      `Deseja realmente excluir o contrato ${contrato.numeroContrato}?`
-    );
+    if (!confirm(`Deseja excluir o contrato ${contrato.numeroContrato}?`)) {
+      return;
+    }
 
-    if (!confirmacao) return;
-
-    this.service.excluirContrato(contrato.id).subscribe({
-      next: () => this.carregarCliente(),
-      error: err => {
-        console.error('Erro ao excluir contrato', err);
-        alert('Erro ao excluir contrato');
-      }
-    });
+    this.service
+      .excluirContrato(this.clienteId, contrato.id)
+      .subscribe({
+        next: () => this.carregarCliente(),
+        error: err => {
+          console.error('Erro ao excluir contrato', err);
+          alert('Erro ao excluir contrato');
+        }
+      });
   }
 
   formatarCnpj(cnpj?: string): string {
