@@ -22,6 +22,8 @@
             <th class="p-3 border text-center w-[90px]">Código</th>
             <th class="p-3 border text-center min-w-[200px]">RAG</th>
             <th class="p-3 border text-center w-[180px]">CPF / CNPJ</th>
+            <th class="p-3 border text-center w-[70px]">Logradouro</th>
+            <th class="p-3 border text-center w-[70px]">Número</th>
             <th class="p-3 border text-center w-[70px]">UF</th>
             <th class="p-3 border text-center min-w-[180px]">Cidade</th>
             <th class="p-3 border text-center w-[100px]">Técnicos</th>
@@ -44,6 +46,14 @@
 
             <td class="p-3 border text-center truncate">
               {{ formatarCpfCnpj(c.numeroPessoa) }}
+            </td>
+
+            <td class="p-3 border text-center truncate">
+              {{ c.endereco?.logradouro }}
+            </td>
+
+            <td class="p-3 border text-center truncate">
+              {{ c.endereco?.numero }}
             </td>
 
             <td class="p-3 border text-center truncate">
