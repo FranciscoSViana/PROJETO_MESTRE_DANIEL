@@ -19,7 +19,7 @@ public class OrdemServicoInput {
     private String osClt;
     private String osg;
     private String status;
-    private OffsetDateTime dataHora;
+    private OffsetDateTime dataHoraAbertura;
 
     // Relacionamentos (apenas IDs)
     private UUID clienteId;

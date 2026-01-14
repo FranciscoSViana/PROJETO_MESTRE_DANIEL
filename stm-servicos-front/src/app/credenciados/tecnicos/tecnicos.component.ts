@@ -43,6 +43,9 @@ export class TecnicosComponent implements OnInit {
     })
   });
 
+  tecnicoEditandoId: string | null = null;
+  modoEdicao = false;
+
   constructor(private route: ActivatedRoute, private service: CredenciadoService) { }
 
   ngOnInit(): void {
@@ -82,7 +85,34 @@ export class TecnicosComponent implements OnInit {
     });
   }
 
+  formatarTelefone(telefone?: string): string {
+    if (!telefone) return '';
+
+    // remove tudo que não for número
+    const t = telefone.replace(/\D/g, '');
+
+    // celular com DDD (11 dígitos)
+    if (t.length === 11) {
+      return t.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+    }
+
+    // fixo com DDD (10 dígitos)
+    if (t.length === 10) {
+      return t.replace(/(\d{2})(\d{4})(\d{4})/, '($1) $2-$3');
+    }
+
+    return telefone;
+  }
+
+  formatarCpf(cpf: string | null | undefined): string {
+    if (!cpf) return '';
+    const num = cpf.toString().padStart(11, '0');
+    return num.replace(/^(\d{3})(\d{3})(\d{3})(\d{2})$/, "$1.$2.$3-$4");
+  }
+
   abrirModal() {
+    this.modoEdicao = false;
+    this.tecnicoEditandoId = null;
     this.tecnicoForm.reset();
     this.modalAberto = true;
   }
@@ -91,23 +121,80 @@ export class TecnicosComponent implements OnInit {
     this.modalAberto = false;
   }
 
+  editarTecnico(tecnico: Tecnico) {
+    this.modoEdicao = true;
+    this.tecnicoEditandoId = tecnico.id!;
+    this.modalAberto = true;
+
+    this.tecnicoForm.patchValue({
+      nome: tecnico.nome,
+      cpf: tecnico.cpf,
+      telefone: tecnico.telefone,
+      email: tecnico.email,
+      endereco: {
+        logradouro: tecnico.endereco?.logradouro,
+        numero: tecnico.endereco?.numero,
+        bairro: tecnico.endereco?.bairro,
+        cidade: tecnico.endereco?.cidade,
+        estado: tecnico.endereco?.estado,
+        complemento: tecnico.endereco?.complemento,
+        cep: tecnico.endereco?.cep
+      }
+    });
+  }
+
   salvarTecnico() {
     if (this.tecnicoForm.invalid) {
       this.tecnicoForm.markAllAsTouched();
       return;
     }
 
-    this.service.adicionarTecnico(this.credenciadoId, this.tecnicoForm.value as any)
-      .subscribe({
-        next: () => {
-          this.fecharModal();
-          this.carregarTecnicos();
-        },
-        error: err => {
-          console.error('Erro ao salvar técnico', err);
-          alert('Erro ao salvar técnico');
-        }
-      });
+    const payload = this.tecnicoForm.value as any;
+
+    if (this.modoEdicao && this.tecnicoEditandoId) {
+      // 🔁 ATUALIZAR
+      this.service.atualizarTecnico(this.tecnicoEditandoId, payload)
+        .subscribe({
+          next: () => {
+            this.fecharModal();
+            this.carregarTecnicos();
+          },
+          error: err => {
+            console.error('Erro ao atualizar técnico', err);
+            alert('Erro ao atualizar técnico');
+          }
+        });
+    } else {
+      // ➕ CRIAR
+      this.service.adicionarTecnico(this.credenciadoId, payload)
+        .subscribe({
+          next: () => {
+            this.fecharModal();
+            this.carregarTecnicos();
+          },
+          error: err => {
+            console.error('Erro ao salvar técnico', err);
+            alert('Erro ao salvar técnico');
+          }
+        });
+    }
+  }
+
+  excluirTecnico(tecnico: Tecnico) {
+    if (!tecnico.id) return;
+
+    const confirmar = confirm(`Deseja realmente excluir o técnico ${tecnico.nome}?`);
+    if (!confirmar) return;
+
+    this.service.excluirTecnico(tecnico.id).subscribe({
+      next: () => {
+        this.carregarTecnicos();
+      },
+      error: err => {
+        console.error('Erro ao excluir técnico', err);
+        alert('Erro ao excluir técnico');
+      }
+    });
   }
 
   buscarCep() {

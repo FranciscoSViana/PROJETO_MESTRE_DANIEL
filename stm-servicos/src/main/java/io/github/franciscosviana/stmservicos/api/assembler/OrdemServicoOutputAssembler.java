@@ -22,7 +22,7 @@ public class OrdemServicoOutputAssembler {
                 .osClt(os.getOsClt())
                 .osg(os.getOsg())
                 .status(os.getStatus() != null ? os.getStatus().name() : null)
-                .dataHora(os.getDataHora())
+                .dataHoraAbertura(os.getDataHoraAbertura())
                 .cliente(clienteOutputAssembler.toModel(os.getCliente()))
                 .credenciado(os.getCredenciado() != null
                         ? credenciadoAssembler.toModel(os.getCredenciado())

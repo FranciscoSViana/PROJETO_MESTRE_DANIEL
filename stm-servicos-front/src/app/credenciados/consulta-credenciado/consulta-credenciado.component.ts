@@ -81,10 +81,28 @@ export class ConsultaCredenciadoComponent implements OnInit {
     }
   }
 
-  formatarCpf(cpf: string | null | undefined): string {
-    if (!cpf) return '';
-    const num = cpf.toString().padStart(11, '0');
-    return num.replace(/^(\d{3})(\d{3})(\d{3})(\d{2})$/, "$1.$2.$3-$4");
+  formatarCpfCnpj(valor?: string): string {
+    if (!valor) return '';
+
+    const digits = valor.replace(/\D/g, '');
+
+    // CPF
+    if (digits.length === 11) {
+      return digits.replace(
+        /(\d{3})(\d{3})(\d{3})(\d{2})/,
+        '$1.$2.$3-$4'
+      );
+    }
+
+    // CNPJ
+    if (digits.length === 14) {
+      return digits.replace(
+        /(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/,
+        '$1.$2.$3/$4-$5'
+      );
+    }
+
+    return valor;
   }
 
   editar(id?: string) {

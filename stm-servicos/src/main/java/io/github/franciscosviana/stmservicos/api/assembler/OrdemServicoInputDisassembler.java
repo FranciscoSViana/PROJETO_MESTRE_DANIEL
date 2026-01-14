@@ -19,7 +19,11 @@ public class OrdemServicoInputDisassembler {
 
         ordem.setOsClt(input.getOsClt());
         ordem.setOsg(input.getOsg());
-        ordem.setDataHora(OffsetDateTime.now());
+        ordem.setDataHoraAbertura(
+                input.getDataHoraAbertura() != null
+                        ? input.getDataHoraAbertura()
+                        : OffsetDateTime.now()
+        );
 
         if (input.getStatus() != null) {
             ordem.setStatus(StatusOrdem.valueOf(input.getStatus()));
@@ -83,7 +87,9 @@ public class OrdemServicoInputDisassembler {
         ordem.setOsClt(nova.getOsClt());
         ordem.setOsg(nova.getOsg());
         ordem.setStatus(nova.getStatus());
-        ordem.setDataHora(nova.getDataHora());
+        if (nova.getDataHoraAbertura() != null) {
+            ordem.setDataHoraAbertura(nova.getDataHoraAbertura());
+        }
         ordem.setCliente(nova.getCliente());
         ordem.setCredenciado(nova.getCredenciado());
         ordem.setContrato(nova.getContrato());

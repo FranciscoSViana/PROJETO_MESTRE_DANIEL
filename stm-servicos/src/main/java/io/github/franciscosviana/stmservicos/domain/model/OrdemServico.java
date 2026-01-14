@@ -29,7 +29,8 @@ public class OrdemServico {
     @Enumerated(EnumType.STRING)
     private StatusOrdem status = StatusOrdem.ABERTA;
 
-    private OffsetDateTime dataHora;
+    @Column(nullable = false)
+    private OffsetDateTime dataHoraAbertura;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cliente_id")

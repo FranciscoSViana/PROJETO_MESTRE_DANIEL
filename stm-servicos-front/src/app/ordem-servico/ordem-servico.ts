@@ -11,7 +11,7 @@ export class OrdemServico {
     osg?: string;
     status?: string;
 
-    dataHora?: string; // OffsetDateTime → string no Angular
+    dataHoraAbertura?: string; // OffsetDateTime → string no Angular
 
     clienteId?: string | null;
     credenciadoId?: string | null;

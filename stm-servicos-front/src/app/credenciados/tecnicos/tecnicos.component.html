@@ -37,8 +37,11 @@
                 <th class="p-4 border text-left">CPF</th>
                 <th class="p-4 border text-left">Telefone</th>
                 <th class="p-4 border text-left">E-mail</th>
+                <th class="p-4 border text-left">Logradouro</th>
+                <th class="p-4 border text-left">Número</th>
                 <th class="p-4 border text-left">Cidade</th>
                 <th class="p-4 border text-left">Estado</th>
+                <th class="p-4 border text-center">Ações</th>
             </tr>
         </thead>
 
@@ -46,11 +49,26 @@
             <tr *ngFor="let t of tecnicos" class="hover:bg-gray-50">
                 <td class="p-4 border">{{ t.codigo }}</td>
                 <td class="p-4 border">{{ t.nome }}</td>
-                <td class="p-4 border">{{ t.cpf }}</td>
-                <td class="p-4 border">{{ t.telefone }}</td>
+                <td class="p-4 border">{{ formatarCpf(t.cpf) }}</td>
+                <td class="p-4 border">{{ formatarTelefone(t.telefone) }}</td>
                 <td class="p-4 border">{{ t.email }}</td>
+                <td class="p-4 border">{{ t.endereco?.logradouro }}</td>
+                <td class="p-4 border">{{ t.endereco?.numero }}</td>
                 <td class="p-4 border">{{ t.endereco?.cidade }}</td>
                 <td class="p-4 border">{{ t.endereco?.estado }}</td>
+                <td class="p-4 border text-center">
+                    <div class="flex justify-center gap-2">
+                        <button type="button" (click)="editarTecnico(t)"
+                            class="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700">
+                            Editar
+                        </button>
+
+                        <button type="button" (click)="excluirTecnico(t)"
+                            class="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700">
+                            Excluir
+                        </button>
+                    </div>
+                </td>
             </tr>
 
             <tr *ngIf="tecnicos.length === 0">
@@ -69,7 +87,7 @@
     <div class="bg-white w-full max-w-3x1 rounded-lg shadow-lg p-6 max-h-[90vh] overflow-y-auto">
 
         <h3 class="text-x1 font-semibold text-gray-700 mb-4">
-            Novo Técnico
+            {{ modoEdicao ? 'Editar Técnico' : 'Novo Técnico' }}
         </h3>
 
         <form [formGroup]="tecnicoForm" (ngSubmit)="salvarTecnico()">
@@ -151,7 +169,7 @@
                 </button>
 
                 <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded">
-                    Salvar
+                    {{ modoEdicao ? 'Atualizar' : 'Salvar' }}
                 </button>
             </div>
 

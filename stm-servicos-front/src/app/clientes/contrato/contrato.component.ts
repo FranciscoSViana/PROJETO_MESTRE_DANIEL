@@ -137,6 +137,25 @@ export class ContratoComponent implements OnInit {
     });
   }
 
+  formatarTelefone(telefone?: string): string {
+    if (!telefone) return '';
+
+    // remove tudo que não for número
+    const t = telefone.replace(/\D/g, '');
+
+    // celular com DDD (11 dígitos)
+    if (t.length === 11) {
+      return t.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+    }
+
+    // fixo com DDD (10 dígitos)
+    if (t.length === 10) {
+      return t.replace(/(\d{2})(\d{4})(\d{4})/, '($1) $2-$3');
+    }
+
+    return telefone;
+  }
+
   abrirModal() {
     console.log('Botão Novo Contrato clicado');
     this.contratoForm.reset();
@@ -167,5 +186,4 @@ export class ContratoComponent implements OnInit {
 
     this.modalAberto = true;
   }
-
 }

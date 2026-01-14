@@ -37,7 +37,7 @@ export class CadastroOrdemComponent implements OnInit {
       osg: new FormControl<string | null>({ value: '', disabled: true }),
       status: new FormControl<string>({ value: 'ABERTA', disabled: true }),
       rag: new FormControl<string | null>(null),
-      dataHora: new FormControl<string | null>(null),
+      dataHoraAbertura: new FormControl<string | null>(null),
 
       clienteId: new FormControl<string | null>(null),
       codigoCliente: new FormControl<string | null>(null),
@@ -74,10 +74,21 @@ export class CadastroOrdemComponent implements OnInit {
     const idStr = this.route.snapshot.paramMap.get('id');
 
     if (!idStr) {
+      const now = new Date();
+
+      const isoLocal = new Date(
+        now.getTime() - now.getTimezoneOffset() * 60000
+      ).toISOString().slice(0, 16);
+
+      this.camposForm.patchValue({
+        dataHoraAbertura: isoLocal
+      });
+
       this.service.buscarProximoOsg().subscribe({
         next: osg => this.camposForm.patchValue({ osg, status: 'ABERTA' }),
         error: err => console.error('Erro ao buscar próximo OSG:', err)
       });
+
       return;
     }
 
@@ -127,7 +138,9 @@ export class CadastroOrdemComponent implements OnInit {
             osClt: os.osClt,
             osg: os.osg,
             status: os.status,
-            dataHora: os.dataHora,
+            dataHoraAbertura: os.dataHoraAbertura
+              ? os.dataHoraAbertura.substring(0, 16)
+              : null,
 
             clienteId: os.cliente?.id || null,
             codigoCliente: os.cliente?.codigo || null,
@@ -193,14 +206,7 @@ export class CadastroOrdemComponent implements OnInit {
 
         this.camposForm.patchValue({
           clienteId: cliente.id,
-          nomeCliente: cliente.razaoSocial || cliente.nome,
-          logradouro: cliente.endereco?.logradouro,
-          numero: cliente.endereco?.numero,
-          bairro: cliente.endereco?.bairro,
-          cidade: cliente.endereco?.cidade,
-          estado: cliente.endereco?.estado,
-          cep: cliente.endereco?.cep,
-          complemento: cliente.endereco?.complemento
+          nomeCliente: cliente.razaoSocial || cliente.nome
         });
 
         this.contratosCliente$.next(cliente.contratos ?? []);
@@ -254,7 +260,9 @@ export class CadastroOrdemComponent implements OnInit {
       osClt: f.osClt,
       osg: f.osg,
       status: f.status,
-      dataHora: f.dataHora,
+      dataHoraAbertura: f.dataHoraAbertura
+        ? new Date(f.dataHoraAbertura).toISOString()
+        : undefined,
       clienteId: f.clienteId,
       credenciadoId: f.credenciadoId,
       tecnicoId: f.tecnicoId,

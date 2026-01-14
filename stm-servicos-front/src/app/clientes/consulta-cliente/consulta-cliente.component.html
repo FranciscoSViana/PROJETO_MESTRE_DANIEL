@@ -36,8 +36,14 @@
             <td class="p-3 border text-center truncate">{{ c.nome }}</td>
             <td class="p-3 border text-center truncate">{{ formatarCnpj(c.cnpj) }}</td>
             <td class="p-3 border text-center truncate">{{ c.razaoSocial }}</td>
-            <td class="p-3 border text-center truncate">{{ c.valorChamado }}</td>
-            <td class="p-3 border text-center truncate">{{ c.valorKm }}</td>
+            <td class="p-3 border text-center truncate">
+              {{ c.valorChamado | currency:'BRL':'symbol':'1.2-2' }}
+            </td>
+
+            <td class="p-3 border text-center truncate">
+              {{ c.valorKm | currency:'BRL':'symbol':'1.2-2' }}
+            </td>
+
 
             <td class="p-3 border" (click)="$event.stopPropagation()">
               <div class="flex justify-center gap-2">

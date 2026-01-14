@@ -18,7 +18,7 @@ public class OrdemServicoOutput {
     private String osClt;
     private String osg;
     private String status;
-    private OffsetDateTime dataHora;
+    private OffsetDateTime dataHoraAbertura;
 
     private ClienteOutput cliente;
     private CredenciadoOutput credenciado;

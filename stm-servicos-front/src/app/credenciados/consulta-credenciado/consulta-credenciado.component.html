@@ -30,7 +30,8 @@
         </thead>
 
         <tbody>
-          <tr *ngFor="let c of credenciados" class="hover:bg-gray-50 h-12 cursor-pointer hover:ring-1 hover:ring-blue-300"
+          <tr *ngFor="let c of credenciados"
+            class="hover:bg-gray-50 h-12 cursor-pointer hover:ring-1 hover:ring-blue-300"
             (click)="irParaTecnicos(c.id)">
 
             <td class="p-3 border text-center truncate">
@@ -42,7 +43,7 @@
             </td>
 
             <td class="p-3 border text-center truncate">
-              {{ c.numeroPessoa }}
+              {{ formatarCpfCnpj(c.numeroPessoa) }}
             </td>
 
             <td class="p-3 border text-center truncate">

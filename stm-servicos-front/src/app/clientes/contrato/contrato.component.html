@@ -27,6 +27,8 @@
             <tr>
                 <th class="p-4 border">Número</th>
                 <th class="p-4 border">Nome</th>
+                <th class="p-4 border">Valor Chamado</th>
+                <th class="p-4 border">Valor KM</th>
                 <th class="p-4 border">Responsável</th>
                 <th class="p-4 border">Telefone</th>
                 <th class="p-4 border text-center">Ações</th>
@@ -37,8 +39,10 @@
             <tr *ngFor="let c of contratos" class="hover:bg-gray-50">
                 <td class="p-4 border">{{ c.numeroContrato }}</td>
                 <td class="p-4 border">{{ c.nomeContrato }}</td>
+                <td class="p-4 border">{{ c.valorChamado | currency:'BRL':'symbol':'1.2-2' }}</td>
+                <td class="p-4 border">{{ c.valorKm | currency:'BRL':'symbol':'1.2-2' }}</td>
                 <td class="p-4 border">{{ c.responsavelContrato }}</td>
-                <td class="p-4 border">{{ c.telefoneContrato }}</td>
+                <td class="p-4 border">{{ formatarTelefone(c.telefoneContrato) }}</td>
 
                 <td class="p-4 border text-center space-x-2">
                     <button class="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
