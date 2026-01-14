@@ -10,8 +10,8 @@
         </div>
 
         <!-- Botão -->
-        <button type="button" (click)="abrirModal()" class="h-[32px] px-6 bg-green-600 text-white rounded-md shadow
-             hover:bg-green-700 transition">
+        <button type="button" (click)="abrirModalNovo()"
+            class="h-[32px] px-6 bg-green-600 text-white rounded-md shadow hover:bg-green-700">
             + Novo Contrato
         </button>
     </div>
@@ -25,64 +25,109 @@
     <table class="min-w-full border-collapse">
         <thead class="bg-gray-100">
             <tr>
-                <th class="p-4 border text-left font-semibold">
-                    Número do Contrato
-                </th>
+                <th class="p-4 border">Número</th>
+                <th class="p-4 border">Nome</th>
+                <th class="p-4 border">Responsável</th>
+                <th class="p-4 border">Telefone</th>
+                <th class="p-4 border text-center">Ações</th>
             </tr>
         </thead>
 
         <tbody>
             <tr *ngFor="let c of contratos" class="hover:bg-gray-50">
-                <td class="p-4 border">
-                    {{ c.numeroContrato }}
+                <td class="p-4 border">{{ c.numeroContrato }}</td>
+                <td class="p-4 border">{{ c.nomeContrato }}</td>
+                <td class="p-4 border">{{ c.responsavelContrato }}</td>
+                <td class="p-4 border">{{ c.telefoneContrato }}</td>
+
+                <td class="p-4 border text-center space-x-2">
+                    <button class="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
+                        (click)="abrirModalEditar(c)">
+                        Editar
+                    </button>
+
+                    <button class="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
+                        (click)="excluirContrato(c)">
+                        Excluir
+                    </button>
                 </td>
             </tr>
 
             <tr *ngIf="contratos.length === 0">
-                <td class="p-4 text-center text-gray-500">
+                <td colspan="5" class="p-4 text-center text-gray-500">
                     Nenhum contrato cadastrado.
                 </td>
             </tr>
         </tbody>
+
+
     </table>
     <!-- MODAL -->
     <div *ngIf="modalAberto" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
 
         <div class="bg-white w-full max-w-md rounded-lg shadow-lg p-6">
 
-            <h3 class="text-x1 font-semibold text-gray-700 mb-4">
-                Novo Contrato
+            <h3 class="text-xl font-semibold text-gray-700 mb-4">
+                {{ contratoEmEdicao ? 'Editar Contrato' : 'Novo Contrato' }}
             </h3>
 
             <form [formGroup]="contratoForm" (ngSubmit)="salvarContrato()">
 
+                <!-- Número -->
                 <div class="mb-4">
-                    <label class="block text-gray-600 font-medium mb-1">
-                        Número do Contrato
-                    </label>
-
-                    <input type="text" formControlName="numeroContrato" class="w-full p-3 border border-gray-300 rounded
-                 focus:ring focus:ring-blue-400" />
-
-                    <span class="text-red-500 text-sm" *ngIf="contratoForm.get('numeroContrato')?.invalid
-                  && contratoForm.get('numeroContrato')?.touched">
-                        Campo obrigatório
-                    </span>
+                    <label class="block text-gray-600 font-medium mb-1">Número do Contrato</label>
+                    <input type="text" formControlName="numeroContrato"
+                        class="w-full p-3 border rounded focus:ring focus:ring-blue-400" />
                 </div>
 
+                <!-- Nome -->
+                <div class="mb-4">
+                    <label class="block text-gray-600 font-medium mb-1">Nome do Contrato</label>
+                    <input type="text" formControlName="nomeContrato"
+                        class="w-full p-3 border rounded focus:ring focus:ring-blue-400" />
+                </div>
+
+                <!-- Responsável -->
+                <div class="mb-4">
+                    <label class="block text-gray-600 font-medium mb-1">Responsável</label>
+                    <input type="text" formControlName="responsavelContrato"
+                        class="w-full p-3 border rounded focus:ring focus:ring-blue-400" />
+                </div>
+
+                <!-- Telefone -->
+                <div class="mb-4">
+                    <label class="block text-gray-600 font-medium mb-1">Telefone</label>
+                    <input type="text" formControlName="telefoneContrato"
+                        class="w-full p-3 border rounded focus:ring focus:ring-blue-400" />
+                </div>
+
+                <!-- Valores -->
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label class="block text-gray-600 font-medium mb-1">Valor Chamado</label>
+                        <input type="number" formControlName="valorChamado" class="w-full p-3 border rounded" />
+                    </div>
+
+                    <div>
+                        <label class="block text-gray-600 font-medium mb-1">Valor KM</label>
+                        <input type="number" formControlName="valorKm" class="w-full p-3 border rounded" />
+                    </div>
+                </div>
+
+                <!-- Botões -->
                 <div class="flex justify-end gap-3">
                     <button type="button" (click)="fecharModal()"
                         class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">
                         Cancelar
                     </button>
 
-                    <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded
-                 hover:bg-green-700">
+                    <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
                         Salvar
                     </button>
                 </div>
 
             </form>
+
         </div>
     </div>
 

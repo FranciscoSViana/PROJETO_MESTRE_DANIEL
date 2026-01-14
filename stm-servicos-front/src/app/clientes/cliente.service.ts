@@ -34,8 +34,21 @@ export class ClienteService {
     return this.http.delete(this.apiUrl + `/api/clientes/${id}`);
   }
 
-  adicionarContratos(id: string, contrato: Contrato) : Observable<Contrato> {
+  adicionarContratos(id: string, contrato: Contrato): Observable<Contrato> {
     return this.http.post<Contrato>(this.apiUrl + `/api/clientes/${id}/contratos`, contrato);
+  }
+
+  atualizarContrato(contratoId: string, contrato: Contrato): Observable<Contrato> {
+    return this.http.put<Contrato>(
+      this.apiUrl + `/api/contratos/${contratoId}`,
+      contrato
+    );
+  }
+
+  excluirContrato(contratoId: string): Observable<void> {
+    return this.http.delete<void>(
+      this.apiUrl + `/api/contratos/${contratoId}`
+    );
   }
 
   buscarPorId(id: string): Observable<Cliente> {

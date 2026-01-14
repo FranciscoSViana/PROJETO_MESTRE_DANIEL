@@ -61,16 +61,16 @@ public class ClienteController {
         return ResponseEntity.ok(clienteOutput);
     }
 
-    @PostMapping("/{clienteId}/contratos")
-    public ResponseEntity<ClienteOutput> adicionarContratos(
-            @PathVariable UUID clienteId,
-            @RequestBody ContratoInput contratoInput) {
-
-        ClienteOutput clienteAtualizado =
-                clienteService.adicionarContratos(clienteId, contratoInput);
-
-        return ResponseEntity.ok(clienteAtualizado);
-    }
+//    @PostMapping("/{clienteId}/contratos")
+//    public ResponseEntity<ClienteOutput> adicionarContratos(
+//            @PathVariable UUID clienteId,
+//            @RequestBody ContratoInput contratoInput) {
+//
+//        ClienteOutput clienteAtualizado =
+//                clienteService.adicionarContratos(clienteId, contratoInput);
+//
+//        return ResponseEntity.ok(clienteAtualizado);
+//    }
 
     @GetMapping("/codigo/{codigo}")
     public ResponseEntity<ClienteOutput> buscarPorCodigo(@PathVariable Long codigo) {

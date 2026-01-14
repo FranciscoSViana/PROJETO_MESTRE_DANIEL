@@ -19,8 +19,15 @@ export class ContratoComponent implements OnInit {
   loading = false;
   modalAberto = false;
   contratoForm = new FormGroup({
-    numeroContrato: new FormControl('', Validators.required)
+    numeroContrato: new FormControl('', Validators.required),
+    nomeContrato: new FormControl('', Validators.required),
+    valorChamado: new FormControl<number | null>(null),
+    valorKm: new FormControl<number | null>(null),
+    responsavelContrato: new FormControl('', Validators.required),
+    telefoneContrato: new FormControl('', Validators.required)
   });
+  contratoEmEdicao?: Contrato;
+
 
   constructor(private route: ActivatedRoute, private service: ClienteService) { }
 
@@ -35,18 +42,53 @@ export class ContratoComponent implements OnInit {
       return;
     }
 
-    const contrato: Contrato = {
-      numeroContrato: this.contratoForm.value.numeroContrato!
-    };
+    const contratoPayload = this.contratoForm.value as Contrato;
 
-    this.service.adicionarContratos(this.clienteId, contrato).subscribe({
-      next: () => {
-        this.fecharModal();
-        this.carregarContratos();
-      },
+    // 🔁 EDITAR
+    if (this.contratoEmEdicao?.id) {
+      this.service.atualizarContrato(this.contratoEmEdicao.id, contratoPayload)
+        .subscribe({
+          next: () => {
+            this.fecharModal();
+            this.carregarCliente();
+          },
+          error: err => {
+            console.error('Erro ao atualizar contrato', err);
+            alert('Erro ao atualizar contrato');
+          }
+        });
+
+      return;
+    }
+
+    // ➕ NOVO
+    this.service.adicionarContratos(this.clienteId, contratoPayload)
+      .subscribe({
+        next: () => {
+          this.fecharModal();
+          this.carregarCliente();
+        },
+        error: err => {
+          console.error('Erro ao salvar contrato', err);
+          alert('Erro ao salvar contrato');
+        }
+      });
+  }
+
+  excluirContrato(contrato: Contrato) {
+    if (!contrato.id) return;
+
+    const confirmacao = confirm(
+      `Deseja realmente excluir o contrato ${contrato.numeroContrato}?`
+    );
+
+    if (!confirmacao) return;
+
+    this.service.excluirContrato(contrato.id).subscribe({
+      next: () => this.carregarCliente(),
       error: err => {
-        console.log('Erro ao salvar contrato', err);
-        alert('Erro ao salvar contrato');
+        console.error('Erro ao excluir contrato', err);
+        alert('Erro ao excluir contrato');
       }
     });
   }
@@ -99,4 +141,26 @@ export class ContratoComponent implements OnInit {
   fecharModal() {
     this.modalAberto = false;
   }
+
+  abrirModalNovo() {
+    this.contratoEmEdicao = undefined;
+    this.contratoForm.reset();
+    this.modalAberto = true;
+  }
+
+  abrirModalEditar(contrato: Contrato) {
+    this.contratoEmEdicao = contrato;
+
+    this.contratoForm.patchValue({
+      numeroContrato: contrato.numeroContrato,
+      nomeContrato: contrato.nomeContrato,
+      valorChamado: contrato.valorChamado,
+      valorKm: contrato.valorKm,
+      responsavelContrato: contrato.responsavelContrato,
+      telefoneContrato: contrato.telefoneContrato
+    });
+
+    this.modalAberto = true;
+  }
+
 }

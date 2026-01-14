@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -12,4 +14,9 @@ import lombok.NoArgsConstructor;
 public class ContratoInput {
 
     private String numeroContrato;
+    private String nomeContrato;
+    private BigDecimal valorChamado;
+    private BigDecimal valorKm;
+    private String responsavelContrato;
+    private String telefoneContrato;
 }
