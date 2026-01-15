@@ -25,18 +25,14 @@ spring:
       resourceserver:
         jwt:
           secret-key: ${JWT_SECRET}
+brevo:
+  api:
+    url: https://api.brevo.com/v3/smtp/email
+    key: ${BREVO_API_KEY}
+    sender:
+      name: STM Serviços
+      email: franciscosantos29@gmail.com
 
-  mail:
-    host: ${MAIL_HOST}
-    port: ${MAIL_PORT}
-    username: ${MAIL_USER}
-    password: ${MAIL_PASS}
-    properties:
-      mail:
-        smtp:
-          auth: true
-          starttls:
-            enable: true
 google:
   maps:
     api-key: ${GOOGLE_MAPS}

@@ -155,7 +155,7 @@ public class AuthService {
         } catch (DataIntegrityViolationException e) {
             throw new UsuarioException("E-mail já existe");
         }
-        
+
         try {
             emailService.enviarEmail(usuario.getEmail(), "Bem vindo ao sistema", "Olá " + usuario.getNome() + ", sua conta foi criada com sucesso!");
             log.info("📧 Email enviado para {}", usuario.getEmail());

@@ -10,8 +10,6 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -27,7 +25,7 @@ public class SenhaResetService {
     private String frontendResetUrl;
 
     private final AuthService authService;
-    private final JavaMailSender mailSender;
+    private final EmailService emailService;
     private final BCryptPasswordEncoder encoder;
     private final UsuarioRepository usuarioRepo;
     private final SenhaResetTokenRepository tokenRepo;
@@ -56,13 +54,13 @@ public class SenhaResetService {
 
         String link = frontendResetUrl + token;
 
-        var message = new SimpleMailMessage();
-        message.setTo(user.getEmail());
-        message.setSubject("Recuperação de senha");
-        message.setText("Para resetar sua senha, clique no link: " + link);
-
         try {
-            mailSender.send(message);
+            emailService.enviarEmail(
+                    user.getEmail(),
+                    "Recuperação de senha",
+                    "Para resetar sua senha, clique no link: " + link
+            );
+
             log.info("📧 Email enviado para {}", user.getEmail());
         } catch (Exception e) {
             log.error("❌ Erro ao enviar email", e);
