@@ -61,7 +61,13 @@ public class SenhaResetService {
         message.setSubject("Recuperação de senha");
         message.setText("Para resetar sua senha, clique no link: " + link);
 
-        mailSender.send(message);
+        try {
+            mailSender.send(message);
+            log.info("📧 Email enviado para {}", user.getEmail());
+        } catch (Exception e) {
+            log.error("❌ Erro ao enviar email", e);
+        }
+
     }
 
     public boolean resetPassword(String token, String novaSenha) {
