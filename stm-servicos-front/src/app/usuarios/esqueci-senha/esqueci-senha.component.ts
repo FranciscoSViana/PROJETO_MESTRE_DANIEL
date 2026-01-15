@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from '../../auth.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-esqueci-senha',
@@ -16,14 +17,21 @@ export class EsqueciSenhaComponent {
     email: new FormControl('', [Validators.required, Validators.email])
   });
 
-  constructor(private auth: AuthService) {}
+  constructor(private auth: AuthService, private router: Router) { }
 
   enviar() {
     if (this.form.invalid) return;
 
     this.auth.esqueciSenha(this.form.value.email!)
       .subscribe(() => {
-        this.mensagem = '✅ Se o e-mail existir, você receberá instruções.';
+
+        this.mensagem = '✅ Se o e-mail existir, você receberá instruções. Redirecionando para o login...';
+
+        setTimeout(() => {
+          this.router.navigate(['/']);
+          // ou ['/login'] se você tiver essa rota explícita
+        }, 5000);
+
       });
   }
 }

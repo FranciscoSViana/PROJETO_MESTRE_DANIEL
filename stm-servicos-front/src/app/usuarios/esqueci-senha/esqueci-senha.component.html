@@ -4,12 +4,9 @@
 
   <form [formGroup]="form" (ngSubmit)="enviar()">
 
-    <input type="email"
-      formControlName="email"
-      placeholder="Digite seu e-mail"
-      class="w-full p-3 border rounded mb-4">
+    <input type="email" formControlName="email" placeholder="Digite seu e-mail" class="w-full p-3 border rounded mb-4">
 
-    <button class="w-full bg-blue-600 text-white p-3 rounded">
+    <button class="w-full bg-blue-600 text-white p-3 rounded" [disabled]="mensagem">
       Enviar link de recuperação
     </button>
 
