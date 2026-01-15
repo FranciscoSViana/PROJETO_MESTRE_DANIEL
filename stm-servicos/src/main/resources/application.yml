@@ -30,8 +30,8 @@ brevo:
     url: https://api.brevo.com/v3/smtp/email
     key: ${BREVO_API_KEY}
     sender:
-      name: STM Serviços
-      email: franciscosantos29@gmail.com
+      name: GUARDIAN
+      email: ${BREVO_USER}
 
 google:
   maps:
