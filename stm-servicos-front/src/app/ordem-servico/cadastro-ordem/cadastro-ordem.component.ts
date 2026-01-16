@@ -23,6 +23,7 @@ export class CadastroOrdemComponent implements OnInit {
   contratosCliente$ = new BehaviorSubject<any[]>([]);
   credenciadosProximos$ = new BehaviorSubject<Credenciado[]>([]);
   tecnicosCredenciado: any[] = [];
+  private cepCliente: string | null = null;
 
   constructor(
     private service: OrdemServicoService,
@@ -60,6 +61,8 @@ export class CadastroOrdemComponent implements OnInit {
       estado: new FormControl<string | null>(null),
       complemento: new FormControl<string | null>(null),
       cep: new FormControl<string | null>(null),
+
+      raioKm: new FormControl(100),
 
       acionador: new FormControl<string | null>(null),
       equipamento: new FormControl<string | null>(null),
@@ -212,7 +215,12 @@ export class CadastroOrdemComponent implements OnInit {
         this.contratosCliente$.next(cliente.contratos ?? []);
 
         if (cliente.endereco?.cep) {
-          this.credenciadoService.buscarProximosPorCep(cliente.endereco.cep)
+          this.cepCliente = cliente.endereco?.cep;
+
+          const raioKm = this.camposForm.get('raioKm')?.value ?? 100;
+
+          this.credenciadoService
+            .buscarProximosPorCep(this.cepCliente, raioKm)
             .subscribe(c => this.credenciadosProximos$.next(c));
         }
       });
@@ -334,6 +342,16 @@ export class CadastroOrdemComponent implements OnInit {
         },
         error: () => this.tecnicosCredenciado = []
       });
+  }
+
+  rebuscarCredenciados() {
+    if (!this.cepCliente) return;
+
+    const raioKm = this.camposForm.get('raioKm')?.value;
+
+    this.credenciadoService
+      .buscarProximosPorCep(this.cepCliente, raioKm)
+      .subscribe(c => this.credenciadosProximos$.next(c));
   }
 
   compareContrato = (a: string | null, b: string | null): boolean => {

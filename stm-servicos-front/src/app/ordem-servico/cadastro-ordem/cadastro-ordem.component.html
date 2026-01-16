@@ -111,6 +111,16 @@
       <input formControlName="rastreio" class="w-full p-3 border rounded" />
     </div>
 
+    <div class="mb-4">
+      <label class="block font-medium text-gray-600">
+        Raio de busca: {{ camposForm.get('raioKm')?.value }} km
+      </label>
+
+      <input type="range" min="50" max="3000" step="50" formControlName="raioKm" (change)="rebuscarCredenciados()"
+        class="w-full" />
+    </div>
+
+
     <!-- CREDENCIADO -->
     <div class="mb-4">
       <label>Credenciado</label>

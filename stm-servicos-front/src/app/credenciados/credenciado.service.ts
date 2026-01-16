@@ -43,8 +43,13 @@ export class CredenciadoService {
     return this.http.get<Credenciado>(this.apiUrl + `/api/credenciados/credenciado/${codigo}`);
   }
 
-  buscarProximosPorCep(cep: string): Observable<Credenciado[]> {
-    return this.http.get<Credenciado[]>(`${this.apiUrl}/api/credenciados/proximos`, { params: { cep } }
+  buscarProximosPorCep(cep: string, raioKm: number = 100): Observable<Credenciado[]> {
+
+    const params = new HttpParams()
+    .set('cep', cep)
+    .set('raioKm', raioKm.toString());
+
+    return this.http.get<Credenciado[]>(`${this.apiUrl}/api/credenciados/proximos`, { params }
     );
   }
 

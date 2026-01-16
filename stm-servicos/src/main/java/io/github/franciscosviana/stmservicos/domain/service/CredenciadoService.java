@@ -31,8 +31,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class CredenciadoService {
 
-    private static final double RAIO_KM = 50.0;
-
     private final BrasilAPIClient brasilAPIClient;
     private final GoogleMapsClient googleMapsClient;
     private final CredenciadoOutputAssembler assembler;
@@ -169,7 +167,7 @@ public class CredenciadoService {
     /* ============================
        BUSCAR PRÓXIMOS
        ============================ */
-    public List<CredenciadoOutput> buscarProximosPorCep(String cep) {
+    public List<CredenciadoOutput> buscarProximosPorCep(String cep, Double raioKm) {
         GeoLocation origem = null;
 
         try {
@@ -189,13 +187,13 @@ public class CredenciadoService {
             List<CredenciadoOutput> credenciadosProximos = credenciadoRepository.buscarPorRaio(
                             origem.getLatitude(),
                             origem.getLongitude(),
-                            RAIO_KM
+                            raioKm
                     ).stream()
                     .map(assembler::toModel)
                     .collect(Collectors.toList());
 
             if (credenciadosProximos.isEmpty()) {
-                log.info("Nenhum credenciado encontrado dentro do raio de {} km para o CEP: {}", RAIO_KM, cep);
+                log.info("Nenhum credenciado encontrado dentro do raio de {} km para o CEP: {}", raioKm, cep);
             }
 
             return credenciadosProximos;

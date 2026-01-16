@@ -68,9 +68,10 @@ public class CredenciadoController {
 
     @GetMapping("/proximos")
     public ResponseEntity<List<CredenciadoOutput>> buscarProximos(
-            @RequestParam String cep) {
+            @RequestParam String cep,
+            @RequestParam(required = false, defaultValue = "100") Double raioKm) {
 
-        List<CredenciadoOutput> credenciados = credenciadoService.buscarProximosPorCep(cep);
+        List<CredenciadoOutput> credenciados = credenciadoService.buscarProximosPorCep(cep, raioKm);
 
         return ResponseEntity.ok(credenciados);
     }
