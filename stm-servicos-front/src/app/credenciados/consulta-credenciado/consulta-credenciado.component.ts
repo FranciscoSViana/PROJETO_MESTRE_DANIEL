@@ -18,6 +18,7 @@ export class ConsultaCredenciadoComponent implements OnInit {
   totalPages = 0;
   loading = false;
   errorMessage = '';
+  ordemCodigo: 'asc' | 'desc' = 'asc';
 
   constructor(private service: CredenciadoService, private router: Router) { }
 
@@ -29,7 +30,7 @@ export class ConsultaCredenciadoComponent implements OnInit {
     this.loading = true;
     this.errorMessage = '';
 
-    this.service.listar(this.page, this.size).subscribe({
+    this.service.listar(this.page, this.size, `codigo,${this.ordemCodigo}`).subscribe({
       next: res => {
         this.credenciados = res.content ?? [];
         this.totalElements = res.totalElements ?? this.credenciados.length;
@@ -114,5 +115,11 @@ export class ConsultaCredenciadoComponent implements OnInit {
     if (!id) return;
 
     this.router.navigate(['/credenciados', id, 'tecnicos']);
+  }
+
+  ordenarPorCodigo() {
+    this.ordemCodigo = this.ordemCodigo === 'asc' ? 'desc' : 'asc';
+    this.page = 0; // sempre volta pra primeira página
+    this.carregarCredenciados();
   }
 }

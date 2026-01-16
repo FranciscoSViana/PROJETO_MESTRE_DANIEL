@@ -19,11 +19,21 @@ export class CredenciadoService {
     return this.http.post<Credenciado>(this.apiUrl + '/api/credenciados', credenciado);
   }
 
-  listar(page: number = 0, size: number = 10): Observable<Page<Credenciado>> {
+  listar(
+    page: number = 0,
+    size: number = 10,
+    sort: string = 'codigo,asc'
+  ): Observable<Page<Credenciado>> {
+
     const params = new HttpParams()
       .set('page', page)
-      .set('size', size);
-    return this.http.get<Page<Credenciado>>(this.apiUrl + '/api/credenciados', { params });
+      .set('size', size)
+      .set('sort', sort);
+
+    return this.http.get<Page<Credenciado>>(
+      this.apiUrl + '/api/credenciados',
+      { params }
+    );
   }
 
   atualizar(id: string, credenciado: Credenciado): Observable<Credenciado> {
@@ -46,8 +56,8 @@ export class CredenciadoService {
   buscarProximosPorCep(cep: string, raioKm: number = 100): Observable<Credenciado[]> {
 
     const params = new HttpParams()
-    .set('cep', cep)
-    .set('raioKm', raioKm.toString());
+      .set('cep', cep)
+      .set('raioKm', raioKm.toString());
 
     return this.http.get<Credenciado[]>(`${this.apiUrl}/api/credenciados/proximos`, { params }
     );

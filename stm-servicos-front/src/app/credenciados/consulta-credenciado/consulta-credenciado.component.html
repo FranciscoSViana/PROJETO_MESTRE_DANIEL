@@ -19,7 +19,16 @@
 
         <thead class="bg-gray-100 text-gray-700">
           <tr class="h-12">
-            <th class="p-3 border text-center w-[90px]">Código</th>
+            <th class="p-3 border text-center w-[90px] cursor-pointer select-none" (click)="ordenarPorCodigo()">
+
+              <div class="inline-flex items-center justify-center gap-1">
+                <span>Código</span>
+                <span class="text-xs">
+                  {{ ordemCodigo === 'asc' ? '▲' : '▼' }}
+                </span>
+              </div>
+
+            </th>
             <th class="p-3 border text-center min-w-[200px]">RAG</th>
             <th class="p-3 border text-center w-[180px]">CPF / CNPJ</th>
             <th class="p-3 border text-center w-[70px]">Logradouro</th>
