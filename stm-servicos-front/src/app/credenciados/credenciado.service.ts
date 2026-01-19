@@ -106,6 +106,13 @@ export class CredenciadoService {
     tecnicoId: string,
     tecnico: Tecnico
   ): Observable<Tecnico> {
+
+    console.group('🟠 [HTTP] PUT Técnico');
+    console.log('URL:', `${this.apiUrl}/api/credenciados/tecnicos/${tecnicoId}`);
+    console.log('Body:', tecnico);
+    console.log('Endereço no body:', tecnico?.endereco);
+    console.groupEnd();
+
     return this.http.put<Tecnico>(
       `${this.apiUrl}/api/credenciados/tecnicos/${tecnicoId}`,
       tecnico

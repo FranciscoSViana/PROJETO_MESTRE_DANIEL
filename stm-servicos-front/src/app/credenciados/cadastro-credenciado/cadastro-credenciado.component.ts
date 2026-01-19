@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { FormControl, FormGroup, Validators, AbstractControl } from '@angular/forms';
 import { CredenciadoService } from '../credenciado.service';
 import { ActivatedRoute, Router } from '@angular/router';
 
@@ -14,22 +14,25 @@ export class CadastroCredenciadoComponent implements OnInit {
   camposForm: FormGroup;
   tipoPessoaSelecionado: number | null = null;
 
-  constructor(private service: CredenciadoService, private router: Router, private route: ActivatedRoute) {
+  constructor(
+    private service: CredenciadoService,
+    private router: Router,
+    private route: ActivatedRoute
+  ) {
     this.camposForm = new FormGroup({
       id: new FormControl(),
       codigo: new FormControl(),
 
       rag: new FormControl('', Validators.required),
 
-      tipoPessoa: new FormControl<number | null>(null, {
-        nonNullable: false,
-        validators: Validators.required
-      }),
-      numeroPessoa: new FormControl('', Validators.required),
+      // ❌ NÃO obrigatório
+      tipoPessoa: new FormControl<number | null>(null),
+
+      // ❌ NÃO obrigatório
+      numeroPessoa: new FormControl(''),
 
       valorChamado: new FormControl(),
       valorKm: new FormControl(),
-
       quantidadeOSAtendidas: new FormControl(),
 
       contato: new FormControl(),
@@ -48,76 +51,54 @@ export class CadastroCredenciadoComponent implements OnInit {
 
   ngOnInit(): void {
 
-    // 🔹 Observa SEMPRE o valor real do form
+    // Observa mudança do tipoPessoa
     this.camposForm.get('tipoPessoa')?.valueChanges.subscribe(value => {
-      const tipo = value !== null && value !== undefined
-        ? Number(value)
-        : null;
-
+      const tipo = value !== null && value !== undefined ? Number(value) : null;
       this.tipoPessoaSelecionado = tipo;
 
-      if (tipo !== null) {
-        this.configurarValidacaoDocumento(tipo);
-      }
+      this.configurarValidacaoDocumento(tipo);
     });
 
     const id = this.route.snapshot.paramMap.get('id');
 
     if (id) {
-      console.log('🟡 ID recebido pela rota:', id);
+      this.service.buscarPorId(id).subscribe(credenciado => {
 
-      this.service.buscarPorId(id).subscribe({
-        next: credenciado => {
+        const tipoConvertido = this.converterTipoPessoa(credenciado.tipoPessoa);
 
-          console.log('🟢 Credenciado bruto vindo da API:', credenciado);
-          console.log('🟢 Endereço vindo da API:', credenciado.endereco);
+        this.camposForm.patchValue({
+          id: credenciado.id,
+          codigo: credenciado.codigo,
+          rag: credenciado.rag,
+          tipoPessoa: tipoConvertido,
+          numeroPessoa: credenciado.numeroPessoa,
+          valorChamado: credenciado.valorChamado,
+          valorKm: credenciado.valorKm,
+          quantidadeOSAtendidas: credenciado.quantidadeOSAtendidas,
+          contato: credenciado.contato,
+          telefones: credenciado.telefones,
+          email: credenciado.email,
 
-          const tipoConvertido = this.converterTipoPessoa(credenciado.tipoPessoa);
+          cep: credenciado.endereco?.cep,
+          logradouro: credenciado.endereco?.logradouro,
+          numero: credenciado.endereco?.numero,
+          bairro: credenciado.endereco?.bairro,
+          cidade: credenciado.endereco?.cidade,
+          estado: credenciado.endereco?.estado,
+          complemento: credenciado.endereco?.complemento
+        });
 
-          console.log('➡ tipoPessoa:', credenciado.tipoPessoa);
-          console.log('🟣 tipoPessoa convertido:', tipoConvertido);
-
-          // 1️⃣ Patch geral
-          this.camposForm.patchValue({
-            id: credenciado.id,
-            codigo: credenciado.codigo,
-            rag: credenciado.rag,
-            tipoPessoa: tipoConvertido,
-            numeroPessoa: credenciado.numeroPessoa,
-            valorChamado: credenciado.valorChamado,
-            valorKm: credenciado.valorKm,
-            quantidadeOSAtendidas: credenciado.quantidadeOSAtendidas,
-            contato: credenciado.contato,
-            telefones: credenciado.telefones,
-            email: credenciado.email,
-
-            // Endereço
-            cep: credenciado.endereco?.cep,
-            logradouro: credenciado.endereco?.logradouro,
-            numero: credenciado.endereco?.numero,
-            bairro: credenciado.endereco?.bairro,
-            cidade: credenciado.endereco?.cidade,
-            estado: credenciado.endereco?.estado,
-            complemento: credenciado.endereco?.complemento
-          });
-
-          // 2️⃣ Atualiza controle visual
-          this.tipoPessoaSelecionado = tipoConvertido;
-
-          // 3️⃣ Aplica validação correta
-          if (tipoConvertido !== null) {
-            this.configurarValidacaoDocumento(tipoConvertido);
-          }
-        }
+        this.tipoPessoaSelecionado = tipoConvertido;
+        this.configurarValidacaoDocumento(tipoConvertido);
       });
     }
   }
-
 
   salvar(): void {
     this.camposForm.markAllAsTouched();
 
     if (this.camposForm.invalid) {
+      console.warn('❌ Formulário inválido:', this.camposForm.errors);
       return;
     }
 
@@ -132,7 +113,7 @@ export class CadastroCredenciadoComponent implements OnInit {
     const credenciado = {
       rag: formValue.rag,
       tipoPessoa: formValue.tipoPessoa,
-      numeroPessoa: formValue.numeroPessoa,
+      numeroPessoa: formValue.numeroPessoa || null,
       valorChamado: parseValor(formValue.valorChamado),
       valorKm: parseValor(formValue.valorKm),
       quantidadeOSAtendidas: formValue.quantidadeOSAtendidas,
@@ -151,19 +132,18 @@ export class CadastroCredenciadoComponent implements OnInit {
     };
 
     if (formValue.id) {
-      this.service.atualizar(formValue.id, credenciado).subscribe({
-        next: () => this.router.navigate(['/credenciados'])
-      });
+      this.service.atualizar(formValue.id, credenciado).subscribe(() =>
+        this.router.navigate(['/credenciados'])
+      );
     } else {
-      this.service.salvar(credenciado).subscribe({
-        next: () => this.router.navigate(['/credenciados'])
-      });
+      this.service.salvar(credenciado).subscribe(() =>
+        this.router.navigate(['/credenciados'])
+      );
     }
   }
 
   buscarCep() {
     const cep = this.camposForm.get('cep')?.value;
-
     if (!cep || cep.length < 8) return;
 
     this.service.buscarCep(cep).subscribe(dados => {
@@ -177,42 +157,46 @@ export class CadastroCredenciadoComponent implements OnInit {
     });
   }
 
-  private configurarValidacaoDocumento(tipo: number) {
+  /**
+   * 🔐 Valida SOMENTE se houver valor digitado
+   */
+  private configurarValidacaoDocumento(tipo: number | null) {
     const ctrl = this.camposForm.get('numeroPessoa');
-
     if (!ctrl) return;
 
     ctrl.clearValidators();
 
     if (tipo === 1) {
-      // CPF → 11 dígitos
-      ctrl.setValidators([
-        Validators.required,
-        Validators.minLength(11)
-      ]);
+      // CPF → valida apenas se preenchido
+      ctrl.setValidators(this.documentoComTamanho(11));
     } else if (tipo === 2) {
-      // CNPJ → 14 dígitos
-      ctrl.setValidators([
-        Validators.required,
-        Validators.minLength(14)
-      ]);
+      // CNPJ → valida apenas se preenchido
+      ctrl.setValidators(this.documentoComTamanho(14));
     }
 
     ctrl.updateValueAndValidity();
   }
 
+  /**
+   * ✔️ Valida tamanho somente se houver valor
+   */
+  private documentoComTamanho(tamanho: number) {
+    return (control: AbstractControl) => {
+      const valor = control.value;
+      if (!valor) return null; // vazio é permitido
+      return valor.length === tamanho
+        ? null
+        : { tamanhoInvalido: true };
+    };
+  }
+
   private converterTipoPessoa(tipo: any): number | null {
     if (tipo === null || tipo === undefined) return null;
 
-    // Já veio número
-    if (typeof tipo === 'number') {
-      return tipo;
-    }
+    if (typeof tipo === 'number') return tipo;
 
-    // Veio string (caso atual)
     if (typeof tipo === 'string') {
       const normalizado = tipo.toLowerCase();
-
       if (normalizado.includes('física')) return 1;
       if (normalizado.includes('jurídica')) return 2;
     }
