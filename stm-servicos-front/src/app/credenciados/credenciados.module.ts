@@ -19,7 +19,7 @@ import { TecnicosComponent } from './tecnicos/tecnicos.component';
     CommonModule,
     CredenciadosRoutingModule,
     ReactiveFormsModule,
-    NgxMaskDirective
+    NgxMaskDirective,
   ]
 })
 export class CredenciadosModule { }

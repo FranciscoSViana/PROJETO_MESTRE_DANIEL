@@ -1,6 +1,9 @@
 package io.github.franciscosviana.stmservicos.domain.repository;
 
 import io.github.franciscosviana.stmservicos.domain.model.Credenciado;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -32,5 +35,8 @@ public interface CredenciadoRepository extends JpaRepository<Credenciado, UUID> 
             @Param("lng") double lng,
             @Param("raio") double raio
     );
+
+    @EntityGraph(attributePaths = { "endereco" })
+    Page<Credenciado> findAll(Pageable pageable);
 
 }

@@ -84,7 +84,7 @@
     <h3 class="text-xl font-semibold mt-6 mb-2">Endereço</h3>
 
     <div class="grid grid-cols-3 gap-4 mb-4">
-      <input formControlName="cep" mask="00000-000" placeholder="CEP" (blur)="buscarCep()" class="p-3 border rounded" />
+      <input formControlName="cep" mask="00000-000" placeholder="CEP" (blur)="buscarCep(); buscarCredenciadosPorCepFormulario()" class="p-3 border rounded" />
       <input formControlName="logradouro" placeholder="Logradouro" class="p-3 border rounded" />
       <input formControlName="numero" placeholder="Número" class="p-3 border rounded" />
       <input formControlName="bairro" placeholder="Bairro" class="p-3 border rounded" />

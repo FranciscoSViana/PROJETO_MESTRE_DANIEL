@@ -345,13 +345,24 @@ export class CadastroOrdemComponent implements OnInit {
   }
 
   rebuscarCredenciados() {
-    if (!this.cepCliente) return;
+    this.buscarCredenciadosPorCepFormulario();
+  }
 
-    const raioKm = this.camposForm.get('raioKm')?.value;
+  buscarCredenciadosPorCepFormulario() {
+    const cep = this.camposForm.get('cep')?.value;
+    const raioKm = this.camposForm.get('raioKm')?.value ?? 100;
+
+    if (!cep || cep.replace(/\D/g, '').length !== 8) {
+      this.credenciadosProximos$.next([]);
+      return;
+    }
 
     this.credenciadoService
-      .buscarProximosPorCep(this.cepCliente, raioKm)
-      .subscribe(c => this.credenciadosProximos$.next(c));
+      .buscarProximosPorCep(cep, raioKm)
+      .subscribe({
+        next: c => this.credenciadosProximos$.next(c),
+        error: () => this.credenciadosProximos$.next([])
+      });
   }
 
   compareContrato = (a: string | null, b: string | null): boolean => {

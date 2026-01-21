@@ -19,6 +19,7 @@ export class ConsultaCredenciadoComponent implements OnInit {
   loading = false;
   errorMessage = '';
   ordemCodigo: 'asc' | 'desc' = 'asc';
+  pageSizes: number[] = [10, 25, 50, 100, 200];
 
   constructor(private service: CredenciadoService, private router: Router) { }
 
@@ -120,6 +121,14 @@ export class ConsultaCredenciadoComponent implements OnInit {
   ordenarPorCodigo() {
     this.ordemCodigo = this.ordemCodigo === 'asc' ? 'desc' : 'asc';
     this.page = 0; // sempre volta pra primeira página
+    this.carregarCredenciados();
+  }
+
+  onSizeChange(event: Event) {
+    const select = event.target as HTMLSelectElement;
+
+    this.size = Number(select.value);
+    this.page = 0; // sempre volta para a primeira página
     this.carregarCredenciados();
   }
 }
