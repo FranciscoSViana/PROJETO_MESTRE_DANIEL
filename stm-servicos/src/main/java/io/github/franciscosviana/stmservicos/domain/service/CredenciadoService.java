@@ -163,7 +163,6 @@ public class CredenciadoService {
     }
 
 
-
     /* ============================
        BUSCAR PRÓXIMOS
        ============================ */
@@ -248,8 +247,9 @@ public class CredenciadoService {
 
     private void validarNumeroPessoa(Integer tipoPessoaCodigo, String numeroPessoa) {
 
+        // 🔹 Se não foi informado, não valida (regra do front)
         if (numeroPessoa == null || numeroPessoa.isBlank()) {
-            throw new CredenciadoException("Número do documento é obrigatório");
+            return;
         }
 
         TipoPessoa tipoPessoa = TipoPessoa.fromCodigo(tipoPessoaCodigo);
@@ -260,7 +260,9 @@ public class CredenciadoService {
         };
 
         if (invalido) {
-            throw new CredenciadoException(tipoPessoa.getDescricao() + " inválido: " + numeroPessoa);
+            throw new CredenciadoException(
+                    tipoPessoa.getDescricao() + " inválido: " + numeroPessoa
+            );
         }
     }
 
