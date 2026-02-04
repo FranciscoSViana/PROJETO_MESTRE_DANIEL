@@ -8,6 +8,7 @@ import io.github.franciscosviana.stmservicos.common.validation.ContratoException
 import io.github.franciscosviana.stmservicos.common.validation.OrdemServicoException;
 import io.github.franciscosviana.stmservicos.domain.model.Cliente;
 import io.github.franciscosviana.stmservicos.domain.model.Contrato;
+import io.github.franciscosviana.stmservicos.domain.model.Credenciado;
 import io.github.franciscosviana.stmservicos.domain.model.OrdemServico;
 import io.github.franciscosviana.stmservicos.domain.model.Tecnico;
 import io.github.franciscosviana.stmservicos.domain.model.enums.StatusOrdem;
@@ -22,7 +23,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @Slf4j
@@ -33,6 +36,7 @@ public class OrdemServicoService {
     private final TecnicoService tecnicoService;
     private final ClienteService clienteService;
     private final ContratoService contratoService;
+    private final CredenciadoService credenciadoService;
     private final OrdemServicoRepository repository;
     private final OrdemServicoOutputAssembler assembler;
     private final OrdemServicoInputDisassembler disassembler;
@@ -59,14 +63,14 @@ public class OrdemServicoService {
             throw new ContratoException("Contrato não pertence ao cliente");
         }
 
-        // 🔥 Técnico (OBRIGATÓRIO)
+        // Técnico (OBRIGATÓRIO)
         if (input.getTecnicoId() == null) {
             throw new OrdemServicoException("Técnico é obrigatório para criação da OS");
         }
 
         Tecnico tecnico = tecnicoService.buscarOuFalhar(input.getTecnicoId());
 
-        // 🔐 Integridade: técnico pertence ao credenciado?
+        // Integridade: técnico pertence ao credenciado?
         if (!tecnico.getCredenciado().getId().equals(input.getCredenciadoId())) {
             throw new OrdemServicoException("Técnico não pertence ao credenciado informado");
         }
@@ -97,10 +101,13 @@ public class OrdemServicoService {
                 .map(assembler::toModel);
     }
 
+    @Transactional
     public OrdemServicoOutput atualizar(UUID id, OrdemServicoInput input) {
 
         OrdemServico atual = buscarOuFalhar(id);
-        StatusOrdem statusAnterior = atual.getStatus();
+
+        // 🔥 CAPTURA O ESTADO ANTERIOR PARA COMPARAÇÃO
+        OrdemServico estadoAnterior = clonarParaComparacao(atual);
 
         disassembler.copyToDomainObject(input, atual);
 
@@ -121,7 +128,13 @@ public class OrdemServicoService {
         atual.setCliente(cliente);
         atual.setContrato(contrato);
 
-        // 🔥🔥🔥 TRATAMENTO DO TÉCNICO (ESTAVA FALTANDO)
+        // 🔥 TRATAMENTO DO CREDENCIADO
+        if (input.getCredenciadoId() != null) {
+            Credenciado credenciado = credenciadoService.buscarOuFalhar(input.getCredenciadoId());
+            atual.setCredenciado(credenciado);
+        }
+
+        // TRATAMENTO DO TÉCNICO
         if (input.getTecnicoId() != null) {
 
             Tecnico tecnico = tecnicoService.buscarOuFalhar(input.getTecnicoId());
@@ -135,17 +148,20 @@ public class OrdemServicoService {
 
         repository.save(atual);
 
-        if (statusAnterior != atual.getStatus()) {
+        // 🔥 GERA DESCRIÇÃO DETALHADA DAS ALTERAÇÕES
+        String descricaoAlteracoes = gerarDescricaoAlteracoes(estadoAnterior, atual);
+
+        if (estadoAnterior.getStatus() != atual.getStatus()) {
             historicoOrdemServicoService.registrar(
                     atual,
                     TipoAcaoOS.MUDANCA_STATUS,
-                    "Status alterado de " + statusAnterior + " para " + atual.getStatus()
+                    descricaoAlteracoes
             );
         } else {
             historicoOrdemServicoService.registrar(
                     atual,
                     TipoAcaoOS.ATUALIZACAO,
-                    "Dados da OS atualizados"
+                    descricaoAlteracoes
             );
         }
 
@@ -186,5 +202,135 @@ public class OrdemServicoService {
     private OrdemServico buscarOuFalhar(UUID id) {
         return repository.findById(id)
                 .orElseThrow(() -> new OrdemServicoException("Ordem de Serviço não encontrada"));
+    }
+
+    // 🔥 MÉTODO AUXILIAR: Clona valores relevantes para comparação
+    private OrdemServico clonarParaComparacao(OrdemServico os) {
+        OrdemServico clone = new OrdemServico();
+        clone.setOsClt(os.getOsClt());
+        clone.setStatus(os.getStatus());
+        clone.setContato(os.getContato());
+        clone.setDepartamento(os.getDepartamento());
+        clone.setTelefone(os.getTelefone());
+        clone.setAcionador(os.getAcionador());
+        clone.setEquipamento(os.getEquipamento());
+        clone.setSerie(os.getSerie());
+        clone.setPib(os.getPib());
+        clone.setDefeito(os.getDefeito());
+        clone.setRastreio(os.getRastreio());
+        clone.setCliente(os.getCliente());
+        clone.setContrato(os.getContrato());
+        clone.setTecnico(os.getTecnico());
+        clone.setCredenciado(os.getCredenciado()); // ✅ Já estava aqui
+        return clone;
+    }
+
+    // 🔥 MÉTODO PRINCIPAL: Gera descrição detalhada das alterações
+    private String gerarDescricaoAlteracoes(OrdemServico anterior, OrdemServico atual) {
+        List<String> alteracoes = new ArrayList<>();
+
+        // Status
+        if (!Objects.equals(anterior.getStatus(), atual.getStatus())) {
+            alteracoes.add(String.format("Status: %s → %s",
+                    anterior.getStatus(), atual.getStatus()));
+        }
+
+        // OS Cliente
+        if (!Objects.equals(anterior.getOsClt(), atual.getOsClt())) {
+            alteracoes.add(String.format("OS Cliente: %s → %s",
+                    valorOuVazio(anterior.getOsClt()), valorOuVazio(atual.getOsClt())));
+        }
+
+        // Contato
+        if (!Objects.equals(anterior.getContato(), atual.getContato())) {
+            alteracoes.add(String.format("Contato: %s → %s",
+                    valorOuVazio(anterior.getContato()), valorOuVazio(atual.getContato())));
+        }
+
+        // Departamento
+        if (!Objects.equals(anterior.getDepartamento(), atual.getDepartamento())) {
+            alteracoes.add(String.format("Departamento: %s → %s",
+                    valorOuVazio(anterior.getDepartamento()), valorOuVazio(atual.getDepartamento())));
+        }
+
+        // Telefone
+        if (!Objects.equals(anterior.getTelefone(), atual.getTelefone())) {
+            alteracoes.add(String.format("Telefone: %s → %s",
+                    valorOuVazio(anterior.getTelefone()), valorOuVazio(atual.getTelefone())));
+        }
+
+        // Acionador
+        if (!Objects.equals(anterior.getAcionador(), atual.getAcionador())) {
+            alteracoes.add(String.format("Acionador: %s → %s",
+                    valorOuVazio(anterior.getAcionador()), valorOuVazio(atual.getAcionador())));
+        }
+
+        // Equipamento
+        if (!Objects.equals(anterior.getEquipamento(), atual.getEquipamento())) {
+            alteracoes.add(String.format("Equipamento: %s → %s",
+                    valorOuVazio(anterior.getEquipamento()), valorOuVazio(atual.getEquipamento())));
+        }
+
+        // Série
+        if (!Objects.equals(anterior.getSerie(), atual.getSerie())) {
+            alteracoes.add(String.format("Série: %s → %s",
+                    valorOuVazio(anterior.getSerie()), valorOuVazio(atual.getSerie())));
+        }
+
+        // PIB
+        if (!Objects.equals(anterior.getPib(), atual.getPib())) {
+            alteracoes.add(String.format("PIB: %s → %s",
+                    valorOuVazio(anterior.getPib()), valorOuVazio(atual.getPib())));
+        }
+
+        // Defeito
+        if (!Objects.equals(anterior.getDefeito(), atual.getDefeito())) {
+            alteracoes.add(String.format("Defeito: %s → %s",
+                    valorOuVazio(anterior.getDefeito()), valorOuVazio(atual.getDefeito())));
+        }
+
+        // Rastreio
+        if (!Objects.equals(anterior.getRastreio(), atual.getRastreio())) {
+            alteracoes.add(String.format("Rastreio: %s → %s",
+                    valorOuVazio(anterior.getRastreio()), valorOuVazio(atual.getRastreio())));
+        }
+
+        // Cliente
+        if (anterior.getCliente() != null && atual.getCliente() != null
+                && !anterior.getCliente().getId().equals(atual.getCliente().getId())) {
+            alteracoes.add("Cliente alterado");
+        }
+
+        // Contrato
+        if (anterior.getContrato() != null && atual.getContrato() != null
+                && !anterior.getContrato().getId().equals(atual.getContrato().getId())) {
+            alteracoes.add("Contrato alterado");
+        }
+
+        // Técnico
+        if (anterior.getTecnico() != null && atual.getTecnico() != null
+                && !anterior.getTecnico().getId().equals(atual.getTecnico().getId())) {
+            alteracoes.add(String.format("Técnico alterado: %s → %s",
+                    anterior.getTecnico().getNome(), atual.getTecnico().getNome()));
+        }
+
+        // Credenciado
+        if (anterior.getCredenciado() != null && atual.getCredenciado() != null
+                && !anterior.getCredenciado().getId().equals(atual.getCredenciado().getId())) {
+            alteracoes.add(String.format("Credenciado alterado: %s → %s",
+                    anterior.getCredenciado().getRag(), atual.getCredenciado().getRag()));
+        }
+
+        // Retorna descrição concatenada ou mensagem padrão
+        if (alteracoes.isEmpty()) {
+            return "Dados da OS atualizados";
+        }
+
+        return String.join(" | ", alteracoes);
+    }
+
+    // 🔥 MÉTODO AUXILIAR: Retorna o valor ou "vazio"
+    private String valorOuVazio(Object valor) {
+        return valor != null && !valor.toString().isBlank() ? valor.toString() : "(vazio)";
     }
 }

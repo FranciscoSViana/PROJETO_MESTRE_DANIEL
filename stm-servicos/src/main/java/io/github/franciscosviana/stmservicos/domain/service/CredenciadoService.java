@@ -240,7 +240,7 @@ public class CredenciadoService {
         return brasilAPIClient.buscarMunicipios(uf);
     }
 
-    private Credenciado buscarOuFalhar(UUID id) {
+    public Credenciado buscarOuFalhar(UUID id) {
         return credenciadoRepository.findById(id)
                 .orElseThrow(() -> new CredenciadoException("Credenciado não encontrado"));
     }
