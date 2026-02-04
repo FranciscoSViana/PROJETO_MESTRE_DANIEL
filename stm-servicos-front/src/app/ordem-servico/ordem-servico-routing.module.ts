@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { CadastroOrdemComponent } from './cadastro-ordem/cadastro-ordem.component';
 import { ConsultaOrdemComponent } from './consulta-ordem/consulta-ordem.component';
+import { HistoricoOrdemComponent } from './historico-ordem/historico-ordem.component';
 
 const routes: Routes = [
   {
@@ -15,6 +16,10 @@ const routes: Routes = [
   {
     path: 'editar/:id',
     component: CadastroOrdemComponent
+  },
+  {
+    path: ':id/historico',
+    component: HistoricoOrdemComponent
   }
 ];
 

@@ -104,6 +104,11 @@ export class ConsultaOrdemComponent implements OnInit {
     this.router.navigate(['/ordem-servico/editar', id]);
   }
 
+  verHistorico(id?: string) {
+    if (!id) return;
+    this.router.navigate(['/ordem-servico', id, 'historico']);
+  }
+
   paginaAnterior() {
     if (this.page > 0) {
       this.page--;

@@ -10,6 +10,8 @@ import io.github.franciscosviana.stmservicos.domain.model.Cliente;
 import io.github.franciscosviana.stmservicos.domain.model.Contrato;
 import io.github.franciscosviana.stmservicos.domain.model.OrdemServico;
 import io.github.franciscosviana.stmservicos.domain.model.Tecnico;
+import io.github.franciscosviana.stmservicos.domain.model.enums.StatusOrdem;
+import io.github.franciscosviana.stmservicos.domain.model.enums.TipoAcaoOS;
 import io.github.franciscosviana.stmservicos.domain.repository.OrdemServicoRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +36,7 @@ public class OrdemServicoService {
     private final OrdemServicoRepository repository;
     private final OrdemServicoOutputAssembler assembler;
     private final OrdemServicoInputDisassembler disassembler;
+    private final HistoricoOrdemServicoService historicoOrdemServicoService;
 
     @Transactional
     public OrdemServicoOutput salvar(OrdemServicoInput input) {
@@ -74,6 +77,9 @@ public class OrdemServicoService {
         ordem.setTecnico(tecnico);
 
         repository.save(ordem);
+
+        historicoOrdemServicoService.registrar(ordem, TipoAcaoOS.CRIACAO, "Ordem de Serviço criada com sucesso");
+
         return assembler.toModel(ordem);
     }
 
@@ -92,18 +98,21 @@ public class OrdemServicoService {
     }
 
     public OrdemServicoOutput atualizar(UUID id, OrdemServicoInput input) {
+
         OrdemServico atual = buscarOuFalhar(id);
+        StatusOrdem statusAnterior = atual.getStatus();
 
         disassembler.copyToDomainObject(input, atual);
 
+        // Cliente
         Cliente cliente = clienteService.buscarOuFalhar(atual.getCliente().getId());
 
+        // Contrato
         if (atual.getContrato() == null || atual.getContrato().getId() == null) {
             throw new ContratoException("Contrato não informado");
         }
 
         Contrato contrato = contratoService.buscarOuFalhar(atual.getContrato().getId());
-
 
         if (!contrato.getCliente().getId().equals(cliente.getId())) {
             throw new ContratoException("Contrato não pertence ao cliente");
@@ -111,7 +120,35 @@ public class OrdemServicoService {
 
         atual.setCliente(cliente);
         atual.setContrato(contrato);
+
+        // 🔥🔥🔥 TRATAMENTO DO TÉCNICO (ESTAVA FALTANDO)
+        if (input.getTecnicoId() != null) {
+
+            Tecnico tecnico = tecnicoService.buscarOuFalhar(input.getTecnicoId());
+
+            if (!tecnico.getCredenciado().getId().equals(atual.getCredenciado().getId())) {
+                throw new OrdemServicoException("Técnico não pertence ao credenciado informado");
+            }
+
+            atual.setTecnico(tecnico);
+        }
+
         repository.save(atual);
+
+        if (statusAnterior != atual.getStatus()) {
+            historicoOrdemServicoService.registrar(
+                    atual,
+                    TipoAcaoOS.MUDANCA_STATUS,
+                    "Status alterado de " + statusAnterior + " para " + atual.getStatus()
+            );
+        } else {
+            historicoOrdemServicoService.registrar(
+                    atual,
+                    TipoAcaoOS.ATUALIZACAO,
+                    "Dados da OS atualizados"
+            );
+        }
+
         return assembler.toModel(atual);
     }
 

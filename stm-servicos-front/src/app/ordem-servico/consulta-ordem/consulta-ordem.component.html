@@ -37,15 +37,28 @@
 
             <td class="p-3 border">
               <div class="flex justify-center gap-2">
-                <button class="w-9 h-9 flex items-center justify-center rounded hover:bg-gray-200" (click)="editar(os.id)">
+
+                <!-- Editar -->
+                <button class="w-9 h-9 flex items-center justify-center rounded hover:bg-gray-200"
+                  (click)="editar(os.id)">
                   <i class="fa-solid fa-pen-to-square text-blue-600"></i>
                 </button>
 
-                <button class="w-9 h-9 flex items-center justify-center rounded hover:bg-gray-200" (click)="excluir(os.id)">
+                <!-- Histórico -->
+                <button class="w-9 h-9 flex items-center justify-center rounded hover:bg-gray-200"
+                  (click)="verHistorico(os.id)">
+                  <i class="fa-solid fa-clock-rotate-left text-gray-700"></i>
+                </button>
+
+                <!-- Excluir -->
+                <button class="w-9 h-9 flex items-center justify-center rounded hover:bg-gray-200"
+                  (click)="excluir(os.id)">
                   <i class="fa-solid fa-trash text-red-600"></i>
                 </button>
+
               </div>
             </td>
+
           </tr>
         </tbody>
       </table>

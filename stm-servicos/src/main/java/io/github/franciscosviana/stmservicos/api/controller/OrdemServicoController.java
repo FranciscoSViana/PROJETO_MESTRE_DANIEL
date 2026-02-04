@@ -2,7 +2,9 @@ package io.github.franciscosviana.stmservicos.api.controller;
 
 
 import io.github.franciscosviana.stmservicos.api.model.input.OrdemServicoInput;
+import io.github.franciscosviana.stmservicos.api.model.output.HistoricoOrdemServicoOutput;
 import io.github.franciscosviana.stmservicos.api.model.output.OrdemServicoOutput;
+import io.github.franciscosviana.stmservicos.domain.service.HistoricoOrdemServicoService;
 import io.github.franciscosviana.stmservicos.domain.service.OrdemServicoService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,6 +15,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -23,6 +26,7 @@ public class OrdemServicoController {
 
 
     private final OrdemServicoService ordemServicoService;
+    private final HistoricoOrdemServicoService historicoOrdemServicoService;
 
 
     @PostMapping
@@ -55,6 +59,12 @@ public class OrdemServicoController {
         OrdemServicoOutput ordemServicoOutput = ordemServicoService.atualizar(id, input);
 
         return ResponseEntity.ok(ordemServicoOutput);
+    }
+
+    @GetMapping("/{id}/historico")
+    public List<HistoricoOrdemServicoOutput> historico(@PathVariable UUID id) {
+
+        return historicoOrdemServicoService.listarPorOrdemServico(id);
     }
 
     @DeleteMapping("/{id}")

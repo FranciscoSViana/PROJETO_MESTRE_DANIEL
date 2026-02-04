@@ -1,0 +1,49 @@
+<div class="p-6 max-w-5x1 mx-auto bg-white shadow rounded mt-6">
+
+    <h2 class="text-2x1 font-semibold text-gray-700 mb-4">
+        Histórico da Ordem de Serviço
+    </h2>
+
+    <div *ngIf="loading" class="text-center text-gray-500">
+        Carregando histórico...
+    </div>
+
+    <div *ngIf="errorMessage" class="text-red-600">
+        {{ errorMessage }}
+    </div>
+
+    <table *ngIf="!loading && historicos.length" class="min-w-full border-collapse mt-4">
+
+        <thead class="bg-gray-100">
+            <tr>
+                <th class="p-3 border">Data</th>
+                <th class="p-3 border">Ação</th>
+                <th class="p-3 border">Descrição</th>
+                <th class="p-3 border">Usuário</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            <tr *ngFor="let h of historicos" class="hover:bg-gray-50">
+                <td class="p-3 border">
+                    {{ h.dataHora | date:'dd/MM/yyyy HH:mm' }}
+                </td>
+                <td class="p-3 border font-medium">
+                    {{ h.acao }}
+                </td>
+                <td class="p-3 border">
+                    {{ h.descricao || '-' }}
+                </td>
+                <td class="p-3 border">
+                    {{ h.usuario?.nome }}
+                </td>
+            </tr>
+        </tbody>
+
+    </table>
+
+    <div *ngIf="!loading && !historicos.length" class="text-gray-500 text-center mt-6">
+        Nenhum histórico encontrado.
+    </div>
+
+</div>

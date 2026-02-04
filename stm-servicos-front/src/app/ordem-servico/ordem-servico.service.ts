@@ -35,11 +35,15 @@ export class OrdemServicoService {
     return this.http.delete(this.apiUrl + `/api/ordens-servico/${id}`);
   }
 
-  buscarProximoOsg() {
-    return this.http.get(this.apiUrl + '/api/ordens-servico/proximo-osg', {responseType: 'text'});
+  buscarHistorico(id: string): Observable<any[]> {
+    return this.http.get<any[]>(this.apiUrl + `/api/ordens-servico/${id}/historico`);
   }
 
-  buscarCep(cep: string) : Observable<any> {
+  buscarProximoOsg() {
+    return this.http.get(this.apiUrl + '/api/ordens-servico/proximo-osg', { responseType: 'text' });
+  }
+
+  buscarCep(cep: string): Observable<any> {
     return this.http.get(this.apiUrl + `/api/enderecos/cep/${cep}`);
   }
 }
