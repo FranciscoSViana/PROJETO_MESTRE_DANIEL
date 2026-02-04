@@ -28,19 +28,9 @@ export class TecnicosComponent implements OnInit {
 
   tecnicoForm = new FormGroup({
     nome: new FormControl('', Validators.required),
-    cpf: new FormControl('', Validators.required),
+    cpf: new FormControl(''),
     telefone: new FormControl(''),
     email: new FormControl(''),
-
-    endereco: new FormGroup({
-      logradouro: new FormControl<string | null>(null),
-      numero: new FormControl<string | null>(null),
-      bairro: new FormControl<string | null>(null),
-      cidade: new FormControl<string | null>(null),
-      estado: new FormControl<string | null>(null),
-      complemento: new FormControl<string | null>(null),
-      cep: new FormControl<string | null>(null),
-    })
   });
 
   tecnicoEditandoId: string | null = null;
@@ -130,16 +120,7 @@ export class TecnicosComponent implements OnInit {
       nome: tecnico.nome,
       cpf: tecnico.cpf,
       telefone: tecnico.telefone,
-      email: tecnico.email,
-      endereco: {
-        logradouro: tecnico.endereco?.logradouro,
-        numero: tecnico.endereco?.numero,
-        bairro: tecnico.endereco?.bairro,
-        cidade: tecnico.endereco?.cidade,
-        estado: tecnico.endereco?.estado,
-        complemento: tecnico.endereco?.complemento,
-        cep: tecnico.endereco?.cep
-      }
+      email: tecnico.email
     });
   }
 
@@ -161,7 +142,7 @@ export class TecnicosComponent implements OnInit {
           },
           error: err => {
             console.error('Erro ao atualizar técnico', err);
-            alert('Erro ao atualizar técnico');
+            alert(this.extrairMensagemErro(err));
           }
         });
     } else {
@@ -174,7 +155,7 @@ export class TecnicosComponent implements OnInit {
           },
           error: err => {
             console.error('Erro ao salvar técnico', err);
-            alert('Erro ao salvar técnico');
+            alert(this.extrairMensagemErro(err));
           }
         });
     }
@@ -192,34 +173,17 @@ export class TecnicosComponent implements OnInit {
       },
       error: err => {
         console.error('Erro ao excluir técnico', err);
-        alert('Erro ao excluir técnico');
+        alert(this.extrairMensagemErro(err));
       }
     });
   }
 
-  buscarCep() {
-    const cepControl = this.tecnicoForm.get('endereco.cep');
-    const cep = cepControl?.value;
-
-    if (!cep || cep.length < 8) {
-      return;
-    }
-
-    this.service.buscarCep(cep).subscribe({
-      next: dados => {
-        this.tecnicoForm.get('endereco')?.patchValue({
-          logradouro: dados.logradouro ?? '',
-          numero: '', // mantém o que o usuário vai digitar
-          bairro: dados.bairro ?? '',
-          cidade: dados.localidade ?? '',
-          estado: dados.uf ?? '',
-          complemento: dados.complemento ?? '',
-          cep: cep
-        });
-      },
-      error: () => {
-        console.warn('CEP não encontrado');
-      }
-    });
+  private extrairMensagemErro(err: any): string {
+    return (
+      err?.error?.userMessage ||
+      err?.error?.detail ||
+      err?.error?.erro || // compatível com CEP
+      'Erro inesperado ao processar a solicitação.'
+    );
   }
 }

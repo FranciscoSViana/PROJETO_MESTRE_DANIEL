@@ -103,6 +103,7 @@ public class SenhaResetService {
     }
 
     @Scheduled(fixedRate = 600000) // a cada 10 minutos
+    @org.springframework.transaction.annotation.Transactional
     public void limparTokensExpirados() {
         tokenRepo.deleteByExpiryDateBefore(Instant.now());
         log.info("🧹 Tokens de reset expirados removidos");

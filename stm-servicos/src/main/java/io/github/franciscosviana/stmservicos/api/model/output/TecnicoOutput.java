@@ -19,5 +19,4 @@ public class TecnicoOutput {
     private String cpf;
     private String telefone;
     private String email;
-    private EnderecoOutput endereco;
 }

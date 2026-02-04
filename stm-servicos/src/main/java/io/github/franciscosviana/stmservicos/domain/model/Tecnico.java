@@ -30,7 +30,4 @@ public class Tecnico {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "credenciado_id", nullable = false)
     private Credenciado credenciado;
-
-    @Embedded
-    private Endereco endereco;
 }

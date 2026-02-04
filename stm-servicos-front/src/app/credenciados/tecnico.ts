@@ -10,6 +10,4 @@ export class Tecnico {
 
     telefone?: string;
     email?: string;
-
-    endereco?: Endereco;
 }

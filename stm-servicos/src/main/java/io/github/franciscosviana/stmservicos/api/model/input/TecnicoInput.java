@@ -12,5 +12,4 @@ public class TecnicoInput {
     private String cpf;
     private String telefone;
     private String email;
-    private EnderecoInput endereco;
 }
