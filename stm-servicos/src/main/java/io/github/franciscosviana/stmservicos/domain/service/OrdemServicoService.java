@@ -169,9 +169,15 @@ public class OrdemServicoService {
 
     @Transactional
     public void deletar(UUID id) {
-
         OrdemServico ordemServico = buscarOuFalhar(id);
 
+        // 1️⃣ Deleta todos os historicos
+        historicoOrdemServicoService.deletarPorOrdemServico(ordemServico.getId());
+
+        // 2️⃣ Remove referências locais para evitar problemas de cache do Hibernate
+        ordemServico.getHistoricos().clear();
+
+        // 3️⃣ Deleta a Ordem de Serviço
         repository.delete(ordemServico);
     }
 

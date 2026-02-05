@@ -7,6 +7,7 @@ import io.github.franciscosviana.stmservicos.domain.model.OrdemServico;
 import io.github.franciscosviana.stmservicos.domain.model.enums.TipoAcaoOS;
 import io.github.franciscosviana.stmservicos.domain.repository.HistoricoOrdemServicoRepository;
 import io.github.franciscosviana.stmservicos.domain.service.helper.UsuarioAutenticadoService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -38,6 +39,12 @@ public class HistoricoOrdemServicoService {
         repository.save(historico);
     }
 
+    @Transactional
+    public void deletarPorOrdemServico(UUID ordemServicoId) {
+        List<HistoricoOrdemServico> historicos = repository.findByOrdemServicoIdOrderByDataHoraAsc(ordemServicoId);
+        repository.deleteAll(historicos);
+    }
+
     public List<HistoricoOrdemServicoOutput> listarPorOrdemServico(UUID ordemServicoId) {
 
         return repository
@@ -47,5 +54,3 @@ public class HistoricoOrdemServicoService {
                 .toList();
     }
 }
-
-
