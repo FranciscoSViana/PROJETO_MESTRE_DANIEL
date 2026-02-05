@@ -167,6 +167,7 @@ public class OrdemServicoService {
         return assembler.toModel(atual);
     }
 
+    @Transactional
     public void deletar(UUID id) {
 
         OrdemServico ordemServico = buscarOuFalhar(id);
