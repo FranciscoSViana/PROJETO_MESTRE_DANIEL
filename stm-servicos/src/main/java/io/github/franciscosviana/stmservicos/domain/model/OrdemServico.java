@@ -8,6 +8,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -66,4 +68,8 @@ public class OrdemServico {
 
     @OneToOne(mappedBy = "ordemServico", cascade = CascadeType.ALL)
     private FaturamentoOS faturamento;
+
+    @OneToMany(mappedBy = "ordemServico", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<HistoricoOrdemServico> historicos = new ArrayList<>();
+
 }
