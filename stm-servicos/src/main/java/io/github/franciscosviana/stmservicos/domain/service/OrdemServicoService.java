@@ -46,7 +46,6 @@ public class OrdemServicoService {
     public OrdemServicoOutput salvar(OrdemServicoInput input) {
 
         OrdemServico ordem = disassembler.toDomainObject(input);
-        ordem.setId(UUID.randomUUID());
 
         ordem.setOsg(gerarProximoOsg());
 

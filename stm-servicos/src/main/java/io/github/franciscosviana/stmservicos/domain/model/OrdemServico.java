@@ -18,6 +18,7 @@ import java.util.UUID;
 public class OrdemServico {
 
     @Id
+    @GeneratedValue
     private UUID id;
 
     private String osClt;
