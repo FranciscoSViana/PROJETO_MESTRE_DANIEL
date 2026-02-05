@@ -41,8 +41,7 @@ public class HistoricoOrdemServicoService {
 
     @Transactional
     public void deletarPorOrdemServico(UUID ordemServicoId) {
-        List<HistoricoOrdemServico> historicos = repository.findByOrdemServicoIdOrderByDataHoraAsc(ordemServicoId);
-        repository.deleteAll(historicos);
+        repository.deleteByOrdemServicoId(ordemServicoId);
     }
 
     public List<HistoricoOrdemServicoOutput> listarPorOrdemServico(UUID ordemServicoId) {
