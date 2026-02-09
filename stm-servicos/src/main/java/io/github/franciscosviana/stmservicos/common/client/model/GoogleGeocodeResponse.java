@@ -1,17 +1,25 @@
 package io.github.franciscosviana.stmservicos.common.client.model;
 
 import lombok.Data;
-
 import java.util.List;
 
 @Data
 public class GoogleGeocodeResponse {
-
     private List<Result> results;
+    private String status;
 
     @Data
     public static class Result {
+        private List<AddressComponent> address_components;
         private Geometry geometry;
+        private String formatted_address;
+    }
+
+    @Data
+    public static class AddressComponent {
+        private String long_name;
+        private String short_name;
+        private List<String> types;
     }
 
     @Data
@@ -22,7 +30,7 @@ public class GoogleGeocodeResponse {
 
     @Data
     public static class Location {
-        private Double lat;
-        private Double lng;
+        private double lat;
+        private double lng;
     }
 }

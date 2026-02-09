@@ -140,7 +140,8 @@ public class CredenciadoService {
         GeoLocation geo = null;
 
         try {
-            geo = googleMapsClient.buscarPorEndereco(enderecoCompleto);
+            // ✅ ALTERAÇÃO: Usa método com validação de estado
+            geo = googleMapsClient.buscarPorEnderecoComValidacao(enderecoCompleto, e.getEstado());
             log.info("📌 Geolocalização obtida pelo endereço completo: lat={}, lng={}",
                     geo.getLatitude(), geo.getLongitude());
         } catch (Exception ex) {
@@ -148,7 +149,11 @@ public class CredenciadoService {
 
             // Fallback: buscar apenas pelo CEP
             try {
-                geo = googleMapsClient.buscarPorEndereco(e.getCep() + ", Brasil");
+                // ✅ ALTERAÇÃO: Também valida o estado no fallback
+                geo = googleMapsClient.buscarPorEnderecoComValidacao(
+                        e.getCep() + ", Brasil",
+                        e.getEstado()
+                );
                 log.info("📌 Geolocalização obtida pelo CEP: lat={}, lng={}",
                         geo.getLatitude(), geo.getLongitude());
             } catch (Exception ex2) {
