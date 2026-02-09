@@ -31,7 +31,7 @@
           <tr *ngFor="let os of ordensServico" class="hover:bg-gray-50 h-12">
             <td class="p-3 border text-center truncate">{{ os.osClt }}</td>
             <td class="p-3 border text-center truncate">{{ os.osg }}</td>
-            <td class="p-3 border text-center truncate">{{ os.clienteNome }}</td>
+            <td class="p-3 border text-center truncate">{{ os.cliente?.nome }}</td>
             <td class="p-3 border text-center truncate">{{ os.credenciadoNome }}</td>
             <td class="p-3 border text-center truncate">{{ os.status }}</td>
 

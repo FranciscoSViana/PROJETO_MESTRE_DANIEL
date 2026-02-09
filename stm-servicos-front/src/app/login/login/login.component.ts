@@ -28,7 +28,7 @@ export class LoginComponent {
       this.auth.login(this.camposForm.value as { usuario: string, senha: string }).subscribe({
         next: () => {
           console.log('✅ Login realizado com sucesso');
-          this.router.navigate(['/clientes']);
+          this.router.navigate(['/ordem-servico']);
         },
         error: err => {
           if (err.status === 400) {
