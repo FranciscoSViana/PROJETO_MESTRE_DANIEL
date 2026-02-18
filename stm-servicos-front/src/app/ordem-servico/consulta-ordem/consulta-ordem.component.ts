@@ -6,6 +6,8 @@ import { CredenciadoService } from '../../credenciados/credenciado.service';
 import { forkJoin, map } from 'rxjs';
 import { Router } from '@angular/router';
 import { Solucao } from '../../solucao/solucao';
+import { SolucaoService } from '../../solucao/solucao.service';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-consulta-ordem',
@@ -32,11 +34,19 @@ export class ConsultaOrdemComponent implements OnInit {
 
   solucao: Solucao = new Solucao();
 
+  modalVisualizarSolucao = false;
+  solucaoVisualizacao?: Solucao;
+
+  modalEmail = false;
+  textoEmailFormatado!: SafeHtml;
+
   constructor(
     private service: OrdemServicoService,
     private clienteService: ClienteService,
+    private solucaoService: SolucaoService,
     private credenciadoService: CredenciadoService,
-    private router: Router
+    private router: Router,
+    private sanitizer: DomSanitizer
   ) { }
 
   ngOnInit(): void {
@@ -72,11 +82,23 @@ export class ConsultaOrdemComponent implements OnInit {
         });
 
         // Enriquecer OS com nomes
-        this.ordensServico = (res.content ?? []).map(os => ({
-          ...os,
-          clienteNome: os.cliente?.razaoSocial || os.cliente?.nome || '-',
-          credenciadoNome: os.credenciado?.rag || '-'
-        }));
+        this.ordensServico = (res.content ?? [])
+          .map(os => ({
+            ...os,
+            clienteNome: os.cliente?.razaoSocial || os.cliente?.nome || '-',
+            credenciadoNome: os.credenciado?.rag || '-'
+          }))
+          .sort((a, b) => {
+
+            // Primeiro: ABERTAS
+            if (a.status !== 'CONCLUIDA' && b.status === 'CONCLUIDA') return -1;
+
+            // Depois: CONCLUIDAS
+            if (a.status === 'CONCLUIDA' && b.status !== 'CONCLUIDA') return 1;
+
+            // Se forem iguais, mantém ordem original
+            return 0;
+          });
 
         this.totalElements = res.totalElements ?? this.ordensServico.length;
         this.totalPages = typeof res.totalPages === 'number' ? res.totalPages :
@@ -181,5 +203,152 @@ export class ConsultaOrdemComponent implements OnInit {
           alert('Erro ao finalizar OS');
         }
       });
+  }
+
+  abrirModalVisualizacao(ordemId: string) {
+
+    this.solucaoService.buscarPorOrdem(ordemId).subscribe({
+      next: solucao => {
+        this.solucaoVisualizacao = solucao;
+        this.modalVisualizarSolucao = true;
+      },
+      error: err => {
+        console.error(err);
+        alert('Erro ao carregar solução.');
+      }
+    });
+
+  }
+
+  fecharModalVisualizacao() {
+    this.modalVisualizarSolucao = false;
+    this.solucaoVisualizacao = undefined;
+  }
+
+  acaoSolucao(os: OrdemServico) {
+
+    if (os.status === 'CONCLUIDA') {
+      this.abrirModalVisualizacao(os.id!);
+    } else {
+      this.abrirModalSolucao(os.id);
+    }
+  }
+
+  //   abrirModalEmail() {
+
+  //     const s = this.solucaoVisualizacao;
+
+  //     if (!s) return;
+
+  //     const data = s.dataAtendimento
+  //       ? new Date(s.dataAtendimento).toLocaleDateString('pt-BR')
+  //       : '';
+
+  //     const horaInicial = s.horaInicial
+  //       ? new Date(s.horaInicial).toLocaleTimeString('pt-BR')
+  //       : '';
+
+  //     const horaFinal = s.horaFinal
+  //       ? new Date(s.horaFinal).toLocaleTimeString('pt-BR')
+  //       : '';
+
+  //     this.textoEmailFormatado =
+  //       `POSICIONAMENTO DE ATENDIMENTO:
+
+  // OS: ${s.osClt}
+
+  // Data: ${data} das ${horaInicial} às ${horaFinal}.
+
+  // Solução: ${s.solucao ?? ''}
+  // `;
+
+  //     this.modalEmail = true;
+  //   }
+
+  abrirModalEmail() {
+
+    const s = this.solucaoVisualizacao;
+    if (!s) return;
+
+    const data = s.dataAtendimento
+      ? new Date(s.dataAtendimento).toLocaleDateString('pt-BR')
+      : '';
+
+    const horaInicial = s.horaInicial
+      ? new Date(s.horaInicial).toLocaleTimeString('pt-BR')
+      : '';
+
+    const horaFinal = s.horaFinal
+      ? new Date(s.horaFinal).toLocaleTimeString('pt-BR')
+      : '';
+
+    const html = `
+<table width="100%" cellpadding="0" cellspacing="0" 
+       style="font-family: Arial, sans-serif; font-size:14px; border-collapse: collapse;">
+
+  <tr>
+    <td style="background-color:#8ea6c9; padding:8px; font-weight:bold; color:#000;">
+      POSICIONAMENTO DE ATENDIMENTO:
+    </td>
+  </tr>
+
+  <tr>
+    <td style="padding:8px;">
+      <strong>OS:</strong> ${s.osClt ?? ''}
+    </td>
+  </tr>
+
+  <tr>
+    <td style="padding:8px;">
+      <strong>Data:</strong> ${data} 
+      &nbsp;&nbsp; das ${horaInicial} 
+      &nbsp;&nbsp; às ${horaFinal}.
+    </td>
+  </tr>
+
+  <tr>
+    <td style="padding:8px;">
+      <strong>Solução:</strong> ${s.solucao ?? ''}
+    </td>
+  </tr>
+
+</table>
+`;
+
+    this.textoEmailFormatado = this.sanitizer.bypassSecurityTrustHtml(html);
+    this.modalEmail = true;
+
+  }
+
+  // copiarTexto(textarea: HTMLTextAreaElement) {
+  //   textarea.select();
+  //   document.execCommand('copy');
+  //   alert('Texto copiado para a área de transferência!');
+  // }
+
+  async copiarTexto(element: HTMLElement) {
+    try {
+
+      // Pega HTML formatado
+      const html = element.innerHTML;
+
+      // Pega texto simples (fallback)
+      const text = element.innerText;
+
+      // Cria um blob com HTML
+      const blob = new Blob([html], { type: 'text/html' });
+      const data = [new ClipboardItem({ 'text/html': blob })];
+
+      await navigator.clipboard.write(data);
+
+      alert('Texto formatado copiado com sucesso!');
+
+    } catch (err) {
+
+      // Fallback caso HTML não seja suportado
+      await navigator.clipboard.writeText(element.innerText);
+      alert('Texto copiado (modo simples).');
+
+    }
   }
 }

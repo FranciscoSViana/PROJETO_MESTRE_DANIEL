@@ -19,12 +19,16 @@ export class SolucaoService {
     const params = new HttpParams()
       .set('page', page)
       .set('size', size);
-      // .set('sort', 'dataAtendimento,desc');
+    // .set('sort', 'dataAtendimento,desc');
 
     return this.http.get<Page<Solucao>>(this.api, { params });
   }
 
   buscarPorId(id: number) {
     return this.http.get<Solucao>(`${this.api}/${id}`);
+  }
+
+  buscarPorOrdem(ordemId: string) {
+    return this.http.get<Solucao>(`${this.api}/ordem/${ordemId}`);
   }
 }

@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.UUID;
+
 @Slf4j
 @RestController
 @RequiredArgsConstructor
@@ -34,5 +36,10 @@ public class SolucaoController {
         log.info("Buscando solução {}", id);
 
         return solucaoService.buscarPorId(id);
+    }
+
+    @GetMapping("/ordem/{ordemId}")
+    public SolucaoOSOutput buscarPorOrdem(@PathVariable UUID ordemId) {
+        return solucaoService.buscarPorOrdem(ordemId);
     }
 }
