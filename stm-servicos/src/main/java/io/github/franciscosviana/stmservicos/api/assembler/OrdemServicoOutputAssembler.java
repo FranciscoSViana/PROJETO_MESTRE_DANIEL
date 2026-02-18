@@ -1,7 +1,13 @@
 package io.github.franciscosviana.stmservicos.api.assembler;
 
-import io.github.franciscosviana.stmservicos.api.model.output.*;
-import io.github.franciscosviana.stmservicos.domain.model.*;
+import io.github.franciscosviana.stmservicos.api.model.output.EnderecoOutput;
+import io.github.franciscosviana.stmservicos.api.model.output.FaturamentoOSOutput;
+import io.github.franciscosviana.stmservicos.api.model.output.OrdemServicoOutput;
+import io.github.franciscosviana.stmservicos.api.model.output.SolucaoOSOutput;
+import io.github.franciscosviana.stmservicos.domain.model.Endereco;
+import io.github.franciscosviana.stmservicos.domain.model.FaturamentoOS;
+import io.github.franciscosviana.stmservicos.domain.model.OrdemServico;
+import io.github.franciscosviana.stmservicos.domain.model.SolucaoOS;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -65,14 +71,15 @@ public class OrdemServicoOutputAssembler {
 
         return SolucaoOSOutput.builder()
                 .id(s.getId())
-                .tecnico(s.getTecnico())
-                .dataVisita(s.getDataVisita())
-                .inicio(s.getInicio())
-                .termino(s.getTermino())
+                .dataAtendimento(s.getDataAtendimento())
+                .horaInicial(s.getHoraInicial())
+                .horaFinal(s.getHoraFinal())
                 .solucao(s.getSolucao())
+                .pecaSolicitada(s.getPecaSolicitada())
+                .observacao(s.getObservacao())
                 .km(s.getKm())
-                .pedagios(s.getPedagios())
-                .estac(s.getEstac())
+                .pedagio(s.getPedagio())
+                .estacionamento(s.getEstacionamento())
                 .outros(s.getOutros())
                 .build();
     }

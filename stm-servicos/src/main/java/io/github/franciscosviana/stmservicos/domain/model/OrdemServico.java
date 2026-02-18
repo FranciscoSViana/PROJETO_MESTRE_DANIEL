@@ -1,5 +1,6 @@
 package io.github.franciscosviana.stmservicos.domain.model;
 
+import io.github.franciscosviana.stmservicos.common.validation.OrdemServicoException;
 import io.github.franciscosviana.stmservicos.domain.model.enums.StatusOrdem;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -66,4 +67,16 @@ public class OrdemServico {
 
     @OneToOne(mappedBy = "ordemServico", cascade = CascadeType.ALL)
     private FaturamentoOS faturamento;
+
+    public void concluirCom(SolucaoOS solucao) {
+
+        if (this.status == StatusOrdem.CONCLUIDA) {
+            throw new OrdemServicoException("Ordem já concluída");
+        }
+
+        solucao.setOrdemServico(this); // <- IMPORTANTE
+
+        this.solucao = solucao;
+        this.status = StatusOrdem.CONCLUIDA;
+    }
 }

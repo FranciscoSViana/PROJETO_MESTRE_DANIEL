@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
+import java.util.UUID;
 
 @Data
 @Builder
@@ -14,13 +15,14 @@ import java.time.OffsetDateTime;
 @AllArgsConstructor
 public class SolucaoOSInput {
 
-    private String tecnico;
-    private OffsetDateTime dataVisita;
-    private OffsetDateTime inicio;
-    private OffsetDateTime termino;
+    private OffsetDateTime dataAtendimento;
+    private OffsetDateTime horaInicial;
+    private OffsetDateTime horaFinal;
     private String solucao;
+    private String pecaSolicitada;
+    private String observacao;
     private BigDecimal km;
-    private BigDecimal pedagios;
-    private BigDecimal estac;
-    private String outros;
+    private BigDecimal pedagio;
+    private BigDecimal estacionamento;
+    private BigDecimal outros;
 }

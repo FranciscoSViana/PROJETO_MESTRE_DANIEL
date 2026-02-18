@@ -1,6 +1,5 @@
 package io.github.franciscosviana.stmservicos.domain.model;
 
-import io.github.franciscosviana.stmservicos.api.model.input.SolucaoOSInput;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,37 +22,26 @@ public class SolucaoOS {
     private Long id;
 
     @OneToOne
-    @JoinColumn(name = "ordem_servico_id")
+    @JoinColumn(name = "ordem_servico_id", nullable = false)
     private OrdemServico ordemServico;
 
-    private String tecnico;
+    // Dados do atendimento
+    private OffsetDateTime dataAtendimento;
+    private OffsetDateTime horaInicial;
+    private OffsetDateTime horaFinal;
 
-    private OffsetDateTime dataVisita;
-
-    private OffsetDateTime inicio;
-
-    private OffsetDateTime termino;
-
+    @Column(columnDefinition = "TEXT")
     private String solucao;
 
+    private String pecaSolicitada;
+
+    @Column(columnDefinition = "TEXT")
+    private String observacao;
+
+    // Custos
     private BigDecimal km;
-    private BigDecimal pedagios;
-    private BigDecimal estac;
-    private String outros;
-
-    public static SolucaoOS from(SolucaoOSInput input) {
-        if (input == null) return null;
-
-        return SolucaoOS.builder()
-                .tecnico(input.getTecnico())
-                .dataVisita(input.getDataVisita())
-                .inicio(input.getInicio())
-                .termino(input.getTermino())
-                .solucao(input.getSolucao())
-                .km(input.getKm())
-                .pedagios(input.getPedagios())
-                .estac(input.getEstac())
-                .outros(input.getOutros())
-                .build();
-    }
+    private BigDecimal pedagio;
+    private BigDecimal estacionamento;
+    private BigDecimal outros;
 }
+

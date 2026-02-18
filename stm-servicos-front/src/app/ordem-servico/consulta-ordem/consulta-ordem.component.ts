@@ -5,6 +5,7 @@ import { ClienteService } from '../../clientes/cliente.service';
 import { CredenciadoService } from '../../credenciados/credenciado.service';
 import { forkJoin, map } from 'rxjs';
 import { Router } from '@angular/router';
+import { Solucao } from '../../solucao/solucao';
 
 @Component({
   selector: 'app-consulta-ordem',
@@ -24,6 +25,12 @@ export class ConsultaOrdemComponent implements OnInit {
 
   clientes: any[] = [];
   credenciados: any[] = [];
+
+  modalSolucaoAberto = false;
+  ordemSelecionadaId?: string;
+  ordemSelecionada?: OrdemServico;
+
+  solucao: Solucao = new Solucao();
 
   constructor(
     private service: OrdemServicoService,
@@ -121,5 +128,58 @@ export class ConsultaOrdemComponent implements OnInit {
       this.page++;
       this.carregarOrdens();
     }
+  }
+
+  abrirModalSolucao(id?: string) {
+    if (!id) return;
+
+    const os = this.ordensServico.find(o => o.id === id);
+    if (!os) return;
+
+    this.ordemSelecionada = os;
+    this.ordemSelecionadaId = id;
+    this.modalSolucaoAberto = true;
+
+    this.solucao = new Solucao();
+  }
+
+  fecharModalSolucao() {
+    this.modalSolucaoAberto = false;
+    this.solucao = new Solucao();
+    this.ordemSelecionada = undefined;
+  }
+
+  private toISO(dateTimeLocal?: string): string | undefined {
+    if (!dateTimeLocal) return undefined;
+    return new Date(dateTimeLocal).toISOString();
+  }
+
+  salvarSolucao() {
+    if (!this.ordemSelecionadaId) return;
+
+    if (!this.solucao.solucao || !this.solucao.horaInicial || !this.solucao.horaFinal) {
+      alert('Preencha os campos obrigatórios.');
+      return;
+    }
+
+    const payload: Solucao = {
+      ...this.solucao,
+      dataAtendimento: new Date().toISOString(),
+      horaInicial: this.toISO(this.solucao.horaInicial),
+      horaFinal: this.toISO(this.solucao.horaFinal)
+    };
+
+    this.service.finalizarOS(this.ordemSelecionadaId, payload)
+      .subscribe({
+        next: () => {
+          alert('OS finalizada com sucesso!');
+          this.fecharModalSolucao();
+          this.carregarOrdens();
+        },
+        error: err => {
+          console.error(err);
+          alert('Erro ao finalizar OS');
+        }
+      });
   }
 }

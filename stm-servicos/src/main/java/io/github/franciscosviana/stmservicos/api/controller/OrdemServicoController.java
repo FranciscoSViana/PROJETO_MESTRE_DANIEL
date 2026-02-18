@@ -2,10 +2,13 @@ package io.github.franciscosviana.stmservicos.api.controller;
 
 
 import io.github.franciscosviana.stmservicos.api.model.input.OrdemServicoInput;
+import io.github.franciscosviana.stmservicos.api.model.input.SolucaoOSInput;
 import io.github.franciscosviana.stmservicos.api.model.output.HistoricoOrdemServicoOutput;
 import io.github.franciscosviana.stmservicos.api.model.output.OrdemServicoOutput;
+import io.github.franciscosviana.stmservicos.api.model.output.SolucaoOSOutput;
 import io.github.franciscosviana.stmservicos.domain.service.HistoricoOrdemServicoService;
 import io.github.franciscosviana.stmservicos.domain.service.OrdemServicoService;
+import io.github.franciscosviana.stmservicos.domain.service.SolucaoService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -24,7 +27,7 @@ import java.util.UUID;
 @RequestMapping("/api/ordens-servico")
 public class OrdemServicoController {
 
-
+    private final SolucaoService solucaoService;
     private final OrdemServicoService ordemServicoService;
     private final HistoricoOrdemServicoService historicoOrdemServicoService;
 
@@ -59,6 +62,18 @@ public class OrdemServicoController {
         OrdemServicoOutput ordemServicoOutput = ordemServicoService.atualizar(id, input);
 
         return ResponseEntity.ok(ordemServicoOutput);
+    }
+
+    @PostMapping("/{ordemId}/solucao")
+    public ResponseEntity<SolucaoOSOutput> finalizar(
+            @PathVariable UUID ordemId,
+            @RequestBody SolucaoOSInput input) {
+
+        log.info("Finalizando OS {}", ordemId);
+
+        SolucaoOSOutput output = solucaoService.finalizarOS(ordemId, input);
+
+        return ResponseEntity.ok(output);
     }
 
     @GetMapping("/{id}/historico")

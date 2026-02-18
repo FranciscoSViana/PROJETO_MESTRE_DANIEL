@@ -1,0 +1,90 @@
+<div class="p-6 max-w-7x1 mx-auto bg-white shadow-lg rounded-lg mt-6">
+
+    <!-- Cabeçalho -->
+    <div class="flex justify-between items-center mb-4">
+        <h2 class="text-2x1 font-semibold text-gray-700">
+            Consulta de Soluções
+        </h2>
+    </div>
+
+    <hr class="mb-4">
+
+    <!-- Loading -->
+    <div *ngIf="loading" class="text-center text-gray-500 py-4">
+        Carregando soluções...
+    </div>
+
+    <!-- Erro -->
+    <div *ngIf="errorMessage" class="text-center text-red-500 py-4">
+        {{ errorMessage }}
+    </div>
+
+    <!-- Tabela -->
+    <div class="overflow-x-auto" *ngIf="!loading">
+
+        <table class="min-w-full border-collapse table-fixed">
+            <thead class="bg-gray-100 text-gray-700">
+                <tr class="h-12">
+                    <th class="p-3 border text-center w-[80px]">ID</th>
+                    <th class="p-3 border text-center w-[140px]">OS CLT</th>
+                    <th class="p-3 border text-center w-[140px]">OSG</th>
+                    <th class="p-3 border text-center w-[160px]">Data</th>
+                    <th class="p-3 border text-center w-[200px]">Hora Inicial</th>
+                    <th class="p-3 border text-center w-[200px]">Hora Final</th>
+                    <th class="p-3 border text-center min-w-[300px]">Solução</th>
+                    <th class="p-3 border text-center w-[120px]">KM</th>
+                    <th class="p-3 border text-center w-[120px]">Pedágio</th>
+                    <th class="p-3 border text-center w-[120px]">Outros</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr *ngFor="let s of solucoes" class="hover:bg-gray-50 h-12">
+                    <td class="p-3 border text-center">{{ s.id }}</td>
+                    <td class="p-3 border text-center">{{ s.osClt }}</td>
+                    <td class="p-3 border text-center">{{ s.osg }}</td>
+                    <td class="p-3 border text-center">
+                        {{ s.dataAtendimento | date:'dd/MM/yyyy HH:mm' }}
+                    </td>
+                    <td class="p-3 border text-center">
+                        {{ s.horaInicial | date:'dd/MM/yyyy HH:mm' }}
+                    </td>
+                    <td class="p-3 border text-center">
+                        {{ s.horaFinal | date:'dd/MM/yyyy HH:mm' }}
+                    </td>
+                    <td class="p-3 border truncate">
+                        {{ s.solucao }}
+                    </td>
+                    <td class="p-3 border text-center">{{ s.km }}</td>
+                    <td class="p-3 border text-center">{{ s.pedagio }}</td>
+                    <td class="p-3 border text-center">{{ s.outros }}</td>
+                </tr>
+
+                <tr *ngIf="solucoes.length === 0">
+                    <td colspan="10" class="text-center py-6 text-gray-500">
+                        Nenhuma solução encontrada
+                    </td>
+                </tr>
+
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Paginação -->
+    <div class="mt-6 flex justify-center items-center gap-4">
+        <button (click)="paginaAnterior()" [disabled]="page === 0"
+            class="px-4 py-2 bg-blue-600 text-white rounded shadow hover:bg-blue-700 disabled:opacity-40">
+            Anterior
+        </button>
+
+        <span class="text-gray-700 font-medium">
+            Página {{ page + 1 }} de {{ totalPages }}
+        </span>
+
+        <button (click)="proximaPagina()" [disabled]="(page + 1) >= totalPages"
+            class="px-4 py-2 bg-blue-600 text-white rounded shadow hover:bg-blue-700 disabled:opacity-40">
+            Próxima
+        </button>
+    </div>
+
+</div>

@@ -66,18 +66,6 @@ public class OrdemServicoInputDisassembler {
         ordem.setDefeito(input.getDefeito());
         ordem.setRastreio(input.getRastreio());
 
-        if (input.getSolucao() != null) {
-            SolucaoOS solucao = SolucaoOS.from(input.getSolucao());
-            solucao.setOrdemServico(ordem);
-            ordem.setSolucao(solucao);
-        }
-
-        if (input.getFaturamento() != null) {
-            FaturamentoOS faturamento = FaturamentoOS.from(input.getFaturamento());
-            faturamento.setOrdemServico(ordem);
-            ordem.setFaturamento(faturamento);
-        }
-
         return ordem;
     }
 
@@ -103,7 +91,5 @@ public class OrdemServicoInputDisassembler {
         ordem.setPib(nova.getPib());
         ordem.setDefeito(nova.getDefeito());
         ordem.setRastreio(nova.getRastreio());
-        ordem.setSolucao(nova.getSolucao());
-        ordem.setFaturamento(nova.getFaturamento());
     }
 }

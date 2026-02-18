@@ -1,8 +1,8 @@
-<div class="p-6 max-w-7xl mx-auto bg-white shadow-lg rounded-lg mt-6">
+<div class="p-6 max-w-7x1 mx-auto bg-white shadow-lg rounded-lg mt-6">
 
   <!-- Cabeçalho -->
   <div class="flex justify-between items-center mb-4">
-    <h2 class="text-2xl font-semibold text-gray-700">Ordens de Serviço</h2>
+    <h2 class="text-2x1 font-semibold text-gray-700">Ordens de Serviço</h2>
 
     <button routerLink="/ordem-servico/cadastro"
       class="px-4 py-2 bg-green-600 text-white rounded-lg shadow hover:bg-green-700">
@@ -50,6 +50,13 @@
                   <i class="fa-solid fa-clock-rotate-left text-gray-700"></i>
                 </button>
 
+                <!-- Finalizar -->
+                <button class="w-9 h-9 flex items-center justify-center rounded hover:bg-gray-200"
+                  (click)="abrirModalSolucao(os.id)" [disabled]="os.status === 'CONCLUIDA'"
+                  [class.opacity-40]="os.status === 'CONCLUIDA'">
+                  <i class="fa-solid fa-check text-green-600"></i>
+                </button>
+
                 <!-- Excluir -->
                 <button class="w-9 h-9 flex items-center justify-center rounded hover:bg-gray-200"
                   (click)="excluir(os.id)">
@@ -81,5 +88,91 @@
       class="px-4 py-2 bg-blue-600 text-white rounded shadow hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed">
       Próxima
     </button>
+  </div>
+
+  <!-- MODAL SOLUÇÃO -->
+  <div *ngIf="modalSolucaoAberto" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+
+    <div class="bg-white w-full max-w-2xl rounded-lg shadow-lg p-6">
+
+      <h2 class="text-xl font-semibold mb-4 text-gray-700">
+        Finalizar Ordem de Serviço
+      </h2>
+
+      <!-- DADOS DA ORDEM -->
+      <div class="grid grid-cols-2 gap-4 mb-6 bg-gray-50 p-4 rounded-lg border">
+
+        <div>
+          <label class="text-sm font-semibold text-gray-600">OS CLT</label>
+          <input type="text" [value]="ordemSelecionada?.osClt" class="w-full border rounded p-2 bg-gray-100" disabled>
+        </div>
+
+        <div>
+          <label class="text-sm font-semibold text-gray-600">OSG</label>
+          <input type="text" [value]="ordemSelecionada?.osg" class="w-full border rounded p-2 bg-gray-100" disabled>
+        </div>
+
+      </div>
+
+      <div class="grid grid-cols-2 gap-4">
+
+        <div>
+          <label class="text-sm">Hora Inicial *</label>
+          <input type="datetime-local" [(ngModel)]="solucao.horaInicial" class="w-full border rounded p-2">
+        </div>
+
+        <div>
+          <label class="text-sm">Hora Final *</label>
+          <input type="datetime-local" [(ngModel)]="solucao.horaFinal" class="w-full border rounded p-2">
+        </div>
+
+        <div class="col-span-2">
+          <label class="text-sm">Solução *</label>
+          <textarea [(ngModel)]="solucao.solucao" class="w-full border rounded p-2"></textarea>
+        </div>
+
+        <div>
+          <label class="text-sm">Peça Solicitada</label>
+          <input type="text" [(ngModel)]="solucao.pecaSolicitada" class="w-full border rounded p-2">
+        </div>
+
+        <div>
+          <label class="text-sm">KM</label>
+          <input type="number" [(ngModel)]="solucao.km" class="w-full border rounded p-2">
+        </div>
+
+        <div>
+          <label class="text-sm">Pedágio</label>
+          <input type="number" [(ngModel)]="solucao.pedagio" class="w-full border rounded p-2">
+        </div>
+
+        <div>
+          <label class="text-sm">Estacionamento</label>
+          <input type="number" [(ngModel)]="solucao.estacionamento" class="w-full border rounded p-2">
+        </div>
+
+        <div>
+          <label class="text-sm">Outros</label>
+          <input type="number" [(ngModel)]="solucao.outros" class="w-full border rounded p-2">
+        </div>
+
+        <div class="col-span-2">
+          <label class="text-sm">Observação</label>
+          <textarea [(ngModel)]="solucao.observacao" class="w-full border rounded p-2"></textarea>
+        </div>
+
+      </div>
+
+      <div class="flex justify-end gap-3 mt-6">
+        <button (click)="fecharModalSolucao()" class="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500">
+          Cancelar
+        </button>
+
+        <button (click)="salvarSolucao()" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
+          Finalizar OS
+        </button>
+      </div>
+
+    </div>
   </div>
 </div>

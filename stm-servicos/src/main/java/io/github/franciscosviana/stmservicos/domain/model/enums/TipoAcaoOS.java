@@ -6,6 +6,7 @@ public enum TipoAcaoOS {
     MUDANCA_STATUS,
     FECHAMENTO,
     FATURAMENTO,
-    EXCLUSAO
+    EXCLUSAO,
+    CONCLUSAO_ORDEM,
 }
 

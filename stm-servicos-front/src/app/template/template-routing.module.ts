@@ -30,6 +30,11 @@ const routes: Routes = [
         data: { titulo: 'Ordens de Serviços', subTitulo: 'Módulo de Ordens' }
       },
       {
+        path: 'solucao',
+        loadChildren: () => import('../solucao/solucao.module').then(m => m.SolucaoModule),
+        data: { titulo: 'Soluções', subTitulo: 'Módulo de Soluções' }
+      },
+      {
         path: 'usuarios',
         loadChildren: () => import('../usuarios/usuarios.module').then(m => m.UsuariosModule),
         data: { titulo: 'Usuários', subtitulo: 'Gestão do usuário' }

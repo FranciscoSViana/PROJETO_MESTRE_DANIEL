@@ -4,6 +4,7 @@ import { OrdemServico } from './ordem-servico';
 import { Observable } from 'rxjs';
 import { Page } from '../template/utils/page';
 import { environment } from '../../environments/environment';
+import { Solucao } from '../solucao/solucao';
 
 @Injectable({
   providedIn: 'root'
@@ -45,5 +46,9 @@ export class OrdemServicoService {
 
   buscarCep(cep: string): Observable<any> {
     return this.http.get(this.apiUrl + `/api/enderecos/cep/${cep}`);
+  }
+
+  finalizarOS(ordemId: string, payload: Solucao) {
+    return this.http.post(this.apiUrl + `/api/ordens-servico/${ordemId}/solucao`, payload);
   }
 }
