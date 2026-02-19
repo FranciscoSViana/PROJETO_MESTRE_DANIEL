@@ -27,8 +27,8 @@ export class OrdemServicoService {
     return this.http.get<OrdemServico>(this.apiUrl + `/api/ordens-servico/${id}`);
   }
 
-  listar(page: number = 0, size: number = 10): Observable<Page<OrdemServico>> {
-    const params = new HttpParams().set('page', page).set('size', size);
+  listar(page: number = 0, size: number = 10, sort: string = 'status,asc'): Observable<Page<OrdemServico>> {
+    const params = new HttpParams().set('page', page).set('size', size).set('sort', sort);
     return this.http.get<Page<OrdemServico>>(this.apiUrl + '/api/ordens-servico', { params });
   }
 
