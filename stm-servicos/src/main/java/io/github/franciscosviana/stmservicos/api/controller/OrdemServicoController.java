@@ -44,10 +44,24 @@ public class OrdemServicoController {
     }
 
     @GetMapping
-    public Page<OrdemServicoOutput> listar(@PageableDefault(sort = "osg", direction = Sort.Direction.ASC) Pageable pageable) {
-        return ordemServicoService.listar(pageable);
-    }
+    public Page<OrdemServicoOutput> listar(
+            @RequestParam(required = false) String osClt,
+            @RequestParam(required = false) String osg,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String cliente,
+            @RequestParam(required = false) String credenciado,
+            @RequestParam(required = false) String cidade,
+            @RequestParam(required = false) String estado,
+            @RequestParam(required = false) String rastreio,
+            Pageable pageable
+    ) {
 
+        return ordemServicoService.listar(
+                pageable, osClt, osg, status,
+                cliente, credenciado,
+                cidade, estado, rastreio
+        );
+    }
 
     @GetMapping("/{id}")
     public ResponseEntity<OrdemServicoOutput> buscar(@PathVariable UUID id) {

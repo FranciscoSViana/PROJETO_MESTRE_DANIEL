@@ -32,6 +32,8 @@ export class ConsultaOrdemComponent implements OnInit {
   ordemSelecionadaId?: string;
   ordemSelecionada?: OrdemServico;
 
+  filtro: any = {};
+
   solucao: Solucao = new Solucao();
 
   modalVisualizarSolucao = false;
@@ -70,7 +72,7 @@ export class ConsultaOrdemComponent implements OnInit {
     this.loading = true;
     this.errorMessage = '';
 
-    this.service.listar(this.page, this.size).subscribe({
+    this.service.listar(this.page, this.size, this.filtro).subscribe({
       next: res => {
 
         console.log('Ordens recebidas do backend:', res.content);
@@ -87,18 +89,7 @@ export class ConsultaOrdemComponent implements OnInit {
             ...os,
             clienteNome: os.cliente?.razaoSocial || os.cliente?.nome || '-',
             credenciadoNome: os.credenciado?.rag || '-'
-          }))
-          .sort((a, b) => {
-
-            // Primeiro: ABERTAS
-            if (a.status !== 'CONCLUIDA' && b.status === 'CONCLUIDA') return -1;
-
-            // Depois: CONCLUIDAS
-            if (a.status === 'CONCLUIDA' && b.status !== 'CONCLUIDA') return 1;
-
-            // Se forem iguais, mantém ordem original
-            return 0;
-          });
+          }));
 
         this.totalElements = res.totalElements ?? this.ordensServico.length;
         this.totalPages = typeof res.totalPages === 'number' ? res.totalPages :

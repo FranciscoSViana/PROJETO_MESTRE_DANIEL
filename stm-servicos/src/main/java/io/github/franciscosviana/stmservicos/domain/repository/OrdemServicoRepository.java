@@ -3,6 +3,7 @@ package io.github.franciscosviana.stmservicos.domain.repository;
 import io.github.franciscosviana.stmservicos.domain.model.OrdemServico;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -10,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface OrdemServicoRepository extends JpaRepository<OrdemServico, UUID> {
+public interface OrdemServicoRepository extends JpaRepository<OrdemServico, UUID>, JpaSpecificationExecutor<OrdemServico> {
 
     @Query("""
     SELECT o.osg

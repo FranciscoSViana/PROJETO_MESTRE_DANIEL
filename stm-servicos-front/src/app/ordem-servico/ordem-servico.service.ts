@@ -27,9 +27,47 @@ export class OrdemServicoService {
     return this.http.get<OrdemServico>(this.apiUrl + `/api/ordens-servico/${id}`);
   }
 
-  listar(page: number = 0, size: number = 10, sort: string = 'status,asc'): Observable<Page<OrdemServico>> {
-    const params = new HttpParams().set('page', page).set('size', size).set('sort', sort);
-    return this.http.get<Page<OrdemServico>>(this.apiUrl + '/api/ordens-servico', { params });
+  listar(
+    page: number = 0,
+    size: number = 10,
+    filtro: any = {}
+  ): Observable<Page<OrdemServico>> {
+
+    let params = new HttpParams()
+      .set('page', page)
+      .set('size', size)
+      .append('sort', 'status,asc')
+      .append('sort', 'osg,desc');
+
+    // 🔎 Aplicando filtros dinâmicos
+    if (filtro.osClt)
+      params = params.set('osClt', filtro.osClt);
+
+    if (filtro.osg)
+      params = params.set('osg', filtro.osg);
+
+    if (filtro.status)
+      params = params.set('status', filtro.status);
+
+    if (filtro.cliente)
+      params = params.set('cliente', filtro.cliente);
+
+    if (filtro.credenciado)
+      params = params.set('credenciado', filtro.credenciado);
+
+    if (filtro.cidade)
+      params = params.set('cidade', filtro.cidade);
+
+    if (filtro.estado)
+      params = params.set('estado', filtro.estado);
+
+    if (filtro.rastreio)
+      params = params.set('rastreio', filtro.rastreio);
+
+    return this.http.get<Page<OrdemServico>>(
+      this.apiUrl + '/api/ordens-servico',
+      { params }
+    );
   }
 
   excluir(id: string): Observable<any> {

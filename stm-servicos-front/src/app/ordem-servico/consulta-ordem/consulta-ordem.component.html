@@ -17,6 +17,17 @@
     <div class="overflow-x-auto">
       <table class="min-w-full border-collapse table-fixed">
         <thead class="bg-gray-100 text-gray-700">
+          <tr class="bg-gray-50">
+            <th><input [(ngModel)]="filtro.osClt" (keyup)="carregarOrdens()" class="w-full border p-1"></th>
+            <th><input [(ngModel)]="filtro.osg" (keyup)="carregarOrdens()" class="w-full border p-1"></th>
+            <th><input [(ngModel)]="filtro.cliente" (keyup)="carregarOrdens()" class="w-full border p-1"></th>
+            <th><input [(ngModel)]="filtro.credenciado" (keyup)="carregarOrdens()" class="w-full border p-1"></th>
+            <th><input [(ngModel)]="filtro.cidade" (keyup)="carregarOrdens()" class="w-full border p-1"></th>
+            <th><input [(ngModel)]="filtro.estado" (keyup)="carregarOrdens()" class="w-full border p-1"></th>
+            <th><input [(ngModel)]="filtro.rastreio" (keyup)="carregarOrdens()" class="w-full border p-1"></th>
+            <th><input [(ngModel)]="filtro.status" (keyup)="carregarOrdens()" class="w-full border p-1"></th>
+            <th></th>
+          </tr>
           <tr class="h-12">
             <th class="p-3 border text-center w-[110px]">OS CLT</th>
             <th class="p-3 border text-center w-[110px]">OSG</th>

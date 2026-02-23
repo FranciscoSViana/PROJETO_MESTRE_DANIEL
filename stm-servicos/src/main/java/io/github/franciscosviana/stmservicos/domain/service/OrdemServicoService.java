@@ -14,12 +14,14 @@ import io.github.franciscosviana.stmservicos.domain.model.Tecnico;
 import io.github.franciscosviana.stmservicos.domain.model.enums.StatusOrdem;
 import io.github.franciscosviana.stmservicos.domain.model.enums.TipoAcaoOS;
 import io.github.franciscosviana.stmservicos.domain.repository.OrdemServicoRepository;
+import io.github.franciscosviana.stmservicos.domain.repository.spec.OrdemServicoSpecification;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.time.OffsetDateTime;
@@ -95,8 +97,25 @@ public class OrdemServicoService {
         return assembler.toModel(ordemServico);
     }
 
-    public Page<OrdemServicoOutput> listar(Pageable pageable) {
-        return repository.findAll(pageable)
+    public Page<OrdemServicoOutput> listar(
+            Pageable pageable,
+            String osClt,
+            String osg,
+            String status,
+            String cliente,
+            String credenciado,
+            String cidade,
+            String estado,
+            String rastreio
+    ) {
+
+        Specification<OrdemServico> spec =
+                OrdemServicoSpecification.filtro(
+                        osClt, osg, status, cliente,
+                        credenciado, cidade, estado, rastreio
+                );
+
+        return repository.findAll(spec, pageable)
                 .map(assembler::toModel);
     }
 
