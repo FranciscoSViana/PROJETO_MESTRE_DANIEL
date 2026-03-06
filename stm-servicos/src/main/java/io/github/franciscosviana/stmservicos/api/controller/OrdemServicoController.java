@@ -7,6 +7,7 @@ import io.github.franciscosviana.stmservicos.api.model.output.HistoricoOrdemServ
 import io.github.franciscosviana.stmservicos.api.model.output.OrdemServicoOutput;
 import io.github.franciscosviana.stmservicos.api.model.output.SolucaoOSOutput;
 import io.github.franciscosviana.stmservicos.domain.service.HistoricoOrdemServicoService;
+import io.github.franciscosviana.stmservicos.domain.service.OrdemServicoExportService;
 import io.github.franciscosviana.stmservicos.domain.service.OrdemServicoService;
 import io.github.franciscosviana.stmservicos.domain.service.SolucaoService;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +16,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,6 +32,7 @@ public class OrdemServicoController {
 
     private final SolucaoService solucaoService;
     private final OrdemServicoService ordemServicoService;
+    private final OrdemServicoExportService exportService;
     private final HistoricoOrdemServicoService historicoOrdemServicoService;
 
 
@@ -104,5 +108,72 @@ public class OrdemServicoController {
     @GetMapping("/proximo-osg")
     public String proximoOsg() {
         return ordemServicoService.gerarProximoOsg();
+    }
+
+    // ─── XLSX ────────────────────────────────────────────────────────────
+    @GetMapping("/exportar/xlsx")
+    public ResponseEntity<byte[]> exportarXlsx(
+            @RequestParam(required = false) String osClt,
+            @RequestParam(required = false) String osg,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String cliente,
+            @RequestParam(required = false) String credenciado,
+            @RequestParam(required = false) String cidade,
+            @RequestParam(required = false) String estado,
+            @RequestParam(required = false) String rastreio
+    ) {
+        byte[] bytes = exportService.exportarXlsx(
+                osClt, osg, status, cliente, credenciado, cidade, estado, rastreio);
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=\"ordens-servico.xlsx\"")
+                .contentType(MediaType.parseMediaType(
+                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                .body(bytes);
+    }
+
+    // ─── CSV ─────────────────────────────────────────────────────────────
+    @GetMapping("/exportar/csv")
+    public ResponseEntity<byte[]> exportarCsv(
+            @RequestParam(required = false) String osClt,
+            @RequestParam(required = false) String osg,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String cliente,
+            @RequestParam(required = false) String credenciado,
+            @RequestParam(required = false) String cidade,
+            @RequestParam(required = false) String estado,
+            @RequestParam(required = false) String rastreio
+    ) {
+        byte[] bytes = exportService.exportarCsv(
+                osClt, osg, status, cliente, credenciado, cidade, estado, rastreio);
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=\"ordens-servico.csv\"")
+                .contentType(MediaType.parseMediaType("text/csv; charset=UTF-8"))
+                .body(bytes);
+    }
+
+    // ─── PDF ─────────────────────────────────────────────────────────────
+    @GetMapping("/exportar/pdf")
+    public ResponseEntity<byte[]> exportarPdf(
+            @RequestParam(required = false) String osClt,
+            @RequestParam(required = false) String osg,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String cliente,
+            @RequestParam(required = false) String credenciado,
+            @RequestParam(required = false) String cidade,
+            @RequestParam(required = false) String estado,
+            @RequestParam(required = false) String rastreio
+    ) {
+        byte[] bytes = exportService.exportarPdf(
+                osClt, osg, status, cliente, credenciado, cidade, estado, rastreio);
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=\"ordens-servico.pdf\"")
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(bytes);
     }
 }

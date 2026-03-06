@@ -2,12 +2,38 @@
 
   <!-- Cabeçalho -->
   <div class="flex justify-between items-center mb-4">
-    <h2 class="text-2x1 font-semibold text-gray-700">Ordens de Serviço</h2>
+    <h2 class="text-2xl font-semibold text-gray-700">Ordens de Serviço</h2>
 
-    <button routerLink="/ordem-servico/cadastro"
-      class="px-4 py-2 bg-green-600 text-white rounded-lg shadow hover:bg-green-700">
-      + Nova OS
-    </button>
+    <div class="flex items-center gap-2">
+
+      <!-- Botões de exportação -->
+      <button (click)="exportar('xlsx')" title="Exportar Excel"
+        class="px-3 py-2 bg-emerald-600 text-white rounded-lg shadow hover:bg-emerald-700 flex items-center gap-1 text-sm">
+        <i class="fa-solid fa-file-excel"></i>
+        <span class="hidden sm:inline">Excel</span>
+      </button>
+
+      <button (click)="exportar('csv')" title="Exportar CSV"
+        class="px-3 py-2 bg-yellow-500 text-white rounded-lg shadow hover:bg-yellow-600 flex items-center gap-1 text-sm">
+        <i class="fa-solid fa-file-csv"></i>
+        <span class="hidden sm:inline">CSV</span>
+      </button>
+
+      <button (click)="exportar('pdf')" title="Exportar PDF"
+        class="px-3 py-2 bg-red-600 text-white rounded-lg shadow hover:bg-red-700 flex items-center gap-1 text-sm">
+        <i class="fa-solid fa-file-pdf"></i>
+        <span class="hidden sm:inline">PDF</span>
+      </button>
+
+      <div class="w-px h-6 bg-gray-300 mx-1"></div>
+
+      <!-- Nova OS -->
+      <button routerLink="/ordem-servico/cadastro"
+        class="px-4 py-2 bg-green-600 text-white rounded-lg shadow hover:bg-green-700">
+        + Nova OS
+      </button>
+
+    </div>
   </div>
 
   <hr class="mb-4">

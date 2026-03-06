@@ -225,36 +225,33 @@ export class ConsultaOrdemComponent implements OnInit {
     }
   }
 
-  //   abrirModalEmail() {
+  exportar(formato: 'xlsx' | 'csv' | 'pdf') {
+    const extensoes: Record<string, string> = {
+      xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      csv: 'text/csv',
+      pdf: 'application/pdf'
+    };
 
-  //     const s = this.solucaoVisualizacao;
+    const chamada$ =
+      formato === 'xlsx' ? this.service.exportarXlsx(this.filtro) :
+        formato === 'csv' ? this.service.exportarCsv(this.filtro) :
+          this.service.exportarPdf(this.filtro);
 
-  //     if (!s) return;
-
-  //     const data = s.dataAtendimento
-  //       ? new Date(s.dataAtendimento).toLocaleDateString('pt-BR')
-  //       : '';
-
-  //     const horaInicial = s.horaInicial
-  //       ? new Date(s.horaInicial).toLocaleTimeString('pt-BR')
-  //       : '';
-
-  //     const horaFinal = s.horaFinal
-  //       ? new Date(s.horaFinal).toLocaleTimeString('pt-BR')
-  //       : '';
-
-  //     this.textoEmailFormatado =
-  //       `POSICIONAMENTO DE ATENDIMENTO:
-
-  // OS: ${s.osClt}
-
-  // Data: ${data} das ${horaInicial} às ${horaFinal}.
-
-  // Solução: ${s.solucao ?? ''}
-  // `;
-
-  //     this.modalEmail = true;
-  //   }
+    chamada$.subscribe({
+      next: (blob: Blob) => {
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `ordens-servico.${formato}`;
+        link.click();
+        URL.revokeObjectURL(url);
+      },
+      error: err => {
+        console.error(`Erro ao exportar ${formato}`, err);
+        alert(`Erro ao exportar ${formato.toUpperCase()}`);
+      }
+    });
+  }
 
   abrirModalEmail() {
 

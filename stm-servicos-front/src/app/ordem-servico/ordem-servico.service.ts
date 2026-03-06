@@ -89,4 +89,42 @@ export class OrdemServicoService {
   finalizarOS(ordemId: string, payload: Solucao) {
     return this.http.post(this.apiUrl + `/api/ordens-servico/${ordemId}/solucao`, payload);
   }
+
+  exportarXlsx(filtro: any = {}): Observable<Blob> {
+    let params = this.buildFiltroParams(filtro);
+    return this.http.get(this.apiUrl + '/api/ordens-servico/exportar/xlsx', {
+      params,
+      responseType: 'blob'
+    });
+  }
+
+  exportarCsv(filtro: any = {}): Observable<Blob> {
+    let params = this.buildFiltroParams(filtro);
+    return this.http.get(this.apiUrl + '/api/ordens-servico/exportar/csv', {
+      params,
+      responseType: 'blob'
+    });
+  }
+
+  exportarPdf(filtro: any = {}): Observable<Blob> {
+    let params = this.buildFiltroParams(filtro);
+    return this.http.get(this.apiUrl + '/api/ordens-servico/exportar/pdf', {
+      params,
+      responseType: 'blob'
+    });
+  }
+
+  // Método privado para reutilizar a montagem dos filtros
+  private buildFiltroParams(filtro: any): HttpParams {
+    let params = new HttpParams();
+    if (filtro.osClt) params = params.set('osClt', filtro.osClt);
+    if (filtro.osg) params = params.set('osg', filtro.osg);
+    if (filtro.status) params = params.set('status', filtro.status);
+    if (filtro.cliente) params = params.set('cliente', filtro.cliente);
+    if (filtro.credenciado) params = params.set('credenciado', filtro.credenciado);
+    if (filtro.cidade) params = params.set('cidade', filtro.cidade);
+    if (filtro.estado) params = params.set('estado', filtro.estado);
+    if (filtro.rastreio) params = params.set('rastreio', filtro.rastreio);
+    return params;
+  }
 }
