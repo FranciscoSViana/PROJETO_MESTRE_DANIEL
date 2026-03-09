@@ -142,7 +142,7 @@ export class CadastroOrdemComponent implements OnInit {
             osg: os.osg,
             status: os.status,
             dataHoraAbertura: os.dataHoraAbertura
-              ? os.dataHoraAbertura.substring(0, 16)
+              ? this.toDatetimeLocal(os.dataHoraAbertura)
               : null,
 
             clienteId: os.cliente?.id || null,
@@ -363,6 +363,17 @@ export class CadastroOrdemComponent implements OnInit {
         next: c => this.credenciadosProximos$.next(c),
         error: () => this.credenciadosProximos$.next([])
       });
+  }
+
+  private toDatetimeLocal(date: string | Date): string {
+
+    const d = new Date(date);
+
+    const offset = d.getTimezoneOffset();
+
+    const local = new Date(d.getTime() - offset * 60000);
+
+    return local.toISOString().slice(0, 16);
   }
 
   compareContrato = (a: string | null, b: string | null): boolean => {
