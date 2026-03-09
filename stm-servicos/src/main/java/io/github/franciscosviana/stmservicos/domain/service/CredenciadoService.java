@@ -14,6 +14,7 @@ import io.github.franciscosviana.stmservicos.domain.model.Endereco;
 import io.github.franciscosviana.stmservicos.domain.model.GeoLocation;
 import io.github.franciscosviana.stmservicos.domain.model.enums.TipoPessoa;
 import io.github.franciscosviana.stmservicos.domain.repository.CredenciadoRepository;
+import io.github.franciscosviana.stmservicos.domain.repository.spec.CredenciadoSpecification;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -90,6 +91,21 @@ public class CredenciadoService {
         Credenciado credenciado = buscarOuFalhar(id);
 
         credenciadoRepository.delete(credenciado);
+    }
+
+    public Page<CredenciadoOutput> listarComFiltro(
+            Long codigo, String rag, String numeroPessoa,
+            String cidade, String estado, Pageable pageable) {
+
+        var spec = CredenciadoSpecification.comFiltros(codigo, rag, numeroPessoa, cidade, estado);
+
+        Page<Credenciado> resultado = credenciadoRepository.findAll(spec, pageable);
+
+        // LOG TEMPORÁRIO:
+        log.info("🔍 Filtros: codigo={}, rag={}", codigo, rag);
+        log.info("📊 Total encontrado: {}", resultado.getTotalElements());
+
+        return resultado.map(assembler::toModel);
     }
 
     @Transactional

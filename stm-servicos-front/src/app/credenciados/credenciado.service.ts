@@ -19,21 +19,18 @@ export class CredenciadoService {
     return this.http.post<Credenciado>(this.apiUrl + '/api/credenciados', credenciado);
   }
 
-  listar(
-    page: number = 0,
-    size: number = 10,
-    sort: string = 'codigo,asc'
-  ): Observable<Page<Credenciado>> {
+  listar(page: number = 0, size: number = 10, sort: string = 'codigo,asc', filtro: any = {}) {
+    let params: any = { page, size, sort };
 
-    const params = new HttpParams()
-      .set('page', page)
-      .set('size', size)
-      .set('sort', sort);
+    if (filtro.codigo && !isNaN(Number(filtro.codigo))) {
+      params.codigo = Number(filtro.codigo);
+    }
+    if (filtro.rag?.trim()) params.rag = filtro.rag;
+    if (filtro.numeroPessoa?.trim()) params.numeroPessoa = filtro.numeroPessoa;
+    if (filtro.estado?.trim()) params.estado = filtro.estado;
+    if (filtro.cidade?.trim()) params.cidade = filtro.cidade;
 
-    return this.http.get<Page<Credenciado>>(
-      this.apiUrl + '/api/credenciados',
-      { params }
-    );
+    return this.http.get<Page<Credenciado>>(`${this.apiUrl}/api/credenciados`, { params });
   }
 
   atualizar(id: string, credenciado: Credenciado): Observable<Credenciado> {

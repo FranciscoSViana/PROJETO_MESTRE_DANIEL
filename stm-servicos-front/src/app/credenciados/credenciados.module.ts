@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 
 import { CredenciadosRoutingModule } from './credenciados-routing.module';
 import { CadastroCredenciadoComponent } from './cadastro-credenciado/cadastro-credenciado.component';
-import { ReactiveFormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgxMaskDirective } from 'ngx-mask';
 import { ConsultaCredenciadoComponent } from './consulta-credenciado/consulta-credenciado.component';
 import { TecnicosComponent } from './tecnicos/tecnicos.component';
@@ -18,6 +18,7 @@ import { TecnicosComponent } from './tecnicos/tecnicos.component';
   imports: [
     CommonModule,
     CredenciadosRoutingModule,
+    FormsModule,
     ReactiveFormsModule,
     NgxMaskDirective,
   ]

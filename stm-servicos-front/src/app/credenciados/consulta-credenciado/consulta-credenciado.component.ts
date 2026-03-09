@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CredenciadoService } from '../credenciado.service';
 import { Credenciado } from '../credenciado';
 import { Router } from '@angular/router';
+import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 
 @Component({
   selector: 'app-consulta-credenciado',
@@ -20,18 +21,33 @@ export class ConsultaCredenciadoComponent implements OnInit {
   errorMessage = '';
   ordemCodigo: 'asc' | 'desc' = 'asc';
   pageSizes: number[] = [10, 25, 50, 100, 200];
+  filtro: any = {};
+  private filtroSubject = new Subject<void>();
 
   constructor(private service: CredenciadoService, private router: Router) { }
 
   ngOnInit(): void {
-    this.carregarCredenciados();
+    this.filtroSubject.pipe(
+      debounceTime(400),
+    ).subscribe(() => {
+      this.page = 0;
+      this._carregarCredenciados();
+    });
+
+    this._carregarCredenciados();
   }
 
-  carregarCredenciados() {
+  _carregarCredenciados() {
+    console.log("🟡 Filtros atuais:", this.filtro);
     this.loading = true;
     this.errorMessage = '';
 
-    this.service.listar(this.page, this.size, `codigo,${this.ordemCodigo}`).subscribe({
+    this.service.listar(
+      this.page,
+      this.size,
+      `codigo,${this.ordemCodigo}`,
+      this.filtro
+    ).subscribe({
       next: res => {
         this.credenciados = res.content ?? [];
         this.totalElements = res.totalElements ?? this.credenciados.length;
@@ -50,6 +66,10 @@ export class ConsultaCredenciadoComponent implements OnInit {
         this.loading = false;
       }
     });
+  }
+
+  carregarCredenciados() {
+    this.filtroSubject.next();
   }
 
   excluir(id?: string) {

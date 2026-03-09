@@ -47,11 +47,25 @@ public class CredenciadoController {
         return ResponseEntity.noContent().build();
     }
 
-
     @GetMapping
-    public Page<CredenciadoOutput> listar(@PageableDefault Pageable pageable) {
+    public Page<CredenciadoOutput> listar(
+            @RequestParam(required = false) Long codigo,
+            @RequestParam(required = false) String rag,
+            @RequestParam(required = false) String numeroPessoa,
+            @RequestParam(required = false) String cidade,
+            @RequestParam(required = false) String estado,
+            Pageable pageable) {
 
-        return credenciadoService.listar(pageable);
+        System.out.println("==== FILTROS RECEBIDOS ====");
+        System.out.println("codigo: " + codigo);
+        System.out.println("rag: " + rag);
+        System.out.println("numeroPessoa: " + numeroPessoa);
+        System.out.println("cidade: " + cidade);
+        System.out.println("estado: " + estado);
+        System.out.println("===========================");
+
+        return credenciadoService.listarComFiltro(
+                codigo, rag, numeroPessoa, cidade, estado, pageable);
     }
 
     @PutMapping("/{id}")

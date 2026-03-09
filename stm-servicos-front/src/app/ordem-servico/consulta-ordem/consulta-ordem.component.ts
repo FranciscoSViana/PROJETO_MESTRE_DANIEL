@@ -3,7 +3,7 @@ import { OrdemServico } from '../ordem-servico';
 import { OrdemServicoService } from '../ordem-servico.service';
 import { ClienteService } from '../../clientes/cliente.service';
 import { CredenciadoService } from '../../credenciados/credenciado.service';
-import { forkJoin, map } from 'rxjs';
+import { debounceTime, forkJoin, map, Subject } from 'rxjs';
 import { Router } from '@angular/router';
 import { Solucao } from '../../solucao/solucao';
 import { SolucaoService } from '../../solucao/solucao.service';
@@ -27,6 +27,8 @@ export class ConsultaOrdemComponent implements OnInit {
 
   clientes: any[] = [];
   credenciados: any[] = [];
+
+  private filtroSubject = new Subject<void>();
 
   modalSolucaoAberto = false;
   ordemSelecionadaId?: string;
@@ -52,6 +54,11 @@ export class ConsultaOrdemComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
+    this.filtroSubject.pipe(debounceTime(400)).subscribe(() => {
+      this.page = 0;
+      this._carregarOrdens();
+    });
+
     forkJoin({
       clientes: this.clienteService.listar().pipe(
         map(pageClientes => pageClientes.content ?? [])
@@ -64,11 +71,15 @@ export class ConsultaOrdemComponent implements OnInit {
       this.credenciados = credenciados;
 
       // Agora que temos os clientes e credenciados, podemos carregar as OS
-      this.carregarOrdens();
+      this._carregarOrdens();
     });
   }
 
-  carregarOrdens() {
+  ngOnDestroy(): void {
+    this.filtroSubject.complete(); // ✅ evita memory leak
+  }
+
+  _carregarOrdens() {
     this.loading = true;
     this.errorMessage = '';
 
@@ -104,6 +115,9 @@ export class ConsultaOrdemComponent implements OnInit {
     });
   }
 
+  carregarOrdens() {
+    this.filtroSubject.next();
+  }
 
   excluir(id?: string) {
     if (!id) return alert('ID inválido para exclusão.');
