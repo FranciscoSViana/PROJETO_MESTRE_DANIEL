@@ -46,6 +46,9 @@ export class OrdemServicoService {
     if (filtro.osg)
       params = params.set('osg', filtro.osg);
 
+    if (filtro.dataAbertura)
+      params = params.set('dataAbertura', filtro.dataAbertura);
+
     if (filtro.status)
       params = params.set('status', filtro.status);
 
@@ -119,6 +122,7 @@ export class OrdemServicoService {
     let params = new HttpParams();
     if (filtro.osClt) params = params.set('osClt', filtro.osClt);
     if (filtro.osg) params = params.set('osg', filtro.osg);
+    if (filtro.dataAbertura) params = params.set('dataAbertura', filtro.dataAbertura);
     if (filtro.status) params = params.set('status', filtro.status);
     if (filtro.cliente) params = params.set('cliente', filtro.cliente);
     if (filtro.credenciado) params = params.set('credenciado', filtro.credenciado);

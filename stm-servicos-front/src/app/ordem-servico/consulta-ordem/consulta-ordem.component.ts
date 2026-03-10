@@ -83,7 +83,12 @@ export class ConsultaOrdemComponent implements OnInit {
     this.loading = true;
     this.errorMessage = '';
 
-    this.service.listar(this.page, this.size, this.filtro).subscribe({
+    const filtroConvertido = {
+      ...this.filtro,
+      dataAbertura: this.converterDataParaISO(this.filtro.dataAbertura)
+    };
+
+    this.service.listar(this.page, this.size, filtroConvertido).subscribe({
       next: res => {
 
         console.log('Ordens recebidas do backend:', res.content);
@@ -352,5 +357,18 @@ export class ConsultaOrdemComponent implements OnInit {
       alert('Texto copiado (modo simples).');
 
     }
+  }
+
+  private converterDataParaISO(data?: string): string | undefined {
+
+    if (!data) return undefined;
+
+    const partes = data.split('/');
+
+    if (partes.length !== 3) return data;
+
+    const [dia, mes, ano] = partes;
+
+    return `${ano}-${mes}-${dia}`;
   }
 }

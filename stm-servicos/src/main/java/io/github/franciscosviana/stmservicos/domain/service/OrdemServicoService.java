@@ -101,6 +101,7 @@ public class OrdemServicoService {
             Pageable pageable,
             String osClt,
             String osg,
+            String dataAbertura,
             String status,
             String cliente,
             String credenciado,
@@ -111,7 +112,7 @@ public class OrdemServicoService {
 
         Specification<OrdemServico> spec =
                 OrdemServicoSpecification.filtro(
-                        osClt, osg, status, cliente,
+                        osClt, osg, dataAbertura, status, cliente,
                         credenciado, cidade, estado, rastreio
                 );
 

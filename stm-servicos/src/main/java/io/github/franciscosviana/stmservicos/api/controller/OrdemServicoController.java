@@ -51,6 +51,7 @@ public class OrdemServicoController {
     public Page<OrdemServicoOutput> listar(
             @RequestParam(required = false) String osClt,
             @RequestParam(required = false) String osg,
+            @RequestParam(required = false) String dataAbertura,
             @RequestParam(required = false) String status,
             @RequestParam(required = false) String cliente,
             @RequestParam(required = false) String credenciado,
@@ -61,7 +62,7 @@ public class OrdemServicoController {
     ) {
 
         return ordemServicoService.listar(
-                pageable, osClt, osg, status,
+                pageable, osClt, osg, dataAbertura, status,
                 cliente, credenciado,
                 cidade, estado, rastreio
         );
@@ -115,6 +116,7 @@ public class OrdemServicoController {
     public ResponseEntity<byte[]> exportarXlsx(
             @RequestParam(required = false) String osClt,
             @RequestParam(required = false) String osg,
+            @RequestParam(required = false) String dataAbertura,
             @RequestParam(required = false) String status,
             @RequestParam(required = false) String cliente,
             @RequestParam(required = false) String credenciado,
@@ -123,7 +125,7 @@ public class OrdemServicoController {
             @RequestParam(required = false) String rastreio
     ) {
         byte[] bytes = exportService.exportarXlsx(
-                osClt, osg, status, cliente, credenciado, cidade, estado, rastreio);
+                osClt, osg, dataAbertura, status, cliente, credenciado, cidade, estado, rastreio);
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION,
@@ -138,6 +140,7 @@ public class OrdemServicoController {
     public ResponseEntity<byte[]> exportarCsv(
             @RequestParam(required = false) String osClt,
             @RequestParam(required = false) String osg,
+            @RequestParam(required = false) String dataAbertura,
             @RequestParam(required = false) String status,
             @RequestParam(required = false) String cliente,
             @RequestParam(required = false) String credenciado,
@@ -146,7 +149,7 @@ public class OrdemServicoController {
             @RequestParam(required = false) String rastreio
     ) {
         byte[] bytes = exportService.exportarCsv(
-                osClt, osg, status, cliente, credenciado, cidade, estado, rastreio);
+                osClt, osg, dataAbertura, status, cliente, credenciado, cidade, estado, rastreio);
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION,
@@ -160,6 +163,7 @@ public class OrdemServicoController {
     public ResponseEntity<byte[]> exportarPdf(
             @RequestParam(required = false) String osClt,
             @RequestParam(required = false) String osg,
+            @RequestParam(required = false) String dataAbertura,
             @RequestParam(required = false) String status,
             @RequestParam(required = false) String cliente,
             @RequestParam(required = false) String credenciado,
@@ -168,7 +172,7 @@ public class OrdemServicoController {
             @RequestParam(required = false) String rastreio
     ) {
         byte[] bytes = exportService.exportarPdf(
-                osClt, osg, status, cliente, credenciado, cidade, estado, rastreio);
+                osClt, osg, dataAbertura, status, cliente, credenciado, cidade, estado, rastreio);
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION,

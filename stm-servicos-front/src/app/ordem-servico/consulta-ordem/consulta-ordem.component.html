@@ -46,6 +46,8 @@
           <tr class="bg-gray-50">
             <th><input [(ngModel)]="filtro.osClt" (keyup)="carregarOrdens()" class="w-full border p-1"></th>
             <th><input [(ngModel)]="filtro.osg" (keyup)="carregarOrdens()" class="w-full border p-1"></th>
+            <input type="text" mask="00/00/0000" [(ngModel)]="filtro.dataAbertura" (keyup)="carregarOrdens()"
+              class="w-full border p-1">
             <th><input [(ngModel)]="filtro.cliente" (keyup)="carregarOrdens()" class="w-full border p-1"></th>
             <th><input [(ngModel)]="filtro.credenciado" (keyup)="carregarOrdens()" class="w-full border p-1"></th>
             <th><input [(ngModel)]="filtro.cidade" (keyup)="carregarOrdens()" class="w-full border p-1"></th>
@@ -57,6 +59,7 @@
           <tr class="h-12">
             <th class="p-3 border text-center w-[110px]">OS CLT</th>
             <th class="p-3 border text-center w-[110px]">OSG</th>
+            <th class="p-3 border text-center w-[110px]">Data de Abertura</th>
             <th class="p-3 border text-center min-w-[220px]">Cliente</th>
             <th class="p-3 border text-center min-w-[220px]">Credenciado</th>
             <th class="p-3 border text-center min-w-[220px]">Cidade</th>
@@ -71,6 +74,7 @@
           <tr *ngFor="let os of ordensServico" class="hover:bg-gray-50 h-12">
             <td class="p-3 border text-center truncate">{{ os.osClt }}</td>
             <td class="p-3 border text-center truncate">{{ os.osg }}</td>
+            <td class="p-3 border text-center truncate">{{ os.dataHoraAbertura | date:'dd/MM/yyyy' }}</td>
             <td class="p-3 border text-center truncate">{{ os.cliente?.nome }}</td>
             <td class="p-3 border text-center truncate">{{ os.credenciadoNome }}</td>
             <td class="p-3 border text-center truncate">{{ os.endereco?.cidade }}</td>

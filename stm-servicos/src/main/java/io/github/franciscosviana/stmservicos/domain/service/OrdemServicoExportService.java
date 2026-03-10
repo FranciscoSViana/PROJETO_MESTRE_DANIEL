@@ -38,11 +38,11 @@ public class OrdemServicoExportService {
     // BUSCA COM FILTROS (reutiliza a Specification existente)
     // ─────────────────────────────────────────────────────────────────
     private List<OrdemServicoOutput> buscarComFiltros(
-            String osClt, String osg, String status, String cliente,
+            String osClt, String osg, String dataAbertura, String status, String cliente,
             String credenciado, String cidade, String estado, String rastreio) {
 
         Specification<OrdemServico> spec = OrdemServicoSpecification
-                .filtro(osClt, osg, status, cliente, credenciado, cidade, estado, rastreio);
+                .filtro(osClt, osg, dataAbertura, status, cliente, credenciado, cidade, estado, rastreio);
 
         return repository.findAll(spec)
                 .stream()
@@ -53,11 +53,11 @@ public class OrdemServicoExportService {
     // ─────────────────────────────────────────────────────────────────
     // XLSX
     // ─────────────────────────────────────────────────────────────────
-    public byte[] exportarXlsx(String osClt, String osg, String status, String cliente,
+    public byte[] exportarXlsx(String osClt, String osg, String dataAbertura, String status, String cliente,
                                String credenciado, String cidade, String estado, String rastreio) {
 
         List<OrdemServicoOutput> ordens = buscarComFiltros(
-                osClt, osg, status, cliente, credenciado, cidade, estado, rastreio);
+                osClt, osg, dataAbertura, status, cliente, credenciado, cidade, estado, rastreio);
 
         try (XSSFWorkbook workbook = new XSSFWorkbook();
              ByteArrayOutputStream out = new ByteArrayOutputStream()) {
@@ -161,11 +161,11 @@ public class OrdemServicoExportService {
     // ─────────────────────────────────────────────────────────────────
     // CSV
     // ─────────────────────────────────────────────────────────────────
-    public byte[] exportarCsv(String osClt, String osg, String status, String cliente,
+    public byte[] exportarCsv(String osClt, String osg, String dataAbertura, String status, String cliente,
                               String credenciado, String cidade, String estado, String rastreio) {
 
         List<OrdemServicoOutput> ordens = buscarComFiltros(
-                osClt, osg, status, cliente, credenciado, cidade, estado, rastreio);
+                osClt, osg, dataAbertura, status, cliente, credenciado, cidade, estado, rastreio);
 
         try (ByteArrayOutputStream out = new ByteArrayOutputStream();
              OutputStreamWriter osw = new OutputStreamWriter(out, StandardCharsets.UTF_8);
@@ -216,11 +216,11 @@ public class OrdemServicoExportService {
     // ─────────────────────────────────────────────────────────────────
     // PDF  (via Thymeleaf + Flying Saucer)
     // ─────────────────────────────────────────────────────────────────
-    public byte[] exportarPdf(String osClt, String osg, String status, String cliente,
+    public byte[] exportarPdf(String osClt, String osg, String dataAbertura, String status, String cliente,
                               String credenciado, String cidade, String estado, String rastreio) {
 
         List<OrdemServicoOutput> ordens = buscarComFiltros(
-                osClt, osg, status, cliente, credenciado, cidade, estado, rastreio);
+                osClt, osg, dataAbertura, status, cliente, credenciado, cidade, estado, rastreio);
 
         Context ctx = new Context();
         ctx.setVariable("ordens", ordens);
