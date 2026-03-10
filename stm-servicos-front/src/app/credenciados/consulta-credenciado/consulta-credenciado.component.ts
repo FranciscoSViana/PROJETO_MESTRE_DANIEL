@@ -92,14 +92,14 @@ export class ConsultaCredenciadoComponent implements OnInit {
   paginaAnterior() {
     if (this.page > 0) {
       this.page--;
-      this.carregarCredenciados();
+      this._carregarCredenciados();
     }
   }
 
   proximaPagina() {
     if (this.page + 1 < this.totalPages) {
       this.page++;
-      this.carregarCredenciados();
+      this._carregarCredenciados();
     }
   }
 

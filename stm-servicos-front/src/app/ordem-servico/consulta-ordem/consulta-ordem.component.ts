@@ -44,6 +44,8 @@ export class ConsultaOrdemComponent implements OnInit {
   modalEmail = false;
   textoEmailFormatado!: SafeHtml;
 
+  pageSizes: number[] = [10, 25, 50, 100, 200];
+
   constructor(
     private service: OrdemServicoService,
     private clienteService: ClienteService,
@@ -151,15 +153,24 @@ export class ConsultaOrdemComponent implements OnInit {
   paginaAnterior() {
     if (this.page > 0) {
       this.page--;
-      this.carregarOrdens();
+      this._carregarOrdens();
     }
   }
 
   proximaPagina() {
     if ((this.page + 1) < this.totalPages) {
       this.page++;
-      this.carregarOrdens();
+      this._carregarOrdens();
     }
+  }
+
+  onSizeChange(event: Event) {
+
+    const select = event.target as HTMLSelectElement;
+    this.size = Number(select.value);
+    this.page = 0;
+    this._carregarOrdens();
+
   }
 
   abrirModalSolucao(id?: string) {
@@ -326,12 +337,6 @@ export class ConsultaOrdemComponent implements OnInit {
     this.modalEmail = true;
 
   }
-
-  // copiarTexto(textarea: HTMLTextAreaElement) {
-  //   textarea.select();
-  //   document.execCommand('copy');
-  //   alert('Texto copiado para a área de transferência!');
-  // }
 
   async copiarTexto(element: HTMLElement) {
     try {

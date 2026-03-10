@@ -29,31 +29,31 @@
         </button>
 
         <div *ngIf="menuUsuarioAberto"
-     class="absolute right-0 mt-2 w-52 bg-white text-gray-800 rounded-lg shadow-lg z-50">
+          class="absolute right-0 mt-2 w-52 bg-white text-gray-800 rounded-lg shadow-lg z-50">
 
-  <p class="px-4 py-2 text-sm font-semibold border-b">{{ usuarioLogado }}</p>
+          <p class="px-4 py-2 text-sm font-semibold border-b">{{ usuarioLogado }}</p>
 
-  <a routerLink="/usuarios/perfil"
-     class="block px-4 py-2 text-gray-800 font-semibold rounded hover:bg-gray-100 my-1 text-center">
-    👤 Meu Perfil
-  </a>
+          <a routerLink="/usuarios/perfil"
+            class="block px-4 py-2 text-gray-800 font-semibold rounded hover:bg-gray-100 my-1 text-center">
+            👤 Meu Perfil
+          </a>
 
-  <a routerLink="/usuarios/editar"
-     class="block px-4 py-2 text-gray-800 font-semibold rounded hover:bg-gray-100 my-1 text-center">
-    ✏️ Editar Dados
-  </a>
+          <a routerLink="/usuarios/editar"
+            class="block px-4 py-2 text-gray-800 font-semibold rounded hover:bg-gray-100 my-1 text-center">
+            ✏️ Editar Dados
+          </a>
 
-  <!-- Botão para cadastrar usuário, só visível para ADMIN -->
-  <a *ngIf="isAdmin" routerLink="/usuarios/cadastro"
-     class="block px-4 py-2 text-gray-800 font-semibold rounded hover:bg-gray-100 my-1 text-center">
-    ➕ Novo Usuário
-  </a>
+          <!-- Botão para cadastrar usuário, só visível para ADMIN -->
+          <a *ngIf="isAdmin" routerLink="/usuarios/cadastro"
+            class="block px-4 py-2 text-gray-800 font-semibold rounded hover:bg-gray-100 my-1 text-center">
+            ➕ Novo Usuário
+          </a>
 
-  <button (click)="logout()"
-          class="w-full px-4 py-2 text-red-600 font-semibold rounded hover:bg-red-100 my-1 text-center">
-    🚪 Sair
-  </button>
-</div>
+          <button (click)="logout()"
+            class="w-full px-4 py-2 text-red-600 font-semibold rounded hover:bg-red-100 my-1 text-center">
+            🚪 Sair
+          </button>
+        </div>
 
       </div>
     </nav>
@@ -67,7 +67,7 @@
 
   <!-- FOOTER -->
   <footer class="bg-gray-200 text-center p-4 mt-6" *ngIf="!isLoginRoute()">
-    <p class="text-gray-600 text-sm">2025</p>
+    <p class="text-gray-600 text-sm">© {{ anoAtual }}</p>
   </footer>
 
 </div>

@@ -17,6 +17,8 @@ export class LayoutComponent implements OnInit {
   isAdmin = false;
   menuUsuarioAberto = false;
 
+  anoAtual: number = new Date().getFullYear();
+
   constructor(
     private router: Router,
     private activatedRoute: ActivatedRoute,
