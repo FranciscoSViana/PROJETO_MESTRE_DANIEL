@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Usuario } from './usuario';
 import { Observable } from 'rxjs';
 import { Page } from '../template/utils/page';
@@ -18,8 +18,11 @@ export class UsuarioService {
     return this.http.put(`${this.apiUrl}/${id}`, dados);
   }
 
-  listarUsuarios() : Observable<Page<Usuario>> {
-    return this.http.get<Page<Usuario>>(`${this.apiUrl}`);
+  listarUsuarios(page: number = 0, size: number = 10): Observable<Page<Usuario>> {
+    const params = new HttpParams()
+      .set('page', page)
+      .set('size', size);
+    return this.http.get<Page<Usuario>>(`${this.apiUrl}`, { params });
   }
 
   excluirUsuario(id: string) {

@@ -1,49 +1,85 @@
-<div class="p-6 max-w-5x1 mx-auto bg-white shadow rounded mt-6">
+<div class="p-4 md:p-6 max-w-6xl mx-auto bg-white shadow-lg rounded-lg mt-6">
 
-    <h2 class="text-2x1 font-semibold text-gray-700 mb-4">
-        Histórico da Ordem de Serviço
-    </h2>
-
-    <div *ngIf="loading" class="text-center text-gray-500">
-        Carregando histórico...
+    <!-- ================= HEADER ================= -->
+    <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-2 mb-4">
+        <h2 class="text-xl md:text-2xl font-semibold text-gray-700">
+            Histórico da Ordem de Serviço
+        </h2>
+        <button type="button" (click)="voltar()"
+            class="flex items-center gap-2 text-sm text-gray-500 hover:text-gray-700 transition">
+            <i class="fa-solid fa-arrow-left"></i> Voltar
+        </button>
     </div>
 
-    <div *ngIf="errorMessage" class="text-red-600">
-        {{ errorMessage }}
+    <hr class="mb-6">
+
+    <!-- ================= LOADING ================= -->
+    <div *ngIf="loading" class="flex items-center justify-center py-10 gap-2 text-gray-500">
+        <svg class="animate-spin h-5 w-5 text-blue-600" viewBox="0 0 24 24" fill="none">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 00-8 8z"></path>
+        </svg>
+        <span class="text-sm">Carregando histórico...</span>
     </div>
 
-    <table *ngIf="!loading && historicos.length" class="min-w-full border-collapse mt-4">
+    <!-- ================= ERRO ================= -->
+    <div *ngIf="errorMessage" class="mb-4 px-4 py-3 bg-red-50 border border-red-300 text-red-600 rounded-lg text-sm">
+        <i class="fa-solid fa-circle-exclamation mr-2"></i>{{ errorMessage }}
+    </div>
 
-        <thead class="bg-gray-100">
-            <tr>
-                <th class="p-3 border">Data</th>
-                <th class="p-3 border">Ação</th>
-                <th class="p-3 border">Descrição</th>
-                <th class="p-3 border">Usuário</th>
-            </tr>
-        </thead>
+    <div *ngIf="!loading" class="relative">
 
-        <tbody>
-            <tr *ngFor="let h of historicos" class="hover:bg-gray-50">
-                <td class="p-3 border">
-                    {{ h.dataHora | date:'dd/MM/yyyy HH:mm' }}
-                </td>
-                <td class="p-3 border font-medium">
-                    {{ h.acao }}
-                </td>
-                <td class="p-3 border">
-                    {{ h.descricao || '-' }}
-                </td>
-                <td class="p-3 border">
-                    {{ h.usuario?.nome }}
-                </td>
-            </tr>
-        </tbody>
+        <!-- ================= TABELA DESKTOP ================= -->
+        <div class="hidden md:block overflow-x-auto">
 
-    </table>
+            <table *ngIf="historicos.length" class="min-w-full border-collapse text-sm">
 
-    <div *ngIf="!loading && !historicos.length" class="text-gray-500 text-center mt-6">
-        Nenhum histórico encontrado.
+                <thead class="bg-gray-100 text-gray-700">
+                    <tr>
+                        <th class="p-3 border text-center w-[160px]">Data</th>
+                        <th class="p-3 border text-center w-[140px]">Ação</th>
+                        <th class="p-3 border text-center">Descrição</th>
+                        <th class="p-3 border text-center w-[160px]">Usuário</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr *ngFor="let h of historicos" class="hover:bg-gray-50">
+                        <td class="p-3 border text-center">{{ h.dataHora | date:'dd/MM/yyyy HH:mm' }}</td>
+                        <td class="p-3 border text-center font-medium">{{ h.acao }}</td>
+                        <td class="p-3 border text-center">{{ h.descricao || '-' }}</td>
+                        <td class="p-3 border text-center">{{ h.usuario?.nome }}</td>
+                    </tr>
+                </tbody>
+
+            </table>
+
+        </div>
+
+        <!-- ================= CARDS MOBILE ================= -->
+        <div class="md:hidden space-y-3">
+
+            <div *ngFor="let h of historicos" class="border rounded-lg shadow-sm p-4 bg-white">
+
+                <div class="flex justify-between items-start mb-2">
+                    <span class="font-semibold text-gray-800 text-sm">{{ h.acao }}</span>
+                    <span class="text-xs text-gray-500">{{ h.dataHora | date:'dd/MM/yyyy HH:mm' }}</span>
+                </div>
+
+                <div class="text-sm text-gray-600 space-y-1">
+                    <p><span class="font-medium">Descrição:</span> {{ h.descricao || '-' }}</p>
+                    <p><span class="font-medium">Usuário:</span> {{ h.usuario?.nome }}</p>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- ================= VAZIO ================= -->
+        <div *ngIf="!historicos.length" class="text-center text-gray-400 text-sm py-10">
+            Nenhum histórico encontrado.
+        </div>
+
     </div>
 
 </div>

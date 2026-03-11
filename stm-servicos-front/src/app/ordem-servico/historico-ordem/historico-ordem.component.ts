@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { HistoricoOrdemServico } from '../historico-ordem-servico';
 import { ActivatedRoute } from '@angular/router';
+import { Location } from '@angular/common';
 import { OrdemServicoService } from '../ordem-servico.service';
 
 @Component({
@@ -10,6 +11,7 @@ import { OrdemServicoService } from '../ordem-servico.service';
   styleUrl: './historico-ordem.component.scss'
 })
 export class HistoricoOrdemComponent implements OnInit {
+
   historicos: HistoricoOrdemServico[] = [];
   loading = false;
   errorMessage = '';
@@ -17,7 +19,8 @@ export class HistoricoOrdemComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private service: OrdemServicoService
+    private service: OrdemServicoService,
+    private location: Location
   ) { }
 
   ngOnInit(): void {
@@ -27,7 +30,6 @@ export class HistoricoOrdemComponent implements OnInit {
 
   carregarHistorico() {
     this.loading = true;
-
     this.service.buscarHistorico(this.ordemServicoId).subscribe({
       next: res => {
         this.historicos = res;
@@ -39,5 +41,9 @@ export class HistoricoOrdemComponent implements OnInit {
         this.loading = false;
       }
     });
+  }
+
+  voltar(): void {
+    this.location.back();
   }
 }

@@ -35,7 +35,7 @@ public class TokenService {
             JwtClaimsSet claims = JwtClaimsSet.builder()
                     .issuer("stm-api")
                     .issuedAt(now)
-                    .expiresAt(now.plusSeconds(3600))
+                    .expiresAt(now.plusSeconds(1200))
                     .subject(usuario)
                     .claim("roles", roles)
                     .build();

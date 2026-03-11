@@ -19,29 +19,27 @@ export class ConsultaClienteComponent implements OnInit {
   loading = false;
   errorMessage = '';
 
+  pageSizes = [5, 10, 20, 50];
+
   constructor(private service: ClienteService, private router: Router) { }
 
   ngOnInit(): void {
     this.carregarClientes();
   }
 
-
   carregarClientes() {
     this.loading = true;
     this.errorMessage = '';
-
     this.service.listar(this.page, this.size).subscribe({
       next: res => {
-        // espera-se que o backend retorne um Page<T> com campos:
-        // content, totalElements, totalPages (se existir)
         this.clientes = res.content ?? [];
-        this.totalElements = res.totalElements ?? (this.clientes.length);
-        // prefere totalPages vindo do backend; se não existir, calcula
-        if (typeof res.totalPages === 'number') {
-          this.totalPages = res.totalPages;
-        } else {
-          this.totalPages = Math.ceil((this.totalElements ?? 0) / this.size);
-        }
+        this.totalElements = res.totalElements ?? this.clientes.length;
+
+        const page = (res as any).page;
+        this.totalPages = page?.totalPages
+          ?? res.totalPages
+          ?? Math.ceil(this.totalElements / this.size);
+
         this.loading = false;
       },
       error: err => {
@@ -52,12 +50,18 @@ export class ConsultaClienteComponent implements OnInit {
     });
   }
 
+  onSizeChange(event: Event) {
+    const select = event.target as HTMLSelectElement;
+    this.size = Number(select.value);
+    this.page = 0;
+    this.carregarClientes();
+  }
+
   excluir(id?: string) {
     if (!id) {
       alert('ID inválido para exclusão.');
       return;
     }
-
     if (confirm('Tem certeza que deseja excluir este cliente?')) {
       this.service.excluir(id).subscribe({
         next: () => this.carregarClientes(),
@@ -85,17 +89,14 @@ export class ConsultaClienteComponent implements OnInit {
 
   formatarCnpj(cnpj: string | number | null | undefined): string {
     if (!cnpj) return '';
-
     const num = cnpj.toString().padStart(14, '0');
-
     return num.replace(
       /^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/,
-      "$1.$2.$3/$4-$5"
+      '$1.$2.$3/$4-$5'
     );
   }
 
   editar(id?: string) {
-    console.log('🟢 Clicou no editar, ID:', id);
     this.router.navigate(['/clientes/editar', id]);
   }
 

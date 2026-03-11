@@ -1,75 +1,140 @@
-<div class="p-6 max-w-7xl mx-auto bg-white shadow-lg rounded-lg mt-6">
+<div class="p-4 md:p-6 max-w-7xl mx-auto bg-white shadow-lg rounded-lg mt-6">
 
-  <!-- Cabeçalho -->
-  <div class="flex justify-between items-center mb-4">
-    <h2 class="text-2xl font-semibold text-gray-700">Usuários Cadastrados</h2>
+  <!-- ================= HEADER ================= -->
+  <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-4">
+
+    <h2 class="text-xl md:text-2xl font-semibold text-gray-700">
+      Usuários Cadastrados
+    </h2>
 
     <button routerLink="/usuarios/cadastro"
-      class="px-4 py-2 bg-green-600 text-white rounded-lg shadow hover:bg-green-700">
+      class="px-4 py-2 bg-green-600 text-white rounded-lg shadow hover:bg-green-700 text-sm w-full md:w-auto">
       + Novo Usuário
     </button>
+
   </div>
 
   <hr class="mb-4">
 
-  <!-- Tabela -->
-  <div class="px-4">
-    <div class="overflow-x-auto">
-      <table class="min-w-full border-collapse table-fixed">
+  <div class="relative">
+
+    <!-- ================= TABELA DESKTOP ================= -->
+    <div class="hidden md:block overflow-x-auto">
+
+      <table class="min-w-full border-collapse text-sm">
 
         <thead class="bg-gray-100 text-gray-700">
-          <tr class="h-12">
-            <th class="p-3 border text-center min-w-[220px]">Nome</th>
-            <th class="p-3 border text-center min-w-[240px]">E-mail</th>
-            <th class="p-3 border text-center w-[140px]">Roles</th>
+          <tr>
+            <th class="p-3 border text-center">Nome</th>
+            <th class="p-3 border text-center">E-mail</th>
+            <th class="p-3 border text-center w-[160px]">Perfil</th>
             <th class="p-3 border text-center w-[100px]">Ações</th>
           </tr>
         </thead>
 
         <tbody>
-          <tr *ngFor="let u of usuarios" class="hover:bg-gray-50 h-12">
-
-            <td class="p-3 border text-center truncate">{{ u.nome }}</td>
-            <td class="p-3 border text-center truncate">{{ u.email }}</td>
-            <td class="p-3 border text-center truncate">{{ u.roles.join(', ') }}</td>
-
+          <tr *ngFor="let u of usuarios" class="hover:bg-gray-50">
+            <td class="p-3 border text-center">{{ u.nome }}</td>
+            <td class="p-3 border text-center">{{ u.email }}</td>
+            <td class="p-3 border text-center">{{ u.roles.join(', ') }}</td>
             <td class="p-3 border">
               <div class="flex justify-center gap-2">
-                <button class="w-9 h-9 flex items-center justify-center rounded hover:bg-gray-200"
-                        (click)="editar(u.id)">
+                <button class="w-8 h-8 flex items-center justify-center rounded hover:bg-gray-200" title="Editar"
+                  (click)="editar(u.id)">
                   <i class="fa-solid fa-pen-to-square text-blue-600"></i>
                 </button>
-
-                <button class="w-9 h-9 flex items-center justify-center rounded hover:bg-gray-200"
-                        (click)="excluir(u.id)">
+                <button class="w-8 h-8 flex items-center justify-center rounded hover:bg-gray-200" title="Excluir"
+                  (click)="excluir(u.id)">
                   <i class="fa-solid fa-trash text-red-600"></i>
                 </button>
               </div>
             </td>
+          </tr>
 
+          <tr *ngIf="!usuarios || usuarios.length === 0">
+            <td colspan="4" class="p-6 text-center text-gray-400 text-sm">
+              Nenhum usuário encontrado.
+            </td>
           </tr>
         </tbody>
 
       </table>
+
     </div>
+
+    <!-- ================= CARDS MOBILE ================= -->
+    <div class="md:hidden space-y-3">
+
+      <div *ngFor="let u of usuarios" class="border rounded-lg shadow-sm p-4 bg-white">
+
+        <div class="flex justify-between items-start mb-2">
+          <span class="font-semibold text-gray-800">{{ u.nome }}</span>
+          <span class="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">
+            {{ u.roles.join(', ') }}
+          </span>
+        </div>
+
+        <div class="text-sm text-gray-600 mb-3">
+          <p><span class="font-medium">E-mail:</span> {{ u.email }}</p>
+        </div>
+
+        <div class="flex justify-end gap-3 pt-2 border-t">
+          <button class="w-9 h-9 flex items-center justify-center rounded hover:bg-gray-100" (click)="editar(u.id)">
+            <i class="fa-solid fa-pen-to-square text-blue-600"></i>
+          </button>
+          <button class="w-9 h-9 flex items-center justify-center rounded hover:bg-gray-100" (click)="excluir(u.id)">
+            <i class="fa-solid fa-trash text-red-600"></i>
+          </button>
+        </div>
+
+      </div>
+
+      <div *ngIf="!usuarios || usuarios.length === 0" class="text-center text-gray-400 text-sm py-10">
+        Nenhum usuário encontrado.
+      </div>
+
+    </div>
+
   </div>
 
-  <!-- Paginação -->
-  <div class="mt-6 flex justify-center items-center gap-4">
+  <!-- ================= PAGINAÇÃO ================= -->
+  <div class="mt-6 border-t pt-4">
 
-    <button (click)="paginaAnterior()" [disabled]="page === 0" 
-            class="px-4 py-2 bg-blue-600 text-white rounded shadow hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed">
-      Anterior
-    </button>
+    <div class="flex flex-col md:flex-row items-center justify-between gap-4">
 
-    <span class="text-gray-700 font-medium">
-      Página {{ page + 1 }} de {{ totalPages }}
-    </span>
+      <div class="text-sm text-gray-600">
+        Página <span class="font-semibold">{{ page + 1 }}</span> de
+        <span class="font-semibold">{{ totalPages }}</span>
+      </div>
 
-    <button (click)="proximaPagina()" [disabled]="(page + 1) >= totalPages"
-            class="px-4 py-2 bg-blue-600 text-white rounded shadow hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed">
-      Próxima
-    </button>
+      <div class="flex items-center gap-2">
+
+        <button (click)="paginaAnterior()" [disabled]="page === 0"
+          class="flex items-center gap-1 px-4 py-2 bg-blue-600 text-white rounded shadow hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed text-sm">
+          Anterior <i class="fa-solid fa-chevron-left"></i>
+        </button>
+
+        <div class="px-4 py-2 border rounded font-medium bg-gray-50 text-sm">
+          {{ page + 1 }}
+        </div>
+
+        <button (click)="proximaPagina()" [disabled]="(page + 1) >= totalPages"
+          class="flex items-center gap-1 px-4 py-2 bg-blue-600 text-white rounded shadow hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed text-sm">
+          Próxima <i class="fa-solid fa-chevron-right"></i>
+        </button>
+
+      </div>
+
+      <div class="flex items-center gap-2 text-sm text-gray-600">
+        <label>Itens:</label>
+        <select class="border rounded px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+          [value]="size" (change)="onSizeChange($event)">
+          <option *ngFor="let s of pageSizes" [value]="s">{{ s }}</option>
+        </select>
+      </div>
+
+    </div>
 
   </div>
+
 </div>

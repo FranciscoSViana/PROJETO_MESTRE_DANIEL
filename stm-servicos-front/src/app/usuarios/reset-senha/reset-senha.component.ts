@@ -15,6 +15,7 @@ export class ResetSenhaComponent implements OnInit {
   mensagem = '';   // sucesso
   erro = '';       // erro do backend
   forca = 0;
+  forcaTexto = '';
   classe = '';
 
   form = new FormGroup({

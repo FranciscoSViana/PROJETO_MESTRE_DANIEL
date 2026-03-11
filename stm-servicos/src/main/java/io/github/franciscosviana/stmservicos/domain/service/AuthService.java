@@ -37,33 +37,34 @@ public class AuthService {
     private final TokenService tokenService;
     private final PasswordEncoder passwordEncoder;
     private final UsuarioRepository usuarioRepository;
+    private final RefreshTokenService refreshTokenService;
     private final AuthenticationManager authenticationManager;
     private final HistoricoSenhaRepository historicoSenhaRepository;
 
     public AuthResponse login(AuthRequest request) {
-        try {
-            var authToken = new UsernamePasswordAuthenticationToken(
-                    request.getUsuario(),
-                    request.getSenha()
-            );
 
-            authenticationManager.authenticate(authToken);
+        var authToken = new UsernamePasswordAuthenticationToken(
+                request.getUsuario(),
+                request.getSenha()
+        );
 
-            Usuario user = usuarioRepository.findByNome(request.getUsuario())
-                    .orElseThrow(() -> new RuntimeException("Usuário não encontrado no banco"));
+        authenticationManager.authenticate(authToken);
 
-            String token = tokenService.generateToken(user.getNome(), user.getRoles());
+        Usuario user = usuarioRepository.findByNome(request.getUsuario())
+                .orElseThrow();
 
-            return new AuthResponse(token, "Bearer");
+        String accessToken = tokenService.generateToken(
+                user.getNome(),
+                user.getRoles()
+        );
 
-        } catch (BadCredentialsException e) {
-            log.info("Credenciais inválidas {}", e.getMessage());
-            throw e;
+        var refreshToken = refreshTokenService.create(user);
 
-        } catch (Exception e) {
-            log.info("❌ [AuthService] Erro geral no login: {}", e.getMessage());
-            throw e;
-        }
+        return new AuthResponse(
+                accessToken,
+                refreshToken.getToken(),
+                "Bearer"
+        );
     }
 
     public Page<Usuario> listarUsuarios(Pageable pageable) {

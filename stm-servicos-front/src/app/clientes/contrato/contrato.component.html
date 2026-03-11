@@ -1,138 +1,198 @@
-<div class="p-6 max-w-5x1 mx-auto bg-white shadow-lg rounded-lg mt-6">
+<div class="p-4 md:p-6 max-w-6xl mx-auto bg-white shadow-lg rounded-lg mt-6">
 
-    <!-- TOPO: Cliente + Botão -->
-    <div class="flex justify-between items-start gap-x-12 mb-8">
-        <!-- Cliente -->
+    <!-- ================= HEADER ================= -->
+    <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-4">
+
         <div>
-            <p class="text-lg font-semibold text-gray-800">
-                {{ cliente?.nome }} CNPJ: {{ formatarCnpj(cliente?.cnpj) }}
+            <h2 class="text-xl md:text-2xl font-semibold text-gray-700">Contratos do Cliente</h2>
+            <p class="text-sm text-gray-500 mt-1">
+                <span class="font-medium text-gray-700">{{ cliente?.nome }}</span>
+                <span class="mx-2">·</span>
+                CNPJ: {{ formatarCnpj(cliente?.cnpj) }}
             </p>
         </div>
 
-        <!-- Botão -->
-        <button type="button" (click)="abrirModalNovo()"
-            class="h-[32px] px-6 bg-green-600 text-white rounded-md shadow hover:bg-green-700">
-            + Novo Contrato
-        </button>
+        <div class="flex gap-2">
+            <button type="button" routerLink="/clientes"
+                class="flex items-center gap-2 text-sm text-gray-500 hover:text-gray-700 transition">
+                <i class="fa-solid fa-arrow-left"></i> Voltar
+            </button>
+            <button type="button" (click)="abrirModalNovo()"
+                class="px-4 py-2 bg-green-600 text-white rounded-lg shadow hover:bg-green-700 text-sm">
+                + Novo Contrato
+            </button>
+        </div>
+
     </div>
 
-    <!-- TÍTULO DA SEÇÃO -->
-    <h2 class="text-x1 font-semibold text-gray-800 mb-6">
-        Contratos do Cliente
-    </h2>
+    <hr class="mb-6">
 
-    <!-- Lista de contratos -->
-    <table class="min-w-full border-collapse">
-        <thead class="bg-gray-100">
-            <tr>
-                <th class="p-4 border">Número</th>
-                <th class="p-4 border">Nome</th>
-                <th class="p-4 border">Valor Chamado</th>
-                <th class="p-4 border">Valor KM</th>
-                <th class="p-4 border">Responsável</th>
-                <th class="p-4 border">Telefone</th>
-                <th class="p-4 border text-center">Ações</th>
-            </tr>
-        </thead>
+    <div class="relative">
 
-        <tbody>
-            <tr *ngFor="let c of contratos" class="hover:bg-gray-50">
-                <td class="p-4 border">{{ c.numeroContrato }}</td>
-                <td class="p-4 border">{{ c.nomeContrato }}</td>
-                <td class="p-4 border">{{ c.valorChamado | currency:'BRL':'symbol':'1.2-2' }}</td>
-                <td class="p-4 border">{{ c.valorKm | currency:'BRL':'symbol':'1.2-2' }}</td>
-                <td class="p-4 border">{{ c.responsavelContrato }}</td>
-                <td class="p-4 border">{{ formatarTelefone(c.telefoneContrato) }}</td>
+        <!-- ================= TABELA DESKTOP ================= -->
+        <div class="hidden md:block overflow-x-auto">
 
-                <td class="p-4 border text-center space-x-2">
-                    <button class="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
-                        (click)="abrirModalEditar(c)">
-                        Editar
-                    </button>
+            <table class="min-w-full border-collapse text-sm">
 
-                    <button class="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
-                        (click)="excluirContrato(c)">
-                        Excluir
-                    </button>
-                </td>
-            </tr>
+                <thead class="bg-gray-100 text-gray-700">
+                    <tr>
+                        <th class="p-3 border text-center">Número</th>
+                        <th class="p-3 border text-center">Nome</th>
+                        <th class="p-3 border text-center w-[140px]">Valor Chamado</th>
+                        <th class="p-3 border text-center w-[120px]">Valor KM</th>
+                        <th class="p-3 border text-center">Responsável</th>
+                        <th class="p-3 border text-center w-[160px]">Telefone</th>
+                        <th class="p-3 border text-center w-[100px]">Ações</th>
+                    </tr>
+                </thead>
 
-            <tr *ngIf="contratos.length === 0">
-                <td colspan="5" class="p-4 text-center text-gray-500">
-                    Nenhum contrato cadastrado.
-                </td>
-            </tr>
-        </tbody>
+                <tbody>
+                    <tr *ngFor="let c of contratos" class="hover:bg-gray-50">
+                        <td class="p-3 border text-center">{{ c.numeroContrato }}</td>
+                        <td class="p-3 border text-center">{{ c.nomeContrato }}</td>
+                        <td class="p-3 border text-center">{{ c.valorChamado | currency:'BRL':'symbol':'1.2-2' }}</td>
+                        <td class="p-3 border text-center">{{ c.valorKm | currency:'BRL':'symbol':'1.2-2' }}</td>
+                        <td class="p-3 border text-center">{{ c.responsavelContrato }}</td>
+                        <td class="p-3 border text-center">{{ formatarTelefone(c.telefoneContrato) }}</td>
+                        <td class="p-3 border">
+                            <div class="flex justify-center gap-2">
+                                <button class="w-8 h-8 flex items-center justify-center rounded hover:bg-gray-200"
+                                    title="Editar" (click)="abrirModalEditar(c)">
+                                    <i class="fa-solid fa-pen-to-square text-blue-600"></i>
+                                </button>
+                                <button class="w-8 h-8 flex items-center justify-center rounded hover:bg-gray-200"
+                                    title="Excluir" (click)="excluirContrato(c)">
+                                    <i class="fa-solid fa-trash text-red-600"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
 
+                    <tr *ngIf="contratos.length === 0">
+                        <td colspan="7" class="p-6 text-center text-gray-400 text-sm">
+                            Nenhum contrato cadastrado.
+                        </td>
+                    </tr>
+                </tbody>
 
-    </table>
-    <!-- MODAL -->
-    <div *ngIf="modalAberto" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-
-        <div class="bg-white w-full max-w-md rounded-lg shadow-lg p-6">
-
-            <h3 class="text-xl font-semibold text-gray-700 mb-4">
-                {{ contratoEmEdicao ? 'Editar Contrato' : 'Novo Contrato' }}
-            </h3>
-
-            <form [formGroup]="contratoForm" (ngSubmit)="salvarContrato()">
-
-                <!-- Número -->
-                <div class="mb-4">
-                    <label class="block text-gray-600 font-medium mb-1">Número do Contrato</label>
-                    <input type="text" formControlName="numeroContrato"
-                        class="w-full p-3 border rounded focus:ring focus:ring-blue-400" />
-                </div>
-
-                <!-- Nome -->
-                <div class="mb-4">
-                    <label class="block text-gray-600 font-medium mb-1">Nome do Contrato</label>
-                    <input type="text" formControlName="nomeContrato"
-                        class="w-full p-3 border rounded focus:ring focus:ring-blue-400" />
-                </div>
-
-                <!-- Responsável -->
-                <div class="mb-4">
-                    <label class="block text-gray-600 font-medium mb-1">Responsável</label>
-                    <input type="text" formControlName="responsavelContrato"
-                        class="w-full p-3 border rounded focus:ring focus:ring-blue-400" />
-                </div>
-
-                <!-- Telefone -->
-                <div class="mb-4">
-                    <label class="block text-gray-600 font-medium mb-1">Telefone</label>
-                    <input type="text" formControlName="telefoneContrato"
-                        class="w-full p-3 border rounded focus:ring focus:ring-blue-400" />
-                </div>
-
-                <!-- Valores -->
-                <div class="grid grid-cols-2 gap-4 mb-4">
-                    <div>
-                        <label class="block text-gray-600 font-medium mb-1">Valor Chamado</label>
-                        <input type="number" formControlName="valorChamado" class="w-full p-3 border rounded" />
-                    </div>
-
-                    <div>
-                        <label class="block text-gray-600 font-medium mb-1">Valor KM</label>
-                        <input type="number" formControlName="valorKm" class="w-full p-3 border rounded" />
-                    </div>
-                </div>
-
-                <!-- Botões -->
-                <div class="flex justify-end gap-3">
-                    <button type="button" (click)="fecharModal()"
-                        class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">
-                        Cancelar
-                    </button>
-
-                    <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
-                        Salvar
-                    </button>
-                </div>
-
-            </form>
+            </table>
 
         </div>
+
+        <!-- ================= CARDS MOBILE ================= -->
+        <div class="md:hidden space-y-3">
+
+            <div *ngFor="let c of contratos" class="border rounded-lg shadow-sm p-4 bg-white">
+
+                <div class="flex justify-between items-start mb-2">
+                    <span class="font-semibold text-gray-800">{{ c.nomeContrato }}</span>
+                    <span class="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">
+                        #{{ c.numeroContrato }}
+                    </span>
+                </div>
+
+                <div class="text-sm text-gray-600 space-y-1 mb-3">
+                    <p><span class="font-medium">Responsável:</span> {{ c.responsavelContrato }}</p>
+                    <p><span class="font-medium">Telefone:</span> {{ formatarTelefone(c.telefoneContrato) }}</p>
+                    <p><span class="font-medium">Valor Chamado:</span> {{ c.valorChamado |
+                        currency:'BRL':'symbol':'1.2-2' }}</p>
+                    <p><span class="font-medium">Valor KM:</span> {{ c.valorKm | currency:'BRL':'symbol':'1.2-2' }}</p>
+                </div>
+
+                <div class="flex justify-end gap-3 pt-2 border-t">
+                    <button class="w-9 h-9 flex items-center justify-center rounded hover:bg-gray-100"
+                        (click)="abrirModalEditar(c)">
+                        <i class="fa-solid fa-pen-to-square text-blue-600"></i>
+                    </button>
+                    <button class="w-9 h-9 flex items-center justify-center rounded hover:bg-gray-100"
+                        (click)="excluirContrato(c)">
+                        <i class="fa-solid fa-trash text-red-600"></i>
+                    </button>
+                </div>
+
+            </div>
+
+            <div *ngIf="contratos.length === 0" class="text-center text-gray-400 text-sm py-10">
+                Nenhum contrato cadastrado.
+            </div>
+
+        </div>
+
     </div>
 
+</div>
+
+
+<!-- ================= MODAL: NOVO / EDITAR CONTRATO ================= -->
+<div *ngIf="modalAberto" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+
+    <div class="bg-white w-full max-w-lg rounded-xl shadow-2xl p-4 md:p-6 max-h-[90vh] overflow-y-auto">
+
+        <div class="flex justify-between items-center mb-4 border-b pb-3">
+            <h3 class="text-lg font-semibold text-gray-700">
+                {{ contratoEmEdicao ? 'Editar Contrato' : 'Novo Contrato' }}
+            </h3>
+            <button (click)="fecharModal()" class="text-gray-400 hover:text-gray-600">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+        </div>
+
+        <form [formGroup]="contratoForm" (ngSubmit)="salvarContrato()" class="space-y-4">
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+                <div>
+                    <label class="block text-gray-600 font-medium mb-1 text-sm">Número do Contrato</label>
+                    <input type="text" formControlName="numeroContrato"
+                        class="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm" />
+                </div>
+
+                <div>
+                    <label class="block text-gray-600 font-medium mb-1 text-sm">Nome do Contrato</label>
+                    <input type="text" formControlName="nomeContrato"
+                        class="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm" />
+                </div>
+
+                <div>
+                    <label class="block text-gray-600 font-medium mb-1 text-sm">Responsável</label>
+                    <input type="text" formControlName="responsavelContrato"
+                        class="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm" />
+                </div>
+
+                <div>
+                    <label class="block text-gray-600 font-medium mb-1 text-sm">Telefone</label>
+                    <input type="text" formControlName="telefoneContrato" mask="(00) 0000-0000||(00) 00000-0000"
+                        class="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm" />
+                </div>
+
+                <div>
+                    <label class="block text-gray-600 font-medium mb-1 text-sm">Valor Chamado</label>
+                    <input type="text" mask="separator.2" thousandSeparator="." decimalMarker=","
+                        formControlName="valorChamado"
+                        class="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm" />
+                </div>
+
+                <div>
+                    <label class="block text-gray-600 font-medium mb-1 text-sm">Valor KM</label>
+                    <input type="text" mask="separator.2" thousandSeparator="." decimalMarker=","
+                        formControlName="valorKm"
+                        class="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm" />
+                </div>
+
+            </div>
+
+            <div class="flex flex-col-reverse md:flex-row justify-end gap-3 pt-4 border-t">
+                <button type="button" (click)="fecharModal()"
+                    class="px-5 py-2 bg-gray-400 text-white rounded-lg hover:bg-gray-500 transition text-sm w-full md:w-auto">
+                    Cancelar
+                </button>
+                <button type="submit"
+                    class="px-5 py-2 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition text-sm w-full md:w-auto">
+                    <i class="fa-solid fa-floppy-disk mr-1"></i> Salvar
+                </button>
+            </div>
+
+        </form>
+
+    </div>
 </div>

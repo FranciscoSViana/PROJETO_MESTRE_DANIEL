@@ -20,12 +20,18 @@
       <div class="hidden md:flex justify-center items-center">
 
         <ul class="flex space-x-6 font-semibold">
-          <li><a routerLink="clientes" routerLinkActive="text-yellow-300 underline"
-              class="hover:text-yellow-300 transition">Clientes</a></li>
-          <li><a routerLink="credenciados" routerLinkActive="text-yellow-300 underline"
-              class="hover:text-yellow-300 transition">Credenciados</a></li>
-          <li><a routerLink="ordem-servico" routerLinkActive="text-yellow-300 underline"
-              class="hover:text-yellow-300 transition">Ordens</a></li>
+          <li>
+            <a routerLink="clientes" routerLinkActive="text-yellow-300 underline"
+              class="hover:text-yellow-300 transition">Clientes</a>
+          </li>
+          <li>
+            <a routerLink="credenciados" routerLinkActive="text-yellow-300 underline"
+              class="hover:text-yellow-300 transition">Credenciados</a>
+          </li>
+          <li>
+            <a routerLink="ordem-servico" routerLinkActive="text-yellow-300 underline"
+              class="hover:text-yellow-300 transition">Ordens</a>
+          </li>
           <li *ngIf="isAdmin">
             <a routerLink="usuarios" routerLinkActive="text-yellow-300 underline"
               class="hover:text-yellow-300 transition">Usuários</a>
@@ -44,20 +50,20 @@
             <p class="px-4 py-2 text-sm font-semibold border-b truncate">{{ usuarioLogado }}</p>
             <a routerLink="/usuarios/perfil"
               class="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 transition text-sm">
-              👤 Meu Perfil
+              <i class="fa-solid fa-user text-blue-500 w-4"></i> Meu Perfil
             </a>
             <a routerLink="/usuarios/editar"
               class="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 transition text-sm">
-              ✏️ Editar Dados
+              <i class="fa-solid fa-pen-to-square text-blue-500 w-4"></i> Editar Dados
             </a>
             <a *ngIf="isAdmin" routerLink="/usuarios/cadastro"
               class="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 transition text-sm">
-              ➕ Novo Usuário
+              <i class="fa-solid fa-user-plus text-blue-500 w-4"></i> Novo Usuário
             </a>
             <hr class="my-1">
             <button (click)="logout()"
               class="w-full flex items-center gap-2 px-4 py-2 text-red-600 hover:bg-red-50 transition text-sm font-semibold">
-              🚪 Sair
+              <i class="fa-solid fa-right-from-bracket w-4"></i> Sair
             </button>
           </div>
         </div>
@@ -70,12 +76,8 @@
         <!-- Botão hamburguer -->
         <button (click)="menuMobileAberto = !menuMobileAberto"
           class="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 transition text-white">
-          <svg *ngIf="!menuMobileAberto" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-          </svg>
-          <svg *ngIf="menuMobileAberto" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-          </svg>
+          <i *ngIf="!menuMobileAberto" class="fa-solid fa-bars text-xl"></i>
+          <i *ngIf="menuMobileAberto" class="fa-solid fa-xmark text-xl"></i>
         </button>
 
         <!-- Avatar mobile -->
@@ -90,20 +92,20 @@
             <p class="px-4 py-2 text-sm font-semibold border-b truncate">{{ usuarioLogado }}</p>
             <a routerLink="/usuarios/perfil"
               class="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 transition text-sm">
-              👤 Meu Perfil
+              <i class="fa-solid fa-user text-blue-500 w-4"></i> Meu Perfil
             </a>
             <a routerLink="/usuarios/editar"
               class="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 transition text-sm">
-              ✏️ Editar Dados
+              <i class="fa-solid fa-pen-to-square text-blue-500 w-4"></i> Editar Dados
             </a>
             <a *ngIf="isAdmin" routerLink="/usuarios/cadastro"
               class="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 transition text-sm">
-              ➕ Novo Usuário
+              <i class="fa-solid fa-user-plus text-blue-500 w-4"></i> Novo Usuário
             </a>
             <hr class="my-1">
             <button (click)="logout()"
               class="w-full flex items-center gap-2 px-4 py-2 text-red-600 hover:bg-red-50 transition text-sm font-semibold">
-              🚪 Sair
+              <i class="fa-solid fa-right-from-bracket w-4"></i> Sair
             </button>
           </div>
         </div>
@@ -111,35 +113,30 @@
       </div>
 
       <!-- Menu mobile expandido -->
-      <div *ngIf="menuMobileAberto"
-        class="md:hidden mt-3 bg-blue-600 rounded-xl overflow-hidden shadow-inner">
+      <div *ngIf="menuMobileAberto" class="md:hidden mt-3 bg-blue-600 rounded-xl overflow-hidden shadow-inner">
         <ul class="flex flex-col font-semibold text-white divide-y divide-blue-500">
           <li>
-            <a routerLink="clientes" routerLinkActive="bg-blue-500"
-              (click)="menuMobileAberto = false"
+            <a routerLink="clientes" routerLinkActive="bg-blue-500" (click)="menuMobileAberto = false"
               class="flex items-center gap-3 px-5 py-3 hover:bg-blue-500 transition">
-              👥 Clientes
+              <i class="fa-solid fa-users w-4"></i> Clientes
             </a>
           </li>
           <li>
-            <a routerLink="credenciados" routerLinkActive="bg-blue-500"
-              (click)="menuMobileAberto = false"
+            <a routerLink="credenciados" routerLinkActive="bg-blue-500" (click)="menuMobileAberto = false"
               class="flex items-center gap-3 px-5 py-3 hover:bg-blue-500 transition">
-              🏢 Credenciados
+              <i class="fa-solid fa-building w-4"></i> Credenciados
             </a>
           </li>
           <li>
-            <a routerLink="ordem-servico" routerLinkActive="bg-blue-500"
-              (click)="menuMobileAberto = false"
+            <a routerLink="ordem-servico" routerLinkActive="bg-blue-500" (click)="menuMobileAberto = false"
               class="flex items-center gap-3 px-5 py-3 hover:bg-blue-500 transition">
-              📋 Ordens
+              <i class="fa-solid fa-file-lines w-4"></i> Ordens
             </a>
           </li>
           <li *ngIf="isAdmin">
-            <a routerLink="usuarios" routerLinkActive="bg-blue-500"
-              (click)="menuMobileAberto = false"
+            <a routerLink="usuarios" routerLinkActive="bg-blue-500" (click)="menuMobileAberto = false"
               class="flex items-center gap-3 px-5 py-3 hover:bg-blue-500 transition">
-              👤 Usuários
+              <i class="fa-solid fa-user-gear w-4"></i> Usuários
             </a>
           </li>
         </ul>

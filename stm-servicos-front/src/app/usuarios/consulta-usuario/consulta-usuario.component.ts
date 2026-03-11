@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { UsuarioService } from '../usuario.service';
 import { Router } from '@angular/router';
 import { Usuario } from '../usuario';
@@ -9,14 +9,17 @@ import { Usuario } from '../usuario';
   templateUrl: './consulta-usuario.component.html',
   styleUrl: './consulta-usuario.component.scss'
 })
-export class ConsultaUsuarioComponent {
+export class ConsultaUsuarioComponent implements OnInit {
 
   usuarios: Usuario[] = [];
   page = 0;
   size = 10;
   totalPages = 0;
+  totalElements = 0;
   loading = false;
   errorMessage = '';
+
+  pageSizes = [5, 10, 20, 50];
 
   constructor(private service: UsuarioService, private router: Router) { }
 
@@ -27,11 +30,16 @@ export class ConsultaUsuarioComponent {
   carregarUsuarios() {
     this.loading = true;
     this.errorMessage = '';
-
-    this.service.listarUsuarios().subscribe({
+    this.service.listarUsuarios(this.page, this.size).subscribe({
       next: (res) => {
         this.usuarios = res.content ?? [];
-        this.totalPages = res.totalPages ?? Math.ceil((res.totalElements ?? this.usuarios.length) / this.size);
+        this.totalElements = res.totalElements ?? this.usuarios.length;
+
+        const page = (res as any).page;
+        this.totalPages = page?.totalPages
+          ?? res.totalPages
+          ?? Math.ceil(this.totalElements / this.size);
+
         this.loading = false;
       },
       error: (err) => {
@@ -40,6 +48,12 @@ export class ConsultaUsuarioComponent {
         this.loading = false;
       }
     });
+  }
+
+  onSizeChange(event: Event) {
+    this.size = Number((event.target as HTMLSelectElement).value);
+    this.page = 0;
+    this.carregarUsuarios();
   }
 
   editar(id?: string) {
@@ -58,7 +72,7 @@ export class ConsultaUsuarioComponent {
     if (confirm('Deseja realmente excluir este usuário?')) {
       this.service.excluirUsuario(id).subscribe({
         next: () => this.carregarUsuarios(),
-        error: err => alert('Erro ao excluir usuário.')
+        error: () => alert('Erro ao excluir usuário.')
       });
     }
   }

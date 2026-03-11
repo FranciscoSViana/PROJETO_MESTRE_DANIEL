@@ -23,6 +23,7 @@ export class ConsultaCredenciadoComponent implements OnInit {
   pageSizes: number[] = [10, 25, 50, 100, 200];
   filtro: any = {};
   private filtroSubject = new Subject<void>();
+  filtroMobileAberto = false;
 
   constructor(private service: CredenciadoService, private router: Router) { }
 

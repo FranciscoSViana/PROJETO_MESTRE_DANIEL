@@ -4,12 +4,15 @@ import io.github.franciscosviana.stmservicos.api.model.input.AuthRequest;
 import io.github.franciscosviana.stmservicos.api.model.input.RegisterRequest;
 import io.github.franciscosviana.stmservicos.api.model.input.ResetSenhaRequest;
 import io.github.franciscosviana.stmservicos.api.model.input.UpdateUsuarioRequest;
+import io.github.franciscosviana.stmservicos.api.model.output.AuthResponse;
 import io.github.franciscosviana.stmservicos.common.validation.RoleException;
 import io.github.franciscosviana.stmservicos.common.validation.SenhaRepetidaException;
 import io.github.franciscosviana.stmservicos.common.validation.UsuarioException;
 import io.github.franciscosviana.stmservicos.domain.model.Usuario;
 import io.github.franciscosviana.stmservicos.domain.service.AuthService;
+import io.github.franciscosviana.stmservicos.domain.service.RefreshTokenService;
 import io.github.franciscosviana.stmservicos.domain.service.SenhaResetService;
+import io.github.franciscosviana.stmservicos.domain.service.TokenService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +32,9 @@ import java.util.UUID;
 public class AuthController {
 
     private final AuthService authService;
+    private final TokenService tokenService;
     private final SenhaResetService senhaResetService;
+    private final RefreshTokenService refreshTokenService;
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody AuthRequest request) {
@@ -57,6 +62,25 @@ public class AuthController {
             return ResponseEntity.badRequest()
                     .body(Map.of("error", e.getMessage()));
         }
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<?> refresh(@RequestBody Map<String, String> body) {
+
+        String refreshToken = body.get("refreshToken");
+
+        var token = refreshTokenService.validate(refreshToken);
+
+        Usuario usuario = token.getUsuario();
+
+        String newAccessToken = tokenService.generateToken(
+                usuario.getNome(),
+                usuario.getRoles()
+        );
+
+        return ResponseEntity.ok(
+                new AuthResponse(newAccessToken, refreshToken, "Bearer")
+        );
     }
 
     @GetMapping("/usuarios")
