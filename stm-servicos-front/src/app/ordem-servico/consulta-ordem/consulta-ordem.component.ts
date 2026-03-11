@@ -46,6 +46,8 @@ export class ConsultaOrdemComponent implements OnInit {
 
   pageSizes: number[] = [10, 25, 50, 100, 200];
 
+  filtroMobileAberto = false;
+
   constructor(
     private service: OrdemServicoService,
     private clienteService: ClienteService,
@@ -71,37 +73,42 @@ export class ConsultaOrdemComponent implements OnInit {
     }).subscribe(({ clientes, credenciados }) => {
       this.clientes = clientes;
       this.credenciados = credenciados;
-
-      // Agora que temos os clientes e credenciados, podemos carregar as OS
       this._carregarOrdens();
     });
   }
 
   ngOnDestroy(): void {
-    this.filtroSubject.complete(); // ✅ evita memory leak
+    this.filtroSubject.complete();
+  }
+
+  filtrosAtivos(): number {
+    return Object.values(this.filtro).filter(
+      (v: any) => v !== null && v !== undefined && v !== ''
+    ).length;
+  }
+
+  limparFiltros(): void {
+    this.filtro = {};
+    this.page = 0;
+    this._carregarOrdens();
   }
 
   _carregarOrdens() {
     this.loading = true;
     this.errorMessage = '';
 
-    const filtroConvertido = {
-      ...this.filtro,
-      dataAbertura: this.converterDataParaISO(this.filtro.dataAbertura)
-    };
+    const filtroConvertido: any = { ...this.filtro };
+
+    const dataISO = this.converterDataParaISO(this.filtro.dataAbertura);
+
+    if (dataISO) {
+      filtroConvertido.dataAbertura = dataISO;
+    } else {
+      delete filtroConvertido.dataAbertura;
+    }
 
     this.service.listar(this.page, this.size, filtroConvertido).subscribe({
       next: res => {
-
-        console.log('Ordens recebidas do backend:', res.content);
-
-        res.content.forEach(os => {
-          console.log('OS', os.id, 'clienteId', os.clienteId, 'credenciadoId', os.credenciadoId);
-          console.log('Cliente encontrado', this.clientes.find(c => c.id === os.clienteId));
-          console.log('Credenciado encontrado', this.credenciados.find(c => c.id === os.credenciadoId));
-        });
-
-        // Enriquecer OS com nomes
         this.ordensServico = (res.content ?? [])
           .map(os => ({
             ...os,
@@ -141,7 +148,6 @@ export class ConsultaOrdemComponent implements OnInit {
   }
 
   editar(id?: string) {
-    console.log('🟢 Clicou no editar, ID:', id);
     this.router.navigate(['/ordem-servico/editar', id]);
   }
 
@@ -165,12 +171,10 @@ export class ConsultaOrdemComponent implements OnInit {
   }
 
   onSizeChange(event: Event) {
-
     const select = event.target as HTMLSelectElement;
     this.size = Number(select.value);
     this.page = 0;
     this._carregarOrdens();
-
   }
 
   abrirModalSolucao(id?: string) {
@@ -182,7 +186,6 @@ export class ConsultaOrdemComponent implements OnInit {
     this.ordemSelecionada = os;
     this.ordemSelecionadaId = id;
     this.modalSolucaoAberto = true;
-
     this.solucao = new Solucao();
   }
 
@@ -227,7 +230,6 @@ export class ConsultaOrdemComponent implements OnInit {
   }
 
   abrirModalVisualizacao(ordemId: string) {
-
     this.solucaoService.buscarPorOrdem(ordemId).subscribe({
       next: solucao => {
         this.solucaoVisualizacao = solucao;
@@ -238,7 +240,6 @@ export class ConsultaOrdemComponent implements OnInit {
         alert('Erro ao carregar solução.');
       }
     });
-
   }
 
   fecharModalVisualizacao() {
@@ -247,7 +248,6 @@ export class ConsultaOrdemComponent implements OnInit {
   }
 
   acaoSolucao(os: OrdemServico) {
-
     if (os.status === 'CONCLUIDA') {
       this.abrirModalVisualizacao(os.id!);
     } else {
@@ -256,12 +256,6 @@ export class ConsultaOrdemComponent implements OnInit {
   }
 
   exportar(formato: 'xlsx' | 'csv' | 'pdf') {
-    const extensoes: Record<string, string> = {
-      xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-      csv: 'text/csv',
-      pdf: 'application/pdf'
-    };
-
     const chamada$ =
       formato === 'xlsx' ? this.service.exportarXlsx(this.filtro) :
         formato === 'csv' ? this.service.exportarCsv(this.filtro) :
@@ -284,7 +278,6 @@ export class ConsultaOrdemComponent implements OnInit {
   }
 
   abrirModalEmail() {
-
     const s = this.solucaoVisualizacao;
     if (!s) return;
 
@@ -301,78 +294,73 @@ export class ConsultaOrdemComponent implements OnInit {
       : '';
 
     const html = `
-<table width="100%" cellpadding="0" cellspacing="0" 
+<table width="100%" cellpadding="0" cellspacing="0"
        style="font-family: Arial, sans-serif; font-size:14px; border-collapse: collapse;">
-
   <tr>
     <td style="background-color:#8ea6c9; padding:8px; font-weight:bold; color:#000;">
       POSICIONAMENTO DE ATENDIMENTO:
     </td>
   </tr>
-
   <tr>
     <td style="padding:8px;">
       <strong>OS:</strong> ${s.osClt ?? ''}
     </td>
   </tr>
-
   <tr>
     <td style="padding:8px;">
-      <strong>Data:</strong> ${data} 
-      &nbsp;&nbsp; das ${horaInicial} 
+      <strong>Data:</strong> ${data}
+      &nbsp;&nbsp; das ${horaInicial}
       &nbsp;&nbsp; às ${horaFinal}.
     </td>
   </tr>
-
   <tr>
     <td style="padding:8px;">
       <strong>Solução:</strong> ${s.solucao ?? ''}
     </td>
   </tr>
-
 </table>
 `;
 
     this.textoEmailFormatado = this.sanitizer.bypassSecurityTrustHtml(html);
     this.modalEmail = true;
-
   }
 
   async copiarTexto(element: HTMLElement) {
     try {
-
-      // Pega HTML formatado
       const html = element.innerHTML;
-
-      // Pega texto simples (fallback)
-      const text = element.innerText;
-
-      // Cria um blob com HTML
       const blob = new Blob([html], { type: 'text/html' });
       const data = [new ClipboardItem({ 'text/html': blob })];
-
       await navigator.clipboard.write(data);
-
       alert('Texto formatado copiado com sucesso!');
-
     } catch (err) {
-
-      // Fallback caso HTML não seja suportado
       await navigator.clipboard.writeText(element.innerText);
       alert('Texto copiado (modo simples).');
-
     }
   }
 
+  /**
+   * Converte data para ISO (yyyy-MM-dd) aceitando dois formatos:
+   *
+   * 1. ngx-mask SEM barras → valor bruto "ddMMyyyy" (ex: "10032025")
+   *    O ngx-mask com mask="00/00/0000" guarda só os dígitos no ngModel.
+   *
+   * 2. Com barras → "dd/MM/yyyy" (ex: "10/03/2025")
+   *    Compatibilidade com inputs sem máscara.
+   *
+   * Retorna undefined se a data estiver incompleta (menos de 8 dígitos).
+   */
   private converterDataParaISO(data?: string): string | undefined {
-
     if (!data) return undefined;
 
-    const partes = data.split('/');
+    // Remove barras caso existam, ficando só com os dígitos
+    const soDigitos = data.replace(/\//g, '');
 
-    if (partes.length !== 3) return data;
+    // Só prossegue se tiver exatamente 8 dígitos
+    if (soDigitos.length !== 8 || isNaN(Number(soDigitos))) return undefined;
 
-    const [dia, mes, ano] = partes;
+    const dia = soDigitos.substring(0, 2);
+    const mes = soDigitos.substring(2, 4);
+    const ano = soDigitos.substring(4, 8);
 
     return `${ano}-${mes}-${dia}`;
   }

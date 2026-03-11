@@ -16,6 +16,7 @@ export class LayoutComponent implements OnInit {
   usuarioLogado: string | null = null;
   isAdmin = false;
   menuUsuarioAberto = false;
+  menuMobileAberto = false;
 
   anoAtual: number = new Date().getFullYear();
 
