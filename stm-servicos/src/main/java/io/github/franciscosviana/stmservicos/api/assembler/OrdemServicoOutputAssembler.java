@@ -47,6 +47,9 @@ public class OrdemServicoOutputAssembler {
                 .pib(os.getPib())
                 .defeito(os.getDefeito())
                 .rastreio(os.getRastreio())
+                .statusRastreio(os.getStatusRastreio() != null ? os.getStatusRastreio().name() : null)
+                .statusRastreioDescricao(os.getStatusRastreio() != null ? os.getStatusRastreio().getDescricao() : null)
+                .statusRasteioCor(os.getStatusRastreio() != null ? os.getStatusRastreio().getCor() : null)
                 .solucao(toSolucao(os.getSolucao()))
                 .faturamento(toFaturamento(os.getFaturamento()))
                 .build();

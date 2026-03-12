@@ -45,6 +45,7 @@ public class OrdemServicoInput {
     private String pib;
     private String defeito;
     private String rastreio;
+    private String statusRastreio;
 
     // Campos opcionais - NÃO enviados no cadastro
     private SolucaoOSInput solucao;       // usado apenas ao fechar OS

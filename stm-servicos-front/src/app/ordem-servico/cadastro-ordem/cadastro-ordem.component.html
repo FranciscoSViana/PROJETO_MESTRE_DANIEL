@@ -1,302 +1,221 @@
 <div class="p-4 md:p-6 max-w-6xl mx-auto bg-white shadow-lg rounded-xl mt-6">
 
   <!-- HEADER -->
-  <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-3">
-
+  <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-4 gap-3">
     <h2 class="text-xl md:text-2xl font-semibold text-gray-700">
       {{ camposForm.get("id")?.value ? "Editar Ordem de Serviço" : "Nova Ordem de Serviço" }}
     </h2>
-
   </div>
 
-  <hr class="mb-6">
+  <hr class="mb-4">
 
-  <form id="osForm" [formGroup]="camposForm" (ngSubmit)="salvar()" class="space-y-6">
+  <form id="osForm" [formGroup]="camposForm" (ngSubmit)="salvar()" class="space-y-3">
 
-    <!-- IDs -->
     <input type="hidden" formControlName="id" />
     <input type="hidden" formControlName="clienteId" />
     <input type="hidden" formControlName="credenciadoId" />
 
-    <!-- ============================ -->
-    <!-- DADOS DA OS -->
-    <!-- ============================ -->
-
-    <div class="bg-gray-50 border rounded-lg p-4 md:p-6">
-
-      <h3 class="text-lg font-semibold text-gray-700 mb-4">
-        Dados da Ordem de Serviço
+    <!-- ============================ DADOS DA OS ============================ -->
+    <div class="bg-gray-50 border rounded-lg p-3">
+      <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">
+        <i class="fa-solid fa-file-lines mr-1 text-blue-500"></i> Dados da OS
       </h3>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
         <div>
-          <label class="block text-sm text-gray-600 mb-1">
-            Data / Hora de Abertura
-          </label>
-          <input type="datetime-local" formControlName="dataHoraAbertura" class="w-full p-3 border rounded-lg">
+          <label class="block text-xs text-gray-500 mb-1">Data / Hora de Abertura</label>
+          <input type="datetime-local" formControlName="dataHoraAbertura"
+            class="w-full p-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-400">
         </div>
-
         <div>
-          <label class="block text-sm text-gray-600 mb-1">OS CLT</label>
-          <input formControlName="osClt" class="w-full p-3 border rounded-lg">
+          <label class="block text-xs text-gray-500 mb-1">OS CLT</label>
+          <input formControlName="osClt"
+            class="w-full p-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-400">
         </div>
-
         <div>
-          <label class="block text-sm text-gray-600 mb-1">OSG</label>
-          <input formControlName="osg" class="w-full p-3 border rounded-lg">
+          <label class="block text-xs text-gray-500 mb-1">OSG</label>
+          <input formControlName="osg"
+            class="w-full p-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-400">
         </div>
-
         <div>
-          <label class="block text-sm text-gray-600 mb-1">Status</label>
-          <input formControlName="status" readonly class="w-full p-3 border rounded-lg bg-gray-100">
+          <label class="block text-xs text-gray-500 mb-1">Status</label>
+          <input formControlName="status" readonly
+            class="w-full p-2 border border-gray-300 rounded-lg text-sm bg-gray-100">
         </div>
-
       </div>
-
     </div>
 
-    <!-- ============================ -->
-    <!-- CLIENTE -->
-    <!-- ============================ -->
-
-    <div class="bg-gray-50 border rounded-lg p-4 md:p-6">
-
-      <h3 class="text-lg font-semibold text-gray-700 mb-4">
-        Cliente
+    <!-- ============================ CLIENTE ============================ -->
+    <div class="bg-gray-50 border rounded-lg p-3">
+      <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">
+        <i class="fa-solid fa-user mr-1 text-blue-500"></i> Cliente
       </h3>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
         <div>
-          <label class="block text-sm text-gray-600 mb-1">
-            Código do Cliente
-          </label>
-          <input formControlName="codigoCliente" (blur)="buscarClientePorCodigo()" class="w-full p-3 border rounded-lg">
+          <label class="block text-xs text-gray-500 mb-1">Código do Cliente</label>
+          <input formControlName="codigoCliente" (blur)="buscarClientePorCodigo()"
+            class="w-full p-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-400">
         </div>
-
         <div>
-          <label class="block text-sm text-gray-600 mb-1">
-            Cliente
-          </label>
-          <input formControlName="nomeCliente" readonly class="w-full p-3 border rounded-lg bg-gray-100">
+          <label class="block text-xs text-gray-500 mb-1">Cliente</label>
+          <input formControlName="nomeCliente" readonly
+            class="w-full p-2 border border-gray-300 rounded-lg text-sm bg-gray-100">
         </div>
-
+        <div>
+          <label class="block text-xs text-gray-500 mb-1">Contrato</label>
+          <select formControlName="contratoId"
+            class="w-full p-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-400">
+            <option value="" disabled>Escolha um contrato</option>
+            <option *ngFor="let contrato of contratosCliente$ | async" [value]="contrato.id?.toString()">
+              {{ contrato.numeroContrato }} - {{ contrato.nomeContrato }}
+            </option>
+          </select>
+        </div>
       </div>
-
-      <div class="mt-4">
-        <label class="block text-sm text-gray-600 mb-1">
-          Contrato
-        </label>
-
-        <select formControlName="contratoId" class="w-full p-3 border rounded-lg">
-
-          <option value="" disabled>
-            Escolha um contrato
-          </option>
-
-          <option *ngFor="let contrato of contratosCliente$ | async" [value]="contrato.id?.toString()">
-
-            {{ contrato.numeroContrato }} - {{ contrato.nomeContrato }}
-
-          </option>
-
-        </select>
-
-      </div>
-
     </div>
 
-    <!-- ============================ -->
-    <!-- CONTATO -->
-    <!-- ============================ -->
-
-    <div class="bg-gray-50 border rounded-lg p-4 md:p-6">
-
-      <h3 class="text-lg font-semibold text-gray-700 mb-4">
-        Contato
+    <!-- ============================ CONTATO ============================ -->
+    <div class="bg-gray-50 border rounded-lg p-3">
+      <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">
+        <i class="fa-solid fa-phone mr-1 text-blue-500"></i> Contato
       </h3>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
         <div>
-          <label class="block text-sm text-gray-600 mb-1">
-            Contato
-          </label>
-          <input formControlName="contato" class="w-full p-3 border rounded-lg">
+          <label class="block text-xs text-gray-500 mb-1">Contato</label>
+          <input formControlName="contato"
+            class="w-full p-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-400">
         </div>
-
         <div>
-          <label class="block text-sm text-gray-600 mb-1">
-            Telefone
-          </label>
-          <input formControlName="telefone" mask="(00) 0000-0000||(00) 00000-0000" class="w-full p-3 border rounded-lg">
+          <label class="block text-xs text-gray-500 mb-1">Telefone</label>
+          <input formControlName="telefone" mask="(00) 0000-0000||(00) 00000-0000"
+            class="w-full p-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-400">
         </div>
-
-      </div>
-
-      <div class="mt-4">
-        <label class="block text-sm text-gray-600 mb-1">
-          Departamento
-        </label>
-        <input formControlName="departamento" class="w-full p-3 border rounded-lg">
-      </div>
-
-    </div>
-
-    <!-- ============================ -->
-    <!-- ENDEREÇO -->
-    <!-- ============================ -->
-
-    <div class="bg-gray-50 border rounded-lg p-4 md:p-6">
-
-      <h3 class="text-lg font-semibold text-gray-700 mb-4">
-        Endereço
-      </h3>
-
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-
-        <input formControlName="cep" mask="00000-000" placeholder="CEP"
-          (blur)="buscarCep(); buscarCredenciadosPorCepFormulario()" class="p-3 border rounded-lg">
-
-        <input formControlName="logradouro" placeholder="Logradouro" class="p-3 border rounded-lg">
-
-        <input formControlName="numero" placeholder="Número" class="p-3 border rounded-lg">
-
-        <input formControlName="bairro" placeholder="Bairro" class="p-3 border rounded-lg">
-
-        <input formControlName="cidade" placeholder="Cidade" class="p-3 border rounded-lg">
-
-        <input formControlName="estado" maxlength="2" placeholder="UF" class="p-3 border rounded-lg">
-
-      </div>
-
-    </div>
-
-    <!-- ============================ -->
-    <!-- EQUIPAMENTO -->
-    <!-- ============================ -->
-
-    <div class="bg-gray-50 border rounded-lg p-4 md:p-6">
-
-      <h3 class="text-lg font-semibold text-gray-700 mb-4">
-        Equipamento
-      </h3>
-
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-
-        <input formControlName="equipamento" placeholder="Equipamento" class="p-3 border rounded-lg">
-        <input formControlName="serie" placeholder="Série" class="p-3 border rounded-lg">
-        <input formControlName="pib" placeholder="PIB" class="p-3 border rounded-lg">
-
-      </div>
-
-      <div class="mt-4">
-
-        <label class="block text-sm text-gray-600 mb-1">
-          Defeito Relatado
-        </label>
-
-        <textarea formControlName="defeito" rows="3" class="w-full p-3 border rounded-lg">
-        </textarea>
-
-      </div>
-
-      <div class="mt-4">
-
-        <label class="block text-sm text-gray-600 mb-1">
-          Código de Rastreio
-        </label>
-
-        <input formControlName="rastreio" class="w-full p-3 border rounded-lg">
-
-      </div>
-
-    </div>
-
-    <!-- ============================ -->
-    <!-- ATENDIMENTO -->
-    <!-- ============================ -->
-
-    <div class="bg-gray-50 border rounded-lg p-4 md:p-6">
-
-      <h3 class="text-lg font-semibold text-gray-700 mb-4">
-        Atendimento
-      </h3>
-
-      <div class="mb-4">
-
-        <label class="block text-sm text-gray-600 mb-2">
-          Raio de busca: {{ camposForm.get('raioKm')?.value }} km
-        </label>
-
-        <input type="range" min="50" max="3000" step="50" formControlName="raioKm" (change)="rebuscarCredenciados()"
-          class="w-full">
-
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-
         <div>
+          <label class="block text-xs text-gray-500 mb-1">Departamento</label>
+          <input formControlName="departamento"
+            class="w-full p-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-400">
+        </div>
+      </div>
+    </div>
 
-          <label class="block text-sm text-gray-600 mb-1">
-            Credenciado
-          </label>
+    <!-- ============================ ENDEREÇO ============================ -->
+    <div class="bg-gray-50 border rounded-lg p-3">
+      <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">
+        <i class="fa-solid fa-location-dot mr-1 text-blue-500"></i> Endereço
+      </h3>
+      <div class="grid grid-cols-2 md:grid-cols-6 gap-2">
+        <div>
+          <label class="block text-xs text-gray-500 mb-1">CEP</label>
+          <input formControlName="cep" mask="00000-000"
+            (blur)="buscarCep(); buscarCredenciadosPorCepFormulario()"
+            class="w-full p-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-400">
+        </div>
+        <div class="col-span-2">
+          <label class="block text-xs text-gray-500 mb-1">Logradouro</label>
+          <input formControlName="logradouro"
+            class="w-full p-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-400">
+        </div>
+        <div>
+          <label class="block text-xs text-gray-500 mb-1">Número</label>
+          <input formControlName="numero"
+            class="w-full p-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-400">
+        </div>
+        <div>
+          <label class="block text-xs text-gray-500 mb-1">Bairro</label>
+          <input formControlName="bairro"
+            class="w-full p-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-400">
+        </div>
+        <div>
+          <label class="block text-xs text-gray-500 mb-1">Cidade / UF</label>
+          <div class="flex gap-1">
+            <input formControlName="cidade"
+              class="w-full p-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-400">
+            <input formControlName="estado" maxlength="2"
+              class="w-16 p-2 border border-gray-300 rounded-lg text-sm text-center focus:outline-none focus:ring-2 focus:ring-blue-400">
+          </div>
+        </div>
+      </div>
+    </div>
 
+    <!-- ============================ EQUIPAMENTO ============================ -->
+    <div class="bg-gray-50 border rounded-lg p-3">
+      <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">
+        <i class="fa-solid fa-screwdriver-wrench mr-1 text-blue-500"></i> Equipamento
+      </h3>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-2 mb-2">
+        <div>
+          <label class="block text-xs text-gray-500 mb-1">Equipamento</label>
+          <input formControlName="equipamento"
+            class="w-full p-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-400">
+        </div>
+        <div>
+          <label class="block text-xs text-gray-500 mb-1">Série</label>
+          <input formControlName="serie"
+            class="w-full p-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-400">
+        </div>
+        <div>
+          <label class="block text-xs text-gray-500 mb-1">PIB</label>
+          <input formControlName="pib"
+            class="w-full p-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-400">
+        </div>
+        <div>
+          <label class="block text-xs text-gray-500 mb-1">Código de Rastreio</label>
+          <input formControlName="rastreio"
+            class="w-full p-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-400">
+        </div>
+      </div>
+      <div>
+        <label class="block text-xs text-gray-500 mb-1">Defeito Relatado</label>
+        <textarea formControlName="defeito" rows="2"
+          class="w-full p-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"></textarea>
+      </div>
+    </div>
+
+    <!-- ============================ ATENDIMENTO ============================ -->
+    <div class="bg-gray-50 border rounded-lg p-3">
+      <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">
+        <i class="fa-solid fa-headset mr-1 text-blue-500"></i> Atendimento
+      </h3>
+      <div class="mb-2">
+        <label class="block text-xs text-gray-500 mb-1">
+          Raio de busca: <span class="font-semibold text-blue-600">{{ camposForm.get('raioKm')?.value }} km</span>
+        </label>
+        <input type="range" min="50" max="3000" step="50" formControlName="raioKm"
+          (change)="rebuscarCredenciados()" class="w-full h-2 accent-blue-600">
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+        <div>
+          <label class="block text-xs text-gray-500 mb-1">Credenciado</label>
           <select formControlName="credenciadoId" (change)="onCredenciadoChange($event)"
-            class="w-full p-3 border rounded-lg">
-
-            <option value="" disabled>
-              Escolha um credenciado
-            </option>
-
+            class="w-full p-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-400">
+            <option value="" disabled>Escolha um credenciado</option>
             <option *ngFor="let cred of credenciadosProximos$ | async" [value]="cred.id">
-
               {{ cred.rag }} - {{ cred.codigo }}
-
             </option>
-
           </select>
-
         </div>
-
         <div>
-
-          <label class="block text-sm text-gray-600 mb-1">
-            Técnico
-          </label>
-
+          <label class="block text-xs text-gray-500 mb-1">Técnico</label>
           <select formControlName="tecnicoId" [disabled]="tecnicosCredenciado.length === 0"
-            class="w-full p-3 border rounded-lg">
-
-            <option value="" disabled>
-              Escolha um técnico
-            </option>
-
+            class="w-full p-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-400">
+            <option value="" disabled>Escolha um técnico</option>
             <option *ngFor="let t of tecnicosCredenciado" [value]="t.id">
-
               {{ t.nome }} - {{ t.telefone }}
-
             </option>
-
           </select>
-
         </div>
-
       </div>
-
     </div>
 
-    <!-- BOTÃO -->
-
-    <div class="flex justify-end">
-
-      <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg shadow font-medium">
-
-        Salvar Ordem de Serviço
-
+    <!-- BOTÕES -->
+    <div class="flex flex-col-reverse md:flex-row justify-end gap-3 pt-2 border-t">
+      <button type="button" routerLink="/ordem-servico"
+        class="px-5 py-2 bg-gray-400 text-white rounded-lg hover:bg-gray-500 transition text-sm w-full md:w-auto">
+        Cancelar
       </button>
-
+      <button type="submit"
+        class="px-5 py-2 bg-blue-600 text-white font-semibold rounded-lg shadow hover:bg-blue-700 transition text-sm w-full md:w-auto">
+        <i class="fa-solid fa-floppy-disk mr-1"></i> Salvar Ordem de Serviço
+      </button>
     </div>
 
   </form>

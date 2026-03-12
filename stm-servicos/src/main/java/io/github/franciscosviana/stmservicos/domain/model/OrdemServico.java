@@ -2,6 +2,7 @@ package io.github.franciscosviana.stmservicos.domain.model;
 
 import io.github.franciscosviana.stmservicos.common.validation.OrdemServicoException;
 import io.github.franciscosviana.stmservicos.domain.model.enums.StatusOrdem;
+import io.github.franciscosviana.stmservicos.domain.model.enums.StatusRastreio;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -61,6 +62,10 @@ public class OrdemServico {
     private String pib;
     private String defeito;
     private String rastreio;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status_rastreio")
+    private StatusRastreio statusRastreio;
 
     @OneToOne(mappedBy = "ordemServico", cascade = CascadeType.ALL)
     private SolucaoOS solucao;

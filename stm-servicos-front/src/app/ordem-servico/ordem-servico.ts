@@ -39,6 +39,9 @@ export class OrdemServico {
     pib?: string;
     defeito?: string;
     rastreio?: string;
+    statusRastreio?: string;
+    statusRastreioDescricao?: string;
+    statusRasteioCor?: string;
 
     solucao?: Solucao;
     faturamento?: Faturamento;

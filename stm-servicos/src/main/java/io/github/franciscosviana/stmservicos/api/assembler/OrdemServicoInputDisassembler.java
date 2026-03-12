@@ -3,6 +3,7 @@ package io.github.franciscosviana.stmservicos.api.assembler;
 import io.github.franciscosviana.stmservicos.api.model.input.OrdemServicoInput;
 import io.github.franciscosviana.stmservicos.domain.model.*;
 import io.github.franciscosviana.stmservicos.domain.model.enums.StatusOrdem;
+import io.github.franciscosviana.stmservicos.domain.model.enums.StatusRastreio;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -66,6 +67,10 @@ public class OrdemServicoInputDisassembler {
         ordem.setDefeito(input.getDefeito());
         ordem.setRastreio(input.getRastreio());
 
+        if (input.getStatusRastreio() != null && !input.getStatusRastreio().isBlank()) {
+            ordem.setStatusRastreio(StatusRastreio.valueOf(input.getStatusRastreio()));
+        }
+
         return ordem;
     }
 
@@ -91,5 +96,6 @@ public class OrdemServicoInputDisassembler {
         ordem.setPib(nova.getPib());
         ordem.setDefeito(nova.getDefeito());
         ordem.setRastreio(nova.getRastreio());
+        ordem.setStatusRastreio(nova.getStatusRastreio());
     }
 }

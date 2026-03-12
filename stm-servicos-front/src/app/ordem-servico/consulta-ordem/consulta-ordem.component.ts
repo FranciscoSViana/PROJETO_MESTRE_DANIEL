@@ -47,6 +47,16 @@ export class ConsultaOrdemComponent implements OnInit {
   pageSizes: number[] = [10, 25, 50, 100, 200];
 
   filtroMobileAberto = false;
+  modalRastreioAberto = false;
+  ordemRastreioSelecionada?: OrdemServico;
+  statusRastreioOpcoes: { value: string; descricao: string; cor: string }[] = [
+    { value: 'POSTADO', descricao: 'Postado', cor: '#3B82F6' },
+    { value: 'A_CAMINHO', descricao: 'A caminho', cor: '#F59E0B' },
+    { value: 'CHEGOU', descricao: 'Chegou', cor: '#10B981' },
+    { value: 'DEVOLVIDO', descricao: 'Devolvido', cor: '#EF4444' },
+    { value: 'AGUARDANDO', descricao: 'Aguardando', cor: '#8B5CF6' },
+  ];
+  statusRastreioSelecionado?: string;
 
   constructor(
     private service: OrdemServicoService,
@@ -338,17 +348,6 @@ export class ConsultaOrdemComponent implements OnInit {
     }
   }
 
-  /**
-   * Converte data para ISO (yyyy-MM-dd) aceitando dois formatos:
-   *
-   * 1. ngx-mask SEM barras → valor bruto "ddMMyyyy" (ex: "10032025")
-   *    O ngx-mask com mask="00/00/0000" guarda só os dígitos no ngModel.
-   *
-   * 2. Com barras → "dd/MM/yyyy" (ex: "10/03/2025")
-   *    Compatibilidade com inputs sem máscara.
-   *
-   * Retorna undefined se a data estiver incompleta (menos de 8 dígitos).
-   */
   private converterDataParaISO(data?: string): string | undefined {
     if (!data) return undefined;
 
@@ -363,5 +362,40 @@ export class ConsultaOrdemComponent implements OnInit {
     const ano = soDigitos.substring(4, 8);
 
     return `${ano}-${mes}-${dia}`;
+  }
+
+  abrirModalRastreio(os: OrdemServico) {
+    if (!os.rastreio) return; // só abre se tiver rastreio
+    this.ordemRastreioSelecionada = os;
+    this.statusRastreioSelecionado = os.statusRastreio;
+    this.modalRastreioAberto = true;
+  }
+
+  fecharModalRastreio() {
+    this.modalRastreioAberto = false;
+    this.ordemRastreioSelecionada = undefined;
+    this.statusRastreioSelecionado = undefined;
+  }
+
+  salvarStatusRastreio() {
+    const id = this.ordemRastreioSelecionada?.id;
+    if (!id || !this.statusRastreioSelecionado) return;
+
+    this.service.atualizarStatusRastreio(id, this.statusRastreioSelecionado).subscribe({
+      next: () => {
+        this.fecharModalRastreio();
+        this.carregarOrdens();
+      },
+      error: err => {
+        console.error(err);
+        alert('Erro ao atualizar status do rastreio.');
+      }
+    });
+  }
+
+  // Helper para buscar a cor do status atual
+  getCorRastreio(statusRastreio?: string): string {
+    return this.statusRastreioOpcoes
+      .find(s => s.value === statusRastreio)?.cor ?? '#9CA3AF';
   }
 }

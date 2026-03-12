@@ -12,6 +12,7 @@ import io.github.franciscosviana.stmservicos.domain.model.Credenciado;
 import io.github.franciscosviana.stmservicos.domain.model.OrdemServico;
 import io.github.franciscosviana.stmservicos.domain.model.Tecnico;
 import io.github.franciscosviana.stmservicos.domain.model.enums.StatusOrdem;
+import io.github.franciscosviana.stmservicos.domain.model.enums.StatusRastreio;
 import io.github.franciscosviana.stmservicos.domain.model.enums.TipoAcaoOS;
 import io.github.franciscosviana.stmservicos.domain.repository.OrdemServicoRepository;
 import io.github.franciscosviana.stmservicos.domain.repository.spec.OrdemServicoSpecification;
@@ -198,6 +199,25 @@ public class OrdemServicoService {
         repository.delete(ordemServico);
     }
 
+    // OrdemServicoService.java
+    @Transactional
+    public OrdemServicoOutput atualizarStatusRastreio(UUID id, String statusRastreio) {
+        OrdemServico os = buscarOuFalhar(id);
+
+        StatusRastreio novoStatus = StatusRastreio.valueOf(statusRastreio);
+        os.setStatusRastreio(novoStatus);
+
+        repository.save(os);
+
+        historicoOrdemServicoService.registrar(
+                os,
+                TipoAcaoOS.ATUALIZACAO,
+                "Status rastreio: " + novoStatus.getDescricao()
+        );
+
+        return assembler.toModel(os);
+    }
+
     public String gerarProximoOsg() {
 
         String anoAtual = String.format("%02d", OffsetDateTime.now().getYear() % 100);
@@ -244,7 +264,9 @@ public class OrdemServicoService {
         clone.setCliente(os.getCliente());
         clone.setContrato(os.getContrato());
         clone.setTecnico(os.getTecnico());
-        clone.setCredenciado(os.getCredenciado()); // ✅ Já estava aqui
+        clone.setCredenciado(os.getCredenciado());
+        clone.setStatusRastreio(os.getStatusRastreio());
+
         return clone;
     }
 
@@ -316,6 +338,12 @@ public class OrdemServicoService {
         if (!Objects.equals(anterior.getRastreio(), atual.getRastreio())) {
             alteracoes.add(String.format("Rastreio: %s → %s",
                     valorOuVazio(anterior.getRastreio()), valorOuVazio(atual.getRastreio())));
+        }
+
+        if (!Objects.equals(anterior.getStatusRastreio(), atual.getStatusRastreio())) {
+            alteracoes.add(String.format("Status Rastreio: %s → %s",
+                    valorOuVazio(anterior.getStatusRastreio()),
+                    valorOuVazio(atual.getStatusRastreio())));
         }
 
         // Cliente

@@ -22,6 +22,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Slf4j
@@ -75,6 +76,16 @@ public class OrdemServicoController {
         return ResponseEntity.ok(ordemServicoOutput);
     }
 
+    // OrdemServicoController.java
+    @PatchMapping("/{id}/rastreio")
+    public ResponseEntity<OrdemServicoOutput> atualizarStatusRastreio(
+            @PathVariable UUID id,
+            @RequestBody Map<String, String> body) {
+
+        String statusRastreio = body.get("statusRastreio");
+        OrdemServicoOutput output = ordemServicoService.atualizarStatusRastreio(id, statusRastreio);
+        return ResponseEntity.ok(output);
+    }
 
     @PutMapping("/{id}")
     public ResponseEntity<OrdemServicoOutput> atualizar(@PathVariable UUID id, @RequestBody OrdemServicoInput input) {

@@ -41,89 +41,74 @@
   <!-- ================= FILTROS MOBILE ================= -->
   <div class="md:hidden mb-4">
 
-    <!-- BOTÃO TOGGLE -->
     <button (click)="filtroMobileAberto = !filtroMobileAberto"
       class="w-full flex items-center justify-between px-4 py-3 bg-gray-50 border rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition">
       <span class="flex items-center gap-2">
         <i class="fa-solid fa-filter text-blue-600"></i>
         Filtros
-        <span *ngIf="filtrosAtivos() > 0"
-          class="bg-blue-600 text-white text-xs rounded-full px-2 py-0.5">
+        <span *ngIf="filtrosAtivos() > 0" class="bg-blue-600 text-white text-xs rounded-full px-2 py-0.5">
           {{ filtrosAtivos() }}
         </span>
       </span>
-      <i class="fa-solid"
-        [ngClass]="filtroMobileAberto ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+      <i class="fa-solid" [ngClass]="filtroMobileAberto ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
     </button>
 
-    <!-- PAINEL DE FILTROS -->
-    <div *ngIf="filtroMobileAberto"
-      class="mt-2 p-4 border rounded-lg bg-gray-50 grid grid-cols-2 gap-3 text-sm">
+    <div *ngIf="filtroMobileAberto" class="mt-2 p-4 border rounded-lg bg-gray-50 grid grid-cols-2 gap-3 text-sm">
 
       <div class="col-span-2">
         <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">OS CLT</label>
-        <input [(ngModel)]="filtro.osClt" (keyup)="carregarOrdens()"
-          placeholder="Pesquisar..."
+        <input [(ngModel)]="filtro.osClt" (keyup)="carregarOrdens()" placeholder="Pesquisar..."
           class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
       </div>
 
       <div>
         <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">OSG</label>
-        <input [(ngModel)]="filtro.osg" (keyup)="carregarOrdens()"
-          placeholder="Pesquisar..."
+        <input [(ngModel)]="filtro.osg" (keyup)="carregarOrdens()" placeholder="Pesquisar..."
           class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
       </div>
 
       <div>
         <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Data</label>
-        <input mask="00/00/0000" [(ngModel)]="filtro.dataAbertura" (keyup)="carregarOrdens()"
-          placeholder="dd/mm/aaaa"
+        <input mask="00/00/0000" [(ngModel)]="filtro.dataAbertura" (keyup)="carregarOrdens()" placeholder="dd/mm/aaaa"
           class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
       </div>
 
       <div class="col-span-2">
         <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Cliente</label>
-        <input [(ngModel)]="filtro.cliente" (keyup)="carregarOrdens()"
-          placeholder="Pesquisar..."
+        <input [(ngModel)]="filtro.cliente" (keyup)="carregarOrdens()" placeholder="Pesquisar..."
           class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
       </div>
 
       <div class="col-span-2">
         <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Credenciado</label>
-        <input [(ngModel)]="filtro.credenciado" (keyup)="carregarOrdens()"
-          placeholder="Pesquisar..."
+        <input [(ngModel)]="filtro.credenciado" (keyup)="carregarOrdens()" placeholder="Pesquisar..."
           class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
       </div>
 
       <div>
         <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Cidade</label>
-        <input [(ngModel)]="filtro.cidade" (keyup)="carregarOrdens()"
-          placeholder="Pesquisar..."
+        <input [(ngModel)]="filtro.cidade" (keyup)="carregarOrdens()" placeholder="Pesquisar..."
           class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
       </div>
 
       <div>
         <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">UF</label>
-        <input [(ngModel)]="filtro.estado" (keyup)="carregarOrdens()"
-          placeholder="Ex: SP"
+        <input [(ngModel)]="filtro.estado" (keyup)="carregarOrdens()" placeholder="Ex: SP"
           class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
       </div>
 
       <div>
         <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Rastreio</label>
-        <input [(ngModel)]="filtro.rastreio" (keyup)="carregarOrdens()"
-          placeholder="Pesquisar..."
+        <input [(ngModel)]="filtro.rastreio" (keyup)="carregarOrdens()" placeholder="Pesquisar..."
           class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
       </div>
 
       <div>
         <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Status</label>
-        <input [(ngModel)]="filtro.status" (keyup)="carregarOrdens()"
-          placeholder="Ex: ABERTA"
+        <input [(ngModel)]="filtro.status" (keyup)="carregarOrdens()" placeholder="Ex: ABERTA"
           class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
       </div>
 
-      <!-- LIMPAR FILTROS -->
       <div class="col-span-2 flex justify-end pt-1">
         <button (click)="limparFiltros()"
           class="flex items-center gap-2 px-4 py-2 text-sm text-red-600 border border-red-300 rounded-lg hover:bg-red-50 transition">
@@ -155,24 +140,30 @@
 
         <thead class="bg-gray-100">
 
-          <!-- FILTROS DESKTOP -->
           <tr class="bg-gray-50 text-sm">
-            <th><input [(ngModel)]="filtro.osClt" (keyup)="carregarOrdens()" class="w-full border p-1 rounded" placeholder="OS CLT"></th>
-            <th><input [(ngModel)]="filtro.osg" (keyup)="carregarOrdens()" class="w-full border p-1 rounded" placeholder="OSG"></th>
+            <th><input [(ngModel)]="filtro.osClt" (keyup)="carregarOrdens()" class="w-full border p-1 rounded"
+                placeholder="OS CLT"></th>
+            <th><input [(ngModel)]="filtro.osg" (keyup)="carregarOrdens()" class="w-full border p-1 rounded"
+                placeholder="OSG"></th>
             <th>
               <input mask="00/00/0000" [(ngModel)]="filtro.dataAbertura" (keyup)="carregarOrdens()"
                 class="w-full border p-1 rounded" placeholder="Data">
             </th>
-            <th><input [(ngModel)]="filtro.cliente" (keyup)="carregarOrdens()" class="w-full border p-1 rounded" placeholder="Cliente"></th>
-            <th><input [(ngModel)]="filtro.credenciado" (keyup)="carregarOrdens()" class="w-full border p-1 rounded" placeholder="Credenciado"></th>
-            <th><input [(ngModel)]="filtro.cidade" (keyup)="carregarOrdens()" class="w-full border p-1 rounded" placeholder="Cidade"></th>
-            <th><input [(ngModel)]="filtro.estado" (keyup)="carregarOrdens()" class="w-full border p-1 rounded" placeholder="UF"></th>
-            <th><input [(ngModel)]="filtro.rastreio" (keyup)="carregarOrdens()" class="w-full border p-1 rounded" placeholder="Rastreio"></th>
-            <th><input [(ngModel)]="filtro.status" (keyup)="carregarOrdens()" class="w-full border p-1 rounded" placeholder="Status"></th>
+            <th><input [(ngModel)]="filtro.cliente" (keyup)="carregarOrdens()" class="w-full border p-1 rounded"
+                placeholder="Cliente"></th>
+            <th><input [(ngModel)]="filtro.credenciado" (keyup)="carregarOrdens()" class="w-full border p-1 rounded"
+                placeholder="Credenciado"></th>
+            <th><input [(ngModel)]="filtro.cidade" (keyup)="carregarOrdens()" class="w-full border p-1 rounded"
+                placeholder="Cidade"></th>
+            <th><input [(ngModel)]="filtro.estado" (keyup)="carregarOrdens()" class="w-full border p-1 rounded"
+                placeholder="UF"></th>
+            <th><input [(ngModel)]="filtro.rastreio" (keyup)="carregarOrdens()" class="w-full border p-1 rounded"
+                placeholder="Rastreio"></th>
+            <th><input [(ngModel)]="filtro.status" (keyup)="carregarOrdens()" class="w-full border p-1 rounded"
+                placeholder="Status"></th>
             <th></th>
           </tr>
 
-          <!-- CABEÇALHOS DESKTOP -->
           <tr class="text-gray-700 text-sm">
             <th class="p-3 border text-center">OS CLT</th>
             <th class="p-3 border text-center">OSG</th>
@@ -197,10 +188,19 @@
             <td class="p-3 border text-center">{{ os.credenciadoNome }}</td>
             <td class="p-3 border text-center">{{ os.endereco?.cidade }}</td>
             <td class="p-3 border text-center">{{ os.endereco?.estado }}</td>
-            <td class="p-3 border text-center">{{ os.rastreio }}</td>
+            <!-- Coluna Rastreio - tabela desktop -->
             <td class="p-3 border text-center">
-              <span class="px-2 py-1 rounded-full text-xs font-medium"
-                [ngClass]="{
+              <button (click)="abrirModalRastreio(os)" [disabled]="!os.rastreio" class="inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium
+           disabled:opacity-40 disabled:cursor-default transition hover:brightness-90"
+                [style.backgroundColor]="getCorRastreio(os.statusRastreio) + '22'"
+                [style.color]="getCorRastreio(os.statusRastreio)"
+                [style.border]="'1px solid ' + getCorRastreio(os.statusRastreio)">
+                <span class="w-2 h-2 rounded-full" [style.backgroundColor]="getCorRastreio(os.statusRastreio)"></span>
+                {{ os.rastreio || '—' }}
+              </button>
+            </td>
+            <td class="p-3 border text-center">
+              <span class="px-2 py-1 rounded-full text-xs font-medium" [ngClass]="{
                   'bg-green-100 text-green-700': os.status === 'CONCLUIDA',
                   'bg-yellow-100 text-yellow-700': os.status === 'ABERTA',
                   'bg-gray-100 text-gray-700': os.status !== 'CONCLUIDA' && os.status !== 'ABERTA'
@@ -219,8 +219,7 @@
                   <i class="fa-solid fa-clock-rotate-left text-gray-600"></i>
                 </button>
                 <button class="w-8 h-8 flex items-center justify-center rounded hover:bg-gray-200"
-                  [title]="os.status === 'CONCLUIDA' ? 'Visualizar solução' : 'Finalizar OS'"
-                  (click)="acaoSolucao(os)">
+                  [title]="os.status === 'CONCLUIDA' ? 'Visualizar solução' : 'Finalizar OS'" (click)="acaoSolucao(os)">
                   <i [ngClass]="os.status === 'CONCLUIDA'
                     ? 'fa-solid fa-eye text-blue-600'
                     : 'fa-solid fa-check text-green-600'"></i>
@@ -260,11 +259,21 @@
           <p><span class="font-medium">Cliente:</span> {{ os.cliente?.nome }}</p>
           <p><span class="font-medium">Credenciado:</span> {{ os.credenciadoNome }}</p>
           <p><span class="font-medium">Cidade:</span> {{ os.endereco?.cidade }} - {{ os.endereco?.estado }}</p>
-          <p><span class="font-medium">Rastreio:</span> {{ os.rastreio }}</p>
+          <p>
+            <span class="font-medium">Rastreio: </span>
+            <button (click)="abrirModalRastreio(os)" [disabled]="!os.rastreio" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium
+           disabled:opacity-40 transition hover:brightness-90"
+              [style.backgroundColor]="getCorRastreio(os.statusRastreio) + '22'"
+              [style.color]="getCorRastreio(os.statusRastreio)"
+              [style.border]="'1px solid ' + getCorRastreio(os.statusRastreio)">
+              <span class="w-2 h-2 rounded-full inline-block"
+                [style.backgroundColor]="getCorRastreio(os.statusRastreio)"></span>
+              {{ os.rastreio || '—' }}
+            </button>
+          </p>
           <p>
             <span class="font-medium">Status: </span>
-            <span class="px-2 py-0.5 rounded-full text-xs font-medium"
-              [ngClass]="{
+            <span class="px-2 py-0.5 rounded-full text-xs font-medium" [ngClass]="{
                 'bg-green-100 text-green-700': os.status === 'CONCLUIDA',
                 'bg-yellow-100 text-yellow-700': os.status === 'ABERTA',
                 'bg-gray-100 text-gray-700': os.status !== 'CONCLUIDA' && os.status !== 'ABERTA'
@@ -275,30 +284,25 @@
         </div>
 
         <div class="flex justify-end gap-3 pt-2 border-t">
-          <button class="w-9 h-9 flex items-center justify-center rounded hover:bg-gray-100"
-            (click)="editar(os.id)">
+          <button class="w-9 h-9 flex items-center justify-center rounded hover:bg-gray-100" (click)="editar(os.id)">
             <i class="fa-solid fa-pen-to-square text-blue-600"></i>
           </button>
           <button class="w-9 h-9 flex items-center justify-center rounded hover:bg-gray-100"
             (click)="verHistorico(os.id)">
             <i class="fa-solid fa-clock-rotate-left text-gray-600"></i>
           </button>
-          <button class="w-9 h-9 flex items-center justify-center rounded hover:bg-gray-100"
-            (click)="acaoSolucao(os)">
-            <i [ngClass]="os.status === 'CONCLUIDA'
-              ? 'fa-solid fa-eye text-blue-600'
-              : 'fa-solid fa-check text-green-600'"></i>
+          <button class="w-9 h-9 flex items-center justify-center rounded hover:bg-gray-100" (click)="acaoSolucao(os)">
+            <i
+              [ngClass]="os.status === 'CONCLUIDA' ? 'fa-solid fa-eye text-blue-600' : 'fa-solid fa-check text-green-600'"></i>
           </button>
-          <button class="w-9 h-9 flex items-center justify-center rounded hover:bg-gray-100"
-            (click)="excluir(os.id)">
+          <button class="w-9 h-9 flex items-center justify-center rounded hover:bg-gray-100" (click)="excluir(os.id)">
             <i class="fa-solid fa-trash text-red-600"></i>
           </button>
         </div>
 
       </div>
 
-      <div *ngIf="!ordensServico || ordensServico.length === 0"
-        class="text-center text-gray-400 text-sm py-10">
+      <div *ngIf="!ordensServico || ordensServico.length === 0" class="text-center text-gray-400 text-sm py-10">
         Nenhuma ordem de serviço encontrada.
       </div>
 
@@ -319,25 +323,20 @@
 
       <div class="flex items-center gap-2">
         <button (click)="paginaAnterior()" [disabled]="page === 0"
-          class="px-4 py-2 bg-blue-600 text-white rounded shadow hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed text-sm">
-          <span class="hidden sm:inline">Anterior</span>
-          <i class="fa-solid fa-chevron-left sm:hidden"></i>
+          class="flex items-center gap-1 px-4 py-2 bg-blue-600 text-white rounded shadow hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed text-sm">
+          Anterior <i class="fa-solid fa-chevron-left"></i>
         </button>
-
-        <div class="px-4 py-2 border rounded font-medium bg-gray-50 text-sm">
-          {{ page + 1 }}
-        </div>
-
+        <div class="px-4 py-2 border rounded font-medium bg-gray-50 text-sm">{{ page + 1 }}</div>
         <button (click)="proximaPagina()" [disabled]="(page + 1) >= totalPages"
-          class="px-4 py-2 bg-blue-600 text-white rounded shadow hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed text-sm">
-          <span class="hidden sm:inline">Próxima</span>
-          <i class="fa-solid fa-chevron-right sm:hidden"></i>
+          class="flex items-center gap-1 px-4 py-2 bg-blue-600 text-white rounded shadow hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed text-sm">
+          Próxima <i class="fa-solid fa-chevron-right"></i>
         </button>
       </div>
 
-      <div class="flex items-center gap-2">
-        <label class="text-gray-600 text-sm">Itens:</label>
-        <select class="p-2 border rounded text-sm" [value]="size" (change)="onSizeChange($event)">
+      <div class="flex items-center gap-2 text-sm text-gray-600">
+        <label>Itens:</label>
+        <select class="border rounded px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+          [value]="size" (change)="onSizeChange($event)">
           <option *ngFor="let s of pageSizes" [value]="s">{{ s }}</option>
         </select>
       </div>
@@ -350,13 +349,12 @@
 
 
 <!-- ================= MODAL 1: FINALIZAR OS ================= -->
-<div *ngIf="modalSolucaoAberto"
-  class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+<div *ngIf="modalSolucaoAberto" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
 
-  <div class="bg-white w-full max-w-2xl rounded-xl shadow-2xl p-4 md:p-6 max-h-[90vh] overflow-y-auto">
+  <div class="bg-white w-full max-w-2xl rounded-xl shadow-2xl p-4 md:p-5 max-h-[90vh] overflow-y-auto">
 
-    <div class="flex justify-between items-center mb-4 border-b pb-3">
-      <h2 class="text-lg md:text-xl font-semibold text-gray-700">
+    <div class="flex justify-between items-center mb-3 border-b pb-2">
+      <h2 class="text-base md:text-lg font-semibold text-gray-700">
         Finalizar Ordem de Serviço
       </h2>
       <button (click)="fecharModalSolucao()" class="text-gray-400 hover:text-gray-600">
@@ -365,88 +363,88 @@
     </div>
 
     <!-- INFO DA OS -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 bg-gray-50 p-4 rounded-lg border">
+    <div class="grid grid-cols-2 gap-2 mb-3 bg-gray-50 p-2 rounded-lg border">
       <div>
         <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide">OS CLT</label>
         <input type="text" [value]="ordemSelecionada?.osClt"
-          class="w-full border rounded p-2 bg-gray-100 text-gray-700 mt-1" disabled>
+          class="w-full border rounded p-1.5 bg-gray-100 text-gray-700 text-sm mt-1" disabled>
       </div>
       <div>
         <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide">OSG</label>
         <input type="text" [value]="ordemSelecionada?.osg"
-          class="w-full border rounded p-2 bg-gray-100 text-gray-700 mt-1" disabled>
+          class="w-full border rounded p-1.5 bg-gray-100 text-gray-700 text-sm mt-1" disabled>
       </div>
     </div>
 
     <!-- FORMULÁRIO -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
 
       <div>
-        <label class="text-sm font-semibold text-gray-600">Hora Inicial *</label>
+        <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Hora Inicial *</label>
         <input type="datetime-local" [(ngModel)]="solucao.horaInicial"
-          class="w-full border rounded p-2 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400">
+          class="w-full border rounded-lg p-1.5 mt-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400">
       </div>
 
       <div>
-        <label class="text-sm font-semibold text-gray-600">Hora Final *</label>
+        <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Hora Final *</label>
         <input type="datetime-local" [(ngModel)]="solucao.horaFinal"
-          class="w-full border rounded p-2 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400">
+          class="w-full border rounded-lg p-1.5 mt-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400">
       </div>
 
-      <div class="md:col-span-2">
-        <label class="text-sm font-semibold text-gray-600">Solução *</label>
-        <textarea [(ngModel)]="solucao.solucao"
-          class="w-full border rounded p-2 mt-1 min-h-[120px] focus:outline-none focus:ring-2 focus:ring-blue-400"
+      <div>
+        <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Peça Solicitada</label>
+        <input type="text" [(ngModel)]="solucao.pecaSolicitada"
+          class="w-full border rounded-lg p-1.5 mt-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400">
+      </div>
+
+      <div>
+        <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide">KM</label>
+        <input type="number" [(ngModel)]="solucao.km"
+          class="w-full border rounded-lg p-1.5 mt-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400">
+      </div>
+
+      <div>
+        <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Pedágio</label>
+        <input type="number" [(ngModel)]="solucao.pedagio"
+          class="w-full border rounded-lg p-1.5 mt-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400">
+      </div>
+
+      <div>
+        <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Estacionamento</label>
+        <input type="number" [(ngModel)]="solucao.estacionamento"
+          class="w-full border rounded-lg p-1.5 mt-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400">
+      </div>
+
+      <div>
+        <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Outros</label>
+        <input type="number" [(ngModel)]="solucao.outros"
+          class="w-full border rounded-lg p-1.5 mt-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400">
+      </div>
+
+      <div class="col-span-2 md:col-span-4">
+        <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Solução *</label>
+        <textarea [(ngModel)]="solucao.solucao" rows="3"
+          class="w-full border rounded-lg p-1.5 mt-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
           placeholder="Descreva a solução aplicada..."></textarea>
       </div>
 
-      <div>
-        <label class="text-sm font-semibold text-gray-600">Peça Solicitada</label>
-        <input type="text" [(ngModel)]="solucao.pecaSolicitada"
-          class="w-full border rounded p-2 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400">
-      </div>
-
-      <div>
-        <label class="text-sm font-semibold text-gray-600">KM</label>
-        <input type="number" [(ngModel)]="solucao.km"
-          class="w-full border rounded p-2 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400">
-      </div>
-
-      <div>
-        <label class="text-sm font-semibold text-gray-600">Pedágio</label>
-        <input type="number" [(ngModel)]="solucao.pedagio"
-          class="w-full border rounded p-2 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400">
-      </div>
-
-      <div>
-        <label class="text-sm font-semibold text-gray-600">Estacionamento</label>
-        <input type="number" [(ngModel)]="solucao.estacionamento"
-          class="w-full border rounded p-2 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400">
-      </div>
-
-      <div>
-        <label class="text-sm font-semibold text-gray-600">Outros</label>
-        <input type="number" [(ngModel)]="solucao.outros"
-          class="w-full border rounded p-2 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400">
-      </div>
-
-      <div class="md:col-span-2">
-        <label class="text-sm font-semibold text-gray-600">Observação</label>
-        <textarea [(ngModel)]="solucao.observacao"
-          class="w-full border rounded p-2 mt-1 min-h-[100px] focus:outline-none focus:ring-2 focus:ring-blue-400"
+      <div class="col-span-2 md:col-span-4">
+        <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Observação</label>
+        <textarea [(ngModel)]="solucao.observacao" rows="2"
+          class="w-full border rounded-lg p-1.5 mt-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
           placeholder="Observações adicionais..."></textarea>
       </div>
 
     </div>
 
     <!-- BOTÕES -->
-    <div class="flex flex-col-reverse md:flex-row justify-end gap-3 mt-6 pt-4 border-t">
+    <div class="flex flex-col-reverse md:flex-row justify-end gap-3 mt-3 pt-3 border-t">
       <button (click)="fecharModalSolucao()"
-        class="px-5 py-2 bg-gray-400 text-white rounded-lg hover:bg-gray-500 transition w-full md:w-auto">
+        class="px-5 py-2 bg-gray-400 text-white rounded-lg hover:bg-gray-500 transition text-sm w-full md:w-auto">
         Cancelar
       </button>
       <button (click)="salvarSolucao()"
-        class="px-5 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition w-full md:w-auto">
+        class="px-5 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm w-full md:w-auto">
         <i class="fa-solid fa-check mr-1"></i> Finalizar OS
       </button>
     </div>
@@ -456,15 +454,12 @@
 
 
 <!-- ================= MODAL 2: VISUALIZAR SOLUÇÃO ================= -->
-<div *ngIf="modalVisualizarSolucao"
-  class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+<div *ngIf="modalVisualizarSolucao" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
 
   <div class="bg-white w-full max-w-3xl rounded-xl shadow-2xl p-4 md:p-8 max-h-[90vh] overflow-y-auto">
 
     <div class="flex justify-between items-center mb-6 border-b pb-3">
-      <h2 class="text-xl font-semibold text-gray-700">
-        Visualização da Solução
-      </h2>
+      <h2 class="text-xl font-semibold text-gray-700">Visualização da Solução</h2>
       <button (click)="fecharModalVisualizacao()" class="text-gray-400 hover:text-gray-600">
         <i class="fa-solid fa-xmark text-lg"></i>
       </button>
@@ -473,33 +468,25 @@
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
 
       <div>
-        <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
-          Data Atendimento
-        </label>
+        <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Data Atendimento</label>
         <input type="text" [value]="solucaoVisualizacao?.dataAtendimento | date:'dd/MM/yyyy HH:mm'"
           class="w-full border rounded-lg px-3 py-2 bg-gray-100 text-gray-700 text-sm" disabled>
       </div>
 
       <div>
-        <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
-          Hora Inicial
-        </label>
+        <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Hora Inicial</label>
         <input type="text" [value]="solucaoVisualizacao?.horaInicial | date:'dd/MM/yyyy HH:mm'"
           class="w-full border rounded-lg px-3 py-2 bg-gray-100 text-gray-700 text-sm" disabled>
       </div>
 
       <div>
-        <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
-          Hora Final
-        </label>
+        <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Hora Final</label>
         <input type="text" [value]="solucaoVisualizacao?.horaFinal | date:'dd/MM/yyyy HH:mm'"
           class="w-full border rounded-lg px-3 py-2 bg-gray-100 text-gray-700 text-sm" disabled>
       </div>
 
       <div>
-        <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
-          Peça Solicitada
-        </label>
+        <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Peça Solicitada</label>
         <input type="text" [value]="solucaoVisualizacao?.pecaSolicitada"
           class="w-full border rounded-lg px-3 py-2 bg-gray-100 text-gray-700 text-sm" disabled>
       </div>
@@ -542,7 +529,6 @@
 
     </div>
 
-    <!-- BOTÕES -->
     <div class="flex flex-col-reverse md:flex-row justify-between items-center gap-3 mt-6 pt-4 border-t">
       <button (click)="abrirModalEmail()"
         class="flex items-center gap-2 px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition w-full md:w-auto justify-center">
@@ -559,8 +545,7 @@
 
 
 <!-- ================= MODAL 3: E-MAIL ================= -->
-<div *ngIf="modalEmail"
-  class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+<div *ngIf="modalEmail" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
 
   <div class="bg-white w-full max-w-2xl rounded-xl shadow-2xl p-4 md:p-6 max-h-[90vh] overflow-y-auto">
 
@@ -574,9 +559,7 @@
       </button>
     </div>
 
-    <div #emailDiv [innerHTML]="textoEmailFormatado"
-      class="border rounded-lg overflow-hidden text-sm">
-    </div>
+    <div #emailDiv [innerHTML]="textoEmailFormatado" class="border rounded-lg overflow-hidden text-sm"></div>
 
     <div class="flex flex-col-reverse md:flex-row justify-between items-center gap-3 mt-4 pt-4 border-t">
       <button (click)="copiarTexto(emailDiv)"
@@ -586,6 +569,55 @@
       <button (click)="modalEmail = false"
         class="px-5 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition w-full md:w-auto">
         Fechar
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ================= MODAL: STATUS RASTREIO ================= -->
+<div *ngIf="modalRastreioAberto" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+
+  <div class="bg-white w-full max-w-sm rounded-xl shadow-2xl p-5">
+
+    <div class="flex justify-between items-center mb-4 border-b pb-3">
+      <h2 class="text-base font-semibold text-gray-700">
+        <i class="fa-solid fa-truck-fast mr-2 text-blue-500"></i>
+        Status do Rastreio
+      </h2>
+      <button (click)="fecharModalRastreio()" class="text-gray-400 hover:text-gray-600">
+        <i class="fa-solid fa-xmark text-lg"></i>
+      </button>
+    </div>
+
+    <!-- Código de rastreio -->
+    <p class="text-sm text-gray-500 mb-4">
+      Código: <span class="font-semibold text-gray-800">{{ ordemRastreioSelecionada?.rastreio }}</span>
+    </p>
+
+    <!-- Opções de status -->
+    <div class="grid grid-cols-1 gap-2 mb-5">
+      <button *ngFor="let opcao of statusRastreioOpcoes" (click)="statusRastreioSelecionado = opcao.value" class="flex items-center gap-3 px-4 py-3 rounded-lg border-2 text-sm font-medium
+               transition-all duration-150 text-left"
+        [style.borderColor]="statusRastreioSelecionado === opcao.value ? opcao.cor : '#E5E7EB'"
+        [style.backgroundColor]="statusRastreioSelecionado === opcao.value ? opcao.cor + '18' : 'white'"
+        [style.color]="statusRastreioSelecionado === opcao.value ? opcao.cor : '#374151'">
+        <span class="w-3 h-3 rounded-full flex-shrink-0" [style.backgroundColor]="opcao.cor"></span>
+        {{ opcao.descricao }}
+        <i *ngIf="statusRastreioSelecionado === opcao.value" class="fa-solid fa-check ml-auto"
+          [style.color]="opcao.cor"></i>
+      </button>
+    </div>
+
+    <!-- Botões -->
+    <div class="flex gap-3">
+      <button (click)="fecharModalRastreio()" class="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg
+               hover:bg-gray-200 transition text-sm font-medium">
+        Cancelar
+      </button>
+      <button (click)="salvarStatusRastreio()" class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg
+               hover:bg-blue-700 transition text-sm font-medium">
+        <i class="fa-solid fa-floppy-disk mr-1"></i> Salvar
       </button>
     </div>
 

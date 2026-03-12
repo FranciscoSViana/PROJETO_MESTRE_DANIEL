@@ -117,6 +117,17 @@ export class OrdemServicoService {
     });
   }
 
+  atualizarStatusRastreio(id: string, statusRastreio: string): Observable<OrdemServico> {
+    return this.http.patch<OrdemServico>(
+      this.apiUrl + `/api/ordens-servico/${id}/rastreio`,
+      { statusRastreio }
+    );
+  }
+
+  listarStatusRastreio(): Observable<{ value: string; descricao: string; cor: string }[]> {
+    return this.http.get<any[]>(this.apiUrl + '/api/rastreio/status');
+  }
+
   // Método privado para reutilizar a montagem dos filtros
   private buildFiltroParams(filtro: any): HttpParams {
     let params = new HttpParams();

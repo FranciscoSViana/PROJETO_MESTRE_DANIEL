@@ -37,6 +37,9 @@ public class OrdemServicoOutput {
     private String pib;
     private String defeito;
     private String rastreio;
+    private String statusRastreio;
+    private String statusRastreioDescricao;
+    private String statusRasteioCor;
 
     private SolucaoOSOutput solucao;          // pode ser null
     private FaturamentoOSOutput faturamento;  // pode ser null
