@@ -1,53 +1,57 @@
-<div class="p-6 max-w-lg mx-auto bg-white shadow-lg rounded-lg mt-20">
+<div class="w-full flex items-center justify-center px-4 py-10">
 
-    <h2 class="text-2x1 font-semibold text-gray-700 mb-4 text-center">
-        Login
-    </h2>
+  <div class="w-full max-w-md bg-white shadow-lg rounded-lg p-6 md:p-8">
+
+    <!-- ================= HEADER ================= -->
+    <div class="text-center mb-6">
+      <div class="w-14 h-14 rounded-full bg-blue-600 text-white flex items-center justify-center text-2xl mx-auto mb-3 shadow">
+        <i class="fa-solid fa-right-to-bracket"></i>
+      </div>
+      <h2 class="text-xl md:text-2xl font-semibold text-gray-700">Login</h2>
+      <p class="text-sm text-gray-500 mt-1">Acesse sua conta para continuar</p>
+    </div>
 
     <hr class="mb-6">
 
-    <form [formGroup]="camposForm" (ngSubmit)="login()">
+    <!-- ================= FORMULÁRIO ================= -->
+    <form [formGroup]="camposForm" (ngSubmit)="login()" class="space-y-4">
 
-        <!-- Usuário -->
-        <div class="mb-4">
-            <label class="block text-gray-600 font-medium mb-2">Usuário</label>
+      <div>
+        <label class="block text-gray-600 font-medium mb-1 text-sm">Usuário</label>
+        <input type="text" formControlName="usuario" placeholder="Digite seu usuário"
+          class="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm" />
+        <span class="text-red-500 text-xs mt-1 block" *ngIf="isCampoInvalido('usuario')">
+          Usuário é obrigatório.
+        </span>
+      </div>
 
-            <input type="text" formControlName="usuario" placeholder="Digite seu usuário"
-                class="w-full p-3 border border-gray-300 rounded shadow-sm focus:ring focus:ring-blue-400" />
+      <div>
+        <label class="block text-gray-600 font-medium mb-1 text-sm">Senha</label>
+        <input type="password" formControlName="senha" placeholder="Digite sua senha"
+          class="w-full p-3 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm"
+          [ngClass]="{
+            'border-red-500':   isCampoInvalido('senha'),
+            'border-green-500': !isCampoInvalido('senha') && camposForm.get('senha')?.value,
+            'border-gray-300':  !isCampoInvalido('senha') && !camposForm.get('senha')?.value
+          }" />
+        <span class="text-red-500 text-xs mt-1 block" *ngIf="isCampoInvalido('senha')">
+          A senha é obrigatória.
+        </span>
+      </div>
 
-            <span class="text-red-500 text-sm" *ngIf="isCampoInvalido('usuario')">
-                Usuário é obrigatório.
-            </span>
-        </div>
-
-        <!-- Senha -->
-        <div class="mb-2">
-            <label class="block text-gray-600 font-medium mb-2">Senha</label>
-
-            <input type="password" formControlName="senha" placeholder="Digite sua senha" 
-                   class="w-full p-3 border rounded shadow-sm focus:ring" [ngClass]="{
-                   'border-red-500': isCampoInvalido('senha'),
-                   'border-green-500': !isCampoInvalido('senha') && camposForm.get('senha')?.value }" />
-
-            <!-- Mensagem de erro -->
-            <span class="text-red-500 text-sm" *ngIf="isCampoInvalido('senha')">
-                A senha é obrigatória.
-            </span>
-        </div>
-
-
-        <!-- Botão -->
+      <div class="flex flex-col gap-3 pt-2">
         <button type="submit"
-            class="w-full bg-blue-600 text-white font-semibold p-3 rounded shadow hover:bg-blue-700 transition">
-
-            Entrar
+          class="w-full px-5 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow hover:bg-blue-700 transition text-sm">
+          <i class="fa-solid fa-right-to-bracket mr-1"></i> Entrar
         </button>
-
         <button type="button" routerLink="/esqueci-senha"
-            class="w-full mt-3 bg-gray-200 text-gray-700 font-semibold p-3 rounded hover:bg-gray-300 transition">
-
-            Esqueci minha senha
+          class="w-full px-5 py-3 bg-gray-100 text-gray-600 font-medium rounded-lg hover:bg-gray-200 transition text-sm">
+          <i class="fa-solid fa-lock mr-1"></i> Esqueci minha senha
         </button>
+      </div>
 
     </form>
+
+  </div>
+
 </div>

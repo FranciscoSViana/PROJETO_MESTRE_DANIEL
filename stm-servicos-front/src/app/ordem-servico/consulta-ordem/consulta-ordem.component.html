@@ -157,18 +157,18 @@
 
           <!-- FILTROS DESKTOP -->
           <tr class="bg-gray-50 text-sm">
-            <th><input [(ngModel)]="filtro.osClt" (keyup)="carregarOrdens()" class="w-full border p-1 rounded"></th>
-            <th><input [(ngModel)]="filtro.osg" (keyup)="carregarOrdens()" class="w-full border p-1 rounded"></th>
+            <th><input [(ngModel)]="filtro.osClt" (keyup)="carregarOrdens()" class="w-full border p-1 rounded" placeholder="OS CLT"></th>
+            <th><input [(ngModel)]="filtro.osg" (keyup)="carregarOrdens()" class="w-full border p-1 rounded" placeholder="OSG"></th>
             <th>
               <input mask="00/00/0000" [(ngModel)]="filtro.dataAbertura" (keyup)="carregarOrdens()"
-                class="w-full border p-1 rounded">
+                class="w-full border p-1 rounded" placeholder="Data">
             </th>
-            <th><input [(ngModel)]="filtro.cliente" (keyup)="carregarOrdens()" class="w-full border p-1 rounded"></th>
-            <th><input [(ngModel)]="filtro.credenciado" (keyup)="carregarOrdens()" class="w-full border p-1 rounded"></th>
-            <th><input [(ngModel)]="filtro.cidade" (keyup)="carregarOrdens()" class="w-full border p-1 rounded"></th>
-            <th><input [(ngModel)]="filtro.estado" (keyup)="carregarOrdens()" class="w-full border p-1 rounded"></th>
-            <th><input [(ngModel)]="filtro.rastreio" (keyup)="carregarOrdens()" class="w-full border p-1 rounded"></th>
-            <th><input [(ngModel)]="filtro.status" (keyup)="carregarOrdens()" class="w-full border p-1 rounded"></th>
+            <th><input [(ngModel)]="filtro.cliente" (keyup)="carregarOrdens()" class="w-full border p-1 rounded" placeholder="Cliente"></th>
+            <th><input [(ngModel)]="filtro.credenciado" (keyup)="carregarOrdens()" class="w-full border p-1 rounded" placeholder="Credenciado"></th>
+            <th><input [(ngModel)]="filtro.cidade" (keyup)="carregarOrdens()" class="w-full border p-1 rounded" placeholder="Cidade"></th>
+            <th><input [(ngModel)]="filtro.estado" (keyup)="carregarOrdens()" class="w-full border p-1 rounded" placeholder="UF"></th>
+            <th><input [(ngModel)]="filtro.rastreio" (keyup)="carregarOrdens()" class="w-full border p-1 rounded" placeholder="Rastreio"></th>
+            <th><input [(ngModel)]="filtro.status" (keyup)="carregarOrdens()" class="w-full border p-1 rounded" placeholder="Status"></th>
             <th></th>
           </tr>
 

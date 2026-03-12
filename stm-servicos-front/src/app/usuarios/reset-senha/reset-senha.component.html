@@ -1,11 +1,10 @@
-<div class="min-h-screen flex items-center justify-center bg-gray-100 px-4">
+<div class="w-full flex items-center justify-center px-4 py-10">
 
   <div class="w-full max-w-md bg-white shadow-lg rounded-lg p-6 md:p-8">
 
     <!-- ================= HEADER ================= -->
     <div class="text-center mb-6">
-      <div
-        class="w-14 h-14 rounded-full bg-green-600 text-white flex items-center justify-center text-2xl mx-auto mb-3 shadow">
+      <div class="w-14 h-14 rounded-full bg-green-600 text-white flex items-center justify-center text-2xl mx-auto mb-3 shadow">
         <i class="fa-solid fa-key"></i>
       </div>
       <h2 class="text-xl md:text-2xl font-semibold text-gray-700">Nova Senha</h2>
@@ -29,15 +28,19 @@
           <div class="h-2 rounded transition-all" [style.width.%]="forca" [ngClass]="classe"></div>
         </div>
         <small class="text-xs mt-1 block" [ngClass]="{
-  'text-red-500':    forca <= 25,
-  'text-yellow-500': forca > 25 && forca <= 50,
-  'text-blue-500':   forca > 50 && forca <= 75,
-  'text-green-600':  forca > 75
-}">
+          'text-red-500':    forca <= 25,
+          'text-yellow-500': forca > 25 && forca <= 50,
+          'text-blue-500':   forca > 50 && forca <= 75,
+          'text-green-600':  forca > 75
+        }">
           {{
-          forca === 0 ? '' :
-          forca <= 25 ? 'Senha fraca' : forca <=50 ? 'Senha razoável' : forca <=75 ? 'Senha boa' : 'Senha forte' }}
-            </small>
+            forca === 0   ? '' :
+            forca <= 25   ? 'Senha fraca' :
+            forca <= 50   ? 'Senha razoável' :
+            forca <= 75   ? 'Senha boa' :
+                            'Senha forte'
+          }}
+        </small>
       </div>
 
       <!-- Mensagem de erro -->

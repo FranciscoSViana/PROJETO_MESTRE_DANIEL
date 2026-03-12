@@ -37,7 +37,7 @@ const routes: Routes = [
       {
         path: 'usuarios',
         loadChildren: () => import('../usuarios/usuarios.module').then(m => m.UsuariosModule),
-        data: { titulo: 'Usuários', subtitulo: 'Gestão do usuário' }
+        data: { titulo: 'Usuários', subTitulo: 'Gestão do usuário' }
       }
     ]
   }
