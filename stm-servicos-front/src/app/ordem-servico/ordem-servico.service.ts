@@ -142,4 +142,18 @@ export class OrdemServicoService {
     if (filtro.rastreio) params = params.set('rastreio', filtro.rastreio);
     return params;
   }
+
+  relatorioIndividualPdf(id: string): Observable<Blob> {
+    return this.http.get(
+      this.apiUrl + `/api/ordens-servico/${id}/relatorio/pdf`,
+      { responseType: 'blob' }
+    );
+  }
+
+  relatorioIndividualXlsx(id: string): Observable<Blob> {
+    return this.http.get(
+      this.apiUrl + `/api/ordens-servico/${id}/relatorio/xlsx`,
+      { responseType: 'blob' }
+    );
+  }
 }

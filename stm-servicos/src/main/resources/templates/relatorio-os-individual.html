@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 10px;
+            color: #222;
+            margin: 24px;
+        }
+
+        h1 {
+            font-size: 14px;
+            color: #1e3a5f;
+            border-bottom: 2px solid #1e3a5f;
+            padding-bottom: 4px;
+            margin-bottom: 12px;
+        }
+
+        h2 {
+            font-size: 10px;
+            color: #fff;
+            background: #1e3a5f;
+            padding: 4px 8px;
+            margin: 14px 0 0 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 2px;
+        }
+
+        td {
+            padding: 4px 8px;
+            border: 1px solid #ddd;
+            vertical-align: top;
+        }
+
+        .lbl {
+            background: #f0f4f8;
+            font-weight: bold;
+            width: 18%;
+            white-space: nowrap;
+        }
+
+        .val {
+            width: 32%;
+        }
+
+        .blank {
+            color: #aaa;
+            font-style: italic;
+            padding: 6px 8px;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Ordem de Serviço &#8212; <span th:text="${os.osg}"></span></h1>
+
+<!-- ═══ DADOS DA OS ═══════════════════════════════════════════ -->
+<h2>DADOS DA ORDEM DE SERVIÇO</h2>
+<table>
+    <tr>
+        <td class="lbl">OSG</td>
+        <td class="val" th:text="${os.osg}"></td>
+        <td class="lbl">OS Cliente</td>
+        <td class="val" th:text="${os.osClt}"></td>
+    </tr>
+    <tr>
+        <td class="lbl">Status</td>
+        <td class="val" th:text="${os.status}"></td>
+        <td class="lbl">Data Abertura</td>
+        <td class="val" th:text="${os.dataHoraAbertura != null
+            ? #temporals.format(os.dataHoraAbertura, 'dd/MM/yyyy HH:mm') : ''}"></td>
+    </tr>
+    <tr>
+        <td class="lbl">Equipamento</td>
+        <td class="val" th:text="${os.equipamento}"></td>
+        <td class="lbl">Série</td>
+        <td class="val" th:text="${os.serie}"></td>
+    </tr>
+    <tr>
+        <td class="lbl">PIB</td>
+        <td class="val" th:text="${os.pib}"></td>
+        <td class="lbl">Rastreio</td>
+        <td class="val" th:text="${os.rastreio}"></td>
+    </tr>
+    <tr>
+        <td class="lbl">Defeito</td>
+        <td colspan="3" th:text="${os.defeito}"></td>
+    </tr>
+</table>
+
+<!-- ═══ CLIENTE / CREDENCIADO ═════════════════════════════════ -->
+<h2>DADOS DO CLIENTE / CREDENCIADO</h2>
+<table>
+    <tr>
+        <td class="lbl">Cliente</td>
+        <td class="val" th:text="${os.cliente != null ? os.cliente.nome : ''}"></td>
+        <td class="lbl">Credenciado</td>
+        <td class="val" th:text="${os.credenciado != null ? os.credenciado.rag : ''}"></td>
+    </tr>
+    <tr>
+        <td class="lbl">Técnico</td>
+        <td class="val" th:text="${os.tecnico != null ? os.tecnico.nome : ''}"></td>
+        <td class="lbl">Contato</td>
+        <td class="val" th:text="${os.contato}"></td>
+    </tr>
+    <tr>
+        <td class="lbl">Departamento</td>
+        <td class="val" th:text="${os.departamento}"></td>
+        <td class="lbl">Telefone</td>
+        <td class="val" th:text="${os.telefone}"></td>
+    </tr>
+    <tr th:if="${os.endereco != null}">
+        <td class="lbl">Cidade</td>
+        <td class="val" th:text="${os.endereco.cidade}"></td>
+        <td class="lbl">Estado</td>
+        <td class="val" th:text="${os.endereco.estado}"></td>
+    </tr>
+    <tr th:if="${os.endereco != null}">
+        <td class="lbl">Logradouro</td>
+        <td colspan="3" th:text="${os.endereco.logradouro}"></td>
+    </tr>
+</table>
+
+<!-- ═══ SOLUÇÃO / FINALIZAÇÃO ══════════════════════════════════ -->
+<h2>SOLUÇÃO / FINALIZAÇÃO</h2>
+<p th:if="${solucao == null}" class="blank">OS ainda não finalizada.</p>
+<table th:if="${solucao != null}">
+    <tr>
+        <td class="lbl">Data Atendimento</td>
+        <td class="val" th:text="${solucao.dataAtendimento != null
+            ? #temporals.format(solucao.dataAtendimento, 'dd/MM/yyyy HH:mm') : ''}"></td>
+        <td class="lbl">Hora Inicial</td>
+        <td class="val" th:text="${solucao.horaInicial != null
+            ? #temporals.format(solucao.horaInicial, 'dd/MM/yyyy HH:mm') : ''}"></td>
+    </tr>
+    <tr>
+        <td class="lbl">Hora Final</td>
+        <td class="val" th:text="${solucao.horaFinal != null
+            ? #temporals.format(solucao.horaFinal, 'dd/MM/yyyy HH:mm') : ''}"></td>
+        <td class="lbl">Peça Solicitada</td>
+        <td class="val" th:text="${solucao.pecaSolicitada}"></td>
+    </tr>
+    <tr>
+        <td class="lbl">KM</td>
+        <td class="val" th:text="${solucao.km}"></td>
+        <td class="lbl">Pedágio</td>
+        <td class="val" th:text="${solucao.pedagio}"></td>
+    </tr>
+    <tr>
+        <td class="lbl">Estacionamento</td>
+        <td class="val" th:text="${solucao.estacionamento}"></td>
+        <td class="lbl">Outros</td>
+        <td class="val" th:text="${solucao.outros}"></td>
+    </tr>
+    <tr>
+        <td class="lbl">Solução</td>
+        <td colspan="3" th:text="${solucao.solucao}"></td>
+    </tr>
+    <tr>
+        <td class="lbl">Observação</td>
+        <td colspan="3" th:text="${solucao.observacao}"></td>
+    </tr>
+</table>
+
+</body>
+</html>

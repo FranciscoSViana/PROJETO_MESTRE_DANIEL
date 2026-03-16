@@ -398,4 +398,25 @@ export class ConsultaOrdemComponent implements OnInit {
     return this.statusRastreioOpcoes
       .find(s => s.value === statusRastreio)?.cor ?? '#9CA3AF';
   }
+
+  imprimirOS(os: OrdemServico, formato: 'pdf' | 'xlsx') {
+    const chamada$ = formato === 'pdf'
+      ? this.service.relatorioIndividualPdf(os.id!)
+      : this.service.relatorioIndividualXlsx(os.id!);
+
+    chamada$.subscribe({
+      next: (blob: Blob) => {
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `OS-${os.osClt ?? os.id}.${formato}`;
+        link.click();
+        URL.revokeObjectURL(url);
+      },
+      error: err => {
+        console.error('Erro ao gerar relatório', err);
+        alert('Erro ao gerar relatório da OS.');
+      }
+    });
+  }
 }

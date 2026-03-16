@@ -209,25 +209,42 @@
               </span>
             </td>
             <td class="p-3 border">
-              <div class="flex justify-center gap-2">
+              <div class="flex justify-center gap-1">
+
                 <button class="w-8 h-8 flex items-center justify-center rounded hover:bg-gray-200" title="Editar"
                   (click)="editar(os.id)">
                   <i class="fa-solid fa-pen-to-square text-blue-600"></i>
                 </button>
+
                 <button class="w-8 h-8 flex items-center justify-center rounded hover:bg-gray-200" title="Histórico"
                   (click)="verHistorico(os.id)">
                   <i class="fa-solid fa-clock-rotate-left text-gray-600"></i>
                 </button>
+
                 <button class="w-8 h-8 flex items-center justify-center rounded hover:bg-gray-200"
                   [title]="os.status === 'CONCLUIDA' ? 'Visualizar solução' : 'Finalizar OS'" (click)="acaoSolucao(os)">
                   <i [ngClass]="os.status === 'CONCLUIDA'
-                    ? 'fa-solid fa-eye text-blue-600'
-                    : 'fa-solid fa-check text-green-600'"></i>
+          ? 'fa-solid fa-eye text-blue-600'
+          : 'fa-solid fa-check text-green-600'"></i>
                 </button>
+
+                <!-- Exportar PDF individual -->
+                <button class="w-8 h-8 flex items-center justify-center rounded hover:bg-red-50" title="Exportar PDF"
+                  (click)="imprimirOS(os, 'pdf')">
+                  <i class="fa-solid fa-file-pdf text-red-600"></i>
+                </button>
+
+                <!-- Exportar Excel individual -->
+                <button class="w-8 h-8 flex items-center justify-center rounded hover:bg-emerald-50"
+                  title="Exportar Excel" (click)="imprimirOS(os, 'xlsx')">
+                  <i class="fa-solid fa-file-excel text-emerald-600"></i>
+                </button>
+
                 <button class="w-8 h-8 flex items-center justify-center rounded hover:bg-gray-200" title="Excluir"
                   (click)="excluir(os.id)">
                   <i class="fa-solid fa-trash text-red-600"></i>
                 </button>
+
               </div>
             </td>
           </tr>
@@ -284,20 +301,38 @@
         </div>
 
         <div class="flex justify-end gap-3 pt-2 border-t">
+
           <button class="w-9 h-9 flex items-center justify-center rounded hover:bg-gray-100" (click)="editar(os.id)">
             <i class="fa-solid fa-pen-to-square text-blue-600"></i>
           </button>
+
           <button class="w-9 h-9 flex items-center justify-center rounded hover:bg-gray-100"
             (click)="verHistorico(os.id)">
             <i class="fa-solid fa-clock-rotate-left text-gray-600"></i>
           </button>
+
           <button class="w-9 h-9 flex items-center justify-center rounded hover:bg-gray-100" (click)="acaoSolucao(os)">
-            <i
-              [ngClass]="os.status === 'CONCLUIDA' ? 'fa-solid fa-eye text-blue-600' : 'fa-solid fa-check text-green-600'"></i>
+            <i [ngClass]="os.status === 'CONCLUIDA'
+        ? 'fa-solid fa-eye text-blue-600'
+        : 'fa-solid fa-check text-green-600'"></i>
           </button>
+
+          <!-- Exportar PDF individual -->
+          <button class="w-9 h-9 flex items-center justify-center rounded hover:bg-red-50" title="PDF"
+            (click)="imprimirOS(os, 'pdf')">
+            <i class="fa-solid fa-file-pdf text-red-600"></i>
+          </button>
+
+          <!-- Exportar Excel individual -->
+          <button class="w-9 h-9 flex items-center justify-center rounded hover:bg-emerald-50" title="Excel"
+            (click)="imprimirOS(os, 'xlsx')">
+            <i class="fa-solid fa-file-excel text-emerald-600"></i>
+          </button>
+
           <button class="w-9 h-9 flex items-center justify-center rounded hover:bg-gray-100" (click)="excluir(os.id)">
             <i class="fa-solid fa-trash text-red-600"></i>
           </button>
+
         </div>
 
       </div>

@@ -191,4 +191,25 @@ public class OrdemServicoController {
                 .contentType(MediaType.APPLICATION_PDF)
                 .body(bytes);
     }
+
+    @GetMapping("/{id}/relatorio/pdf")
+    public ResponseEntity<byte[]> relatorioPdf(@PathVariable UUID id) {
+        byte[] bytes = exportService.exportarRelatorioPdf(id);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=\"os-" + id + ".pdf\"")
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(bytes);
+    }
+
+    @GetMapping("/{id}/relatorio/xlsx")
+    public ResponseEntity<byte[]> relatorioXlsx(@PathVariable UUID id) {
+        byte[] bytes = exportService.exportarRelatorioXlsx(id);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=\"os-" + id + ".xlsx\"")
+                .contentType(MediaType.parseMediaType(
+                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                .body(bytes);
+    }
 }
