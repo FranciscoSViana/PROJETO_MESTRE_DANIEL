@@ -96,7 +96,7 @@ jobs:
         run: |
           docker push ${{ secrets.DOCKER_USERNAME }}/guardian-front:latest
 
-      # ✅ Deploy no Cloud Run
+      # ✅ Deploy Frontend no Cloud Run
       - name: Deploy Frontend no Cloud Run
         run: |
           gcloud run deploy guardian-front \
@@ -104,4 +104,8 @@ jobs:
             --platform managed \
             --region ${{ secrets.GCP_REGION }} \
             --allow-unauthenticated \
-            --port 80
+            --port 80 \
+            --tag latest \
+            --revision-suffix ${{ github.sha }} \
+            --min-instances 0 \
+            --max-instances 10
