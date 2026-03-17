@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { environment } from '../environments/environment';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, tap } from 'rxjs';
+import { BehaviorSubject, tap, throwError } from 'rxjs';
 import { Router } from '@angular/router';
 
 @Injectable({
@@ -30,30 +30,38 @@ export class AuthService {
   login(data: { usuario: string, senha: string }) {
     return this.http.post<any>(`${this.apiUrl}/login`, data).pipe(
       tap(res => {
-
         if (!res.accessToken) return;
-
         localStorage.setItem('token', res.accessToken);
-
+        localStorage.setItem('refreshToken', res.refreshToken); // ← salvar
         this.iniciarTimerExpiracao(res.accessToken);
-
         this.atualizarUsuario();
       })
     );
   }
 
   logout() {
-
     localStorage.removeItem('token');
-
-    if (this.logoutTimer) {
-      clearTimeout(this.logoutTimer);
-    }
-
+    localStorage.removeItem('refreshToken'); // ← limpar também
+    if (this.logoutTimer) clearTimeout(this.logoutTimer);
     this.atualizarUsuario();
-
     this.router.navigate(['']);
+  }
 
+  getRefreshToken() {
+    return localStorage.getItem('refreshToken');
+  }
+
+  renovarToken() {
+    const refreshToken = this.getRefreshToken();
+    if (!refreshToken) return throwError(() => new Error('Sem refresh token'));
+
+    return this.http.post<any>(`${this.apiUrl}/refresh`, { refreshToken }).pipe(
+      tap(res => {
+        localStorage.setItem('token', res.accessToken);
+        this.iniciarTimerExpiracao(res.accessToken);
+        this.atualizarUsuario();
+      })
+    );
   }
 
   cadastrar(usuario: { nome: string, email: string, senha: string, roles: string[] }) {
