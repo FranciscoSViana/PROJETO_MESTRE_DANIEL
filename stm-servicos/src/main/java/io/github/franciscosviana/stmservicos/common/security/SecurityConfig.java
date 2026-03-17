@@ -30,38 +30,40 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http, JwtAuthenticationConverter jwtAuthenticationConverter) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
-                .cors(cors -> {})
+                .cors(cors -> {
+                })
                 .authorizeHttpRequests(auth -> auth
 
-                        // ✅ LIBERAÇÃO TOTAL DO SWAGGER
-                        .requestMatchers(
-                                "/v3/api-docs/**",
-                                "/swagger-ui/**",
-                                "/swagger-ui.html",
-                                "/actuator",
-                                "teste-email",
-                                "api/enderecos/cep/**",
-                                "api/credenciados/estados/**"
-                        ).permitAll()
+                                // ✅ LIBERAÇÃO TOTAL DO SWAGGER
+                                .requestMatchers(
+                                        "/v3/api-docs/**",
+                                        "/swagger-ui/**",
+                                        "/swagger-ui.html",
+                                        "/actuator",
+                                        "teste-email",
+                                        "api/enderecos/cep/**",
+                                        "api/credenciados/estados/**"
+                                ).permitAll()
 
-                        // ✅ ROTAS DE AUTENTICAÇÃO
-                        .requestMatchers(
-                                "/api/auth/login",
-                                "/api/auth/esqueci-senha",
-                                "/api/auth/reset-senha",
+                                // ✅ ROTAS DE AUTENTICAÇÃO
+                                .requestMatchers(
+                                        "/api/auth/login",
+                                        "/api/auth/refresh",
+                                        "/api/auth/esqueci-senha",
+                                        "/api/auth/reset-senha",
                                         "/api/auth/cadastro"
-                        ).permitAll()
+                                ).permitAll()
 
-                        // ✅ ROTAS DE CLIENTES (AGORA LIBERADAS!)
-                        .requestMatchers("/api/clientes/**")
-                        .hasAnyRole("ADMIN", "USER")
+                                // ✅ ROTAS DE CLIENTES (AGORA LIBERADAS!)
+                                .requestMatchers("/api/clientes/**")
+                                .hasAnyRole("ADMIN", "USER")
 
-                        // ✅ ROTAS ADMIN
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                                // ✅ ROTAS ADMIN
+                                .requestMatchers("/admin/**").hasRole("ADMIN")
 //                        .requestMatchers("/api/auth/cadastro").hasRole("ADMIN")
 
-                        // ✅ TODAS AS OUTRAS PROTEGIDAS
-                        .anyRequest().authenticated()
+                                // ✅ TODAS AS OUTRAS PROTEGIDAS
+                                .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth -> oauth
                         .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter()))

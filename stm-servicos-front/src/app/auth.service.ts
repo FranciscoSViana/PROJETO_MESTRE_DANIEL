@@ -128,35 +128,50 @@ export class AuthService {
   }
 
   private iniciarTimerExpiracao(token: string) {
-
     try {
+      if (this.logoutTimer) clearTimeout(this.logoutTimer);
 
       const payload: any = JSON.parse(atob(token.split('.')[1]));
       const exp = payload.exp;
-
       if (!exp) return;
 
       const agora = Math.floor(Date.now() / 1000);
       const tempoRestante = (exp - agora) * 1000;
 
       if (tempoRestante <= 0) {
-        this.logout();
+        // Token já expirado — tenta renovar imediatamente
+        this.tentarRenovar();
         return;
       }
 
       console.log(`⏳ Token expira em ${tempoRestante / 1000}s`);
 
+      // Agenda renovação 10s ANTES de expirar (não logout)
+      const tempoParaRenovar = Math.max(tempoRestante - 10000, 0);
+
       this.logoutTimer = setTimeout(() => {
-
-        console.warn('⚠️ Sessão expirada');
-
-        this.logout();
-
-      }, tempoRestante);
+        console.log('🔄 Renovando token proativamente...');
+        this.tentarRenovar();
+      }, tempoParaRenovar);
 
     } catch (e) {
       console.error('Erro ao ler expiração do token');
     }
+  }
 
+  private tentarRenovar() {
+    const refreshToken = this.getRefreshToken();
+    if (!refreshToken) {
+      this.logout();
+      return;
+    }
+
+    this.renovarToken().subscribe({
+      next: () => console.log('✅ Token renovado automaticamente'),
+      error: () => {
+        console.warn('⚠️ Refresh token expirado — logout necessário');
+        this.logout();
+      }
+    });
   }
 }

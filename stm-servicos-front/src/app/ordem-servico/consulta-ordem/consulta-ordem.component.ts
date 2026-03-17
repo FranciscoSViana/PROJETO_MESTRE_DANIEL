@@ -58,6 +58,8 @@ export class ConsultaOrdemComponent implements OnInit {
   ];
   statusRastreioSelecionado?: string;
 
+  copiarAposFinalizarOS: boolean = false;
+
   constructor(
     private service: OrdemServicoService,
     private clienteService: ClienteService,
@@ -203,6 +205,7 @@ export class ConsultaOrdemComponent implements OnInit {
     this.modalSolucaoAberto = false;
     this.solucao = new Solucao();
     this.ordemSelecionada = undefined;
+    this.copiarAposFinalizarOS = false; // reset
   }
 
   private toISO(dateTimeLocal?: string): string | undefined {
@@ -225,12 +228,22 @@ export class ConsultaOrdemComponent implements OnInit {
       horaFinal: this.toISO(this.solucao.horaFinal)
     };
 
+    const copiar = this.copiarAposFinalizarOS;
+    const ordemParaCopiar = { ...this.ordemSelecionada };
+
     this.service.finalizarOS(this.ordemSelecionadaId, payload)
       .subscribe({
         next: () => {
-          alert('OS finalizada com sucesso!');
           this.fecharModalSolucao();
           this.carregarOrdens();
+
+          if (copiar) {
+            this.router.navigate(['/ordem-servico/cadastro'], {
+              state: { copiarDe: ordemParaCopiar }
+            });
+          } else {
+            alert('OS finalizada com sucesso!');
+          }
         },
         error: err => {
           console.error(err);

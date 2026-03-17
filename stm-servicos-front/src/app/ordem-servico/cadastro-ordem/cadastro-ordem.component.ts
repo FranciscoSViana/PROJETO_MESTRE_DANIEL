@@ -76,6 +76,8 @@ export class CadastroOrdemComponent implements OnInit {
   ngOnInit(): void {
     const idStr = this.route.snapshot.paramMap.get('id');
 
+    const dadosCopia = history.state?.copiarDe;
+
     if (!idStr) {
       const now = new Date();
 
@@ -88,7 +90,14 @@ export class CadastroOrdemComponent implements OnInit {
       });
 
       this.service.buscarProximoOsg().subscribe({
-        next: osg => this.camposForm.patchValue({ osg, status: 'ABERTA' }),
+        next: osg => {
+          this.camposForm.patchValue({ osg, status: 'ABERTA' });
+
+          // ✅ NOVO: após ter o OSG, preenche com os dados copiados
+          if (dadosCopia) {
+            this.preencherComCopia(dadosCopia);
+          }
+        },
         error: err => console.error('Erro ao buscar próximo OSG:', err)
       });
 
@@ -379,4 +388,78 @@ export class CadastroOrdemComponent implements OnInit {
   compareContrato = (a: string | null, b: string | null): boolean => {
     return a === b;
   };
+
+  private preencherComCopia(os: any): void {
+    // Dados básicos (OSG e status já foram setados pelo buscarProximoOsg)
+    this.camposForm.patchValue({
+      osClt: os.osClt,
+      contato: os.contato,
+      departamento: os.departamento,
+      telefone: os.telefone,
+      acionador: os.acionador,
+      equipamento: os.equipamento,
+      serie: os.serie,
+      pib: os.pib,
+      defeito: os.defeito,
+      rastreio: os.rastreio,
+
+      // Endereço
+      logradouro: os.endereco?.logradouro,
+      numero: os.endereco?.numero,
+      bairro: os.endereco?.bairro,
+      cidade: os.endereco?.cidade,
+      estado: os.endereco?.estado,
+      cep: os.endereco?.cep,
+      complemento: os.endereco?.complemento,
+    });
+
+    // Cliente: busca pelo ID e carrega contratos
+    if (os.cliente?.id) {
+      this.camposForm.patchValue({
+        clienteId: os.cliente.id,
+        codigoCliente: os.cliente.codigo,
+        nomeCliente: os.cliente.razaoSocial || os.cliente.nome,
+      });
+
+      this.clienteService.buscarPorId(os.cliente.id).pipe(
+        map(cliente => cliente.contratos ?? []),
+        catchError(() => of([]))
+      ).subscribe(contratos => {
+        this.contratosCliente$.next(contratos);
+
+        // Seta contrato após a lista estar disponível
+        if (os.contrato?.id) {
+          this.camposForm.get('contratoId')?.setValue(os.contrato.id.toString());
+        }
+      });
+    }
+
+    // Credenciado: carrega a lista pelo CEP e depois seta o valor
+    const cep = os.endereco?.cep;
+    const raioKm = this.camposForm.get('raioKm')?.value ?? 100;
+
+    if (cep && os.credenciado?.id) {
+      this.credenciadoService.buscarProximosPorCep(cep, raioKm).pipe(
+        catchError(() => of([] as Credenciado[]))
+      ).subscribe(credenciados => {
+        // Garante que o credenciado copiado esteja na lista mesmo fora do raio
+        const lista = [...credenciados];
+        if (!lista.find(c => c.id === os.credenciado.id)) {
+          lista.push({
+            id: os.credenciado.id,
+            rag: os.credenciado.rag,
+            codigo: os.credenciado.codigo
+          });
+        }
+
+        this.credenciadosProximos$.next(lista);
+        this.camposForm.patchValue({ credenciadoId: os.credenciado.id });
+
+        // Técnico: carrega técnicos do credenciado e seta o valor
+        if (os.tecnico?.id) {
+          this.buscarTecnicosDoCredenciado(os.credenciado.id, os.tecnico.id);
+        }
+      });
+    }
+  }
 }
