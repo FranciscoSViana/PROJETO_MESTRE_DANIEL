@@ -23,11 +23,9 @@ export class LoginComponent {
 
   login() {
     this.camposForm.markAllAsTouched();
-
     if (this.camposForm.valid) {
       this.auth.login(this.camposForm.value as { usuario: string, senha: string }).subscribe({
         next: () => {
-          console.log('✅ Login realizado com sucesso');
           this.router.navigate(['/ordem-servico']);
         },
         error: err => {
@@ -35,11 +33,9 @@ export class LoginComponent {
             alert('Usuário ou senha inválidos.');
           } else if (err.status === 0) {
             alert('Servidor indisponível.');
-          } else {
-            alert('Erro inesperado ao tentar logar.');
           }
+          // Removido o else genérico que mostrava "Erro inesperado"
         }
-
       });
     }
   }

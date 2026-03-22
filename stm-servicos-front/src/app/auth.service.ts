@@ -18,13 +18,23 @@ export class AuthService {
   usuario$ = this.usuarioSubject.asObservable();
 
   constructor(private http: HttpClient, private router: Router) {
-
     const token = this.getToken();
 
     if (token) {
-      this.iniciarTimerExpiracao(token);
-    }
+      try {
+        const payload: any = JSON.parse(atob(token.split('.')[1]));
+        const agora = Math.floor(Date.now() / 1000);
 
+        if (payload.exp && payload.exp < agora) {
+          // Token expirado — aguarda Angular inicializar antes de renovar
+          setTimeout(() => this.tentarRenovar(), 100);
+        } else {
+          this.iniciarTimerExpiracao(token);
+        }
+      } catch {
+        this.logout();
+      }
+    }
   }
 
   login(data: { usuario: string, senha: string }) {

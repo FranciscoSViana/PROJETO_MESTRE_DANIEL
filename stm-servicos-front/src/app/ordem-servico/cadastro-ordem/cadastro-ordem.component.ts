@@ -19,7 +19,6 @@ export class CadastroOrdemComponent implements OnInit {
 
   camposForm: FormGroup;
 
-  // Agora reativos
   contratosCliente$ = new BehaviorSubject<any[]>([]);
   credenciadosProximos$ = new BehaviorSubject<Credenciado[]>([]);
   tecnicosCredenciado: any[] = [];
@@ -73,27 +72,27 @@ export class CadastroOrdemComponent implements OnInit {
     });
   }
 
+  private ordenarCredenciados(lista: Credenciado[]): Credenciado[] {
+    return [...lista].sort((a, b) =>
+      (a.rag ?? '').localeCompare(b.rag ?? '', 'pt-BR', { sensitivity: 'base' })
+    );
+  }
+
   ngOnInit(): void {
     const idStr = this.route.snapshot.paramMap.get('id');
-
     const dadosCopia = history.state?.copiarDe;
 
     if (!idStr) {
       const now = new Date();
-
       const isoLocal = new Date(
         now.getTime() - now.getTimezoneOffset() * 60000
       ).toISOString().slice(0, 16);
 
-      this.camposForm.patchValue({
-        dataHoraAbertura: isoLocal
-      });
+      this.camposForm.patchValue({ dataHoraAbertura: isoLocal });
 
       this.service.buscarProximoOsg().subscribe({
         next: osg => {
           this.camposForm.patchValue({ osg, status: 'ABERTA' });
-
-          // ✅ NOVO: após ter o OSG, preenche com os dados copiados
           if (dadosCopia) {
             this.preencherComCopia(dadosCopia);
           }
@@ -106,7 +105,6 @@ export class CadastroOrdemComponent implements OnInit {
 
     this.service.buscarPorId(idStr).subscribe({
       next: os => {
-        // Observables de contratos e credenciados
         const contratos$ = os.cliente?.id
           ? this.clienteService.buscarPorId(os.cliente.id).pipe(
             map(cliente => cliente.contratos ?? []),
@@ -114,7 +112,7 @@ export class CadastroOrdemComponent implements OnInit {
           )
           : of([]);
 
-        console.log('OS', os)
+        console.log('OS', os);
 
         const credenciados$ = os.cliente?.endereco?.cep
           ? this.credenciadoService.buscarProximosPorCep(os.cliente.endereco.cep)
@@ -123,10 +121,8 @@ export class CadastroOrdemComponent implements OnInit {
 
         forkJoin([contratos$, credenciados$]).subscribe(([contratos, credenciados]) => {
 
-          // 1️⃣ Atualiza contratos ANTES
           this.contratosCliente$.next(contratos);
 
-          // 2️⃣ Atualiza credenciados
           const listaCredenciados = [...credenciados];
           if (os.credenciado && !listaCredenciados.find(c => c.id === os.credenciado?.id)) {
             listaCredenciados.push({
@@ -137,14 +133,10 @@ export class CadastroOrdemComponent implements OnInit {
           }
 
           console.log('Contrato salvo:', os.contrato?.id?.toString());
-          console.log(
-            'Contratos disponíveis:',
-            contratos.map(c => c.id!.toString())
-          );
+          console.log('Contratos disponíveis:', contratos.map(c => c.id!.toString()));
 
-          this.credenciadosProximos$.next(listaCredenciados);
+          this.credenciadosProximos$.next(this.ordenarCredenciados(listaCredenciados));
 
-          // 3️⃣ Patch geral (SEM contrato e técnico)
           this.camposForm.patchValue({
             id: os.id,
             osClt: os.osClt,
@@ -180,17 +172,14 @@ export class CadastroOrdemComponent implements OnInit {
             rastreio: os.rastreio
           });
 
-          // 4️⃣ Agora SIM seta contrato (lista já existe)
           if (os.contrato?.id) {
             this.camposForm.get('contratoId')?.setValue(os.contrato.id.toString());
           }
 
-          // 5️⃣ Carrega técnicos e seta técnico APÓS carregar
           if (os.credenciado?.id) {
             this.buscarTecnicosDoCredenciado(os.credenciado.id, os.tecnico?.id);
           }
         });
-
       },
       error: err => console.error('Erro ao buscar OS:', err)
     });
@@ -225,12 +214,11 @@ export class CadastroOrdemComponent implements OnInit {
 
         if (cliente.endereco?.cep) {
           this.cepCliente = cliente.endereco?.cep;
-
           const raioKm = this.camposForm.get('raioKm')?.value ?? 100;
 
           this.credenciadoService
             .buscarProximosPorCep(this.cepCliente, raioKm)
-            .subscribe(c => this.credenciadosProximos$.next(c));
+            .subscribe(c => this.credenciadosProximos$.next(this.ordenarCredenciados(c)));
         }
       });
   }
@@ -243,7 +231,6 @@ export class CadastroOrdemComponent implements OnInit {
       .pipe(catchError(() => { this.resetCredenciado(); return of(null); }))
       .subscribe(c => {
         if (!c) return;
-
         this.camposForm.patchValue({
           credenciadoId: c.id,
           nomeCredenciado: c.rag
@@ -317,7 +304,7 @@ export class CadastroOrdemComponent implements OnInit {
         estado: d.uf,
         complemento: d.complemento
       }),
-      error: () => console.error("CEP não encontrado")
+      error: () => console.error('CEP não encontrado')
     });
   }
 
@@ -326,7 +313,7 @@ export class CadastroOrdemComponent implements OnInit {
 
     this.camposForm.patchValue({
       credenciadoId,
-      tecnicoId: null // reseta técnico
+      tecnicoId: null
     });
 
     this.tecnicosCredenciado = [];
@@ -336,15 +323,12 @@ export class CadastroOrdemComponent implements OnInit {
     }
   }
 
-  // 🔥 ALTERAÇÃO: aceita tecnicoId opcional para edição
   buscarTecnicosDoCredenciado(credenciadoId: string, tecnicoId?: string) {
     this.credenciadoService
       .listarTecnicos(credenciadoId, 0, 50)
       .subscribe({
         next: page => {
           this.tecnicosCredenciado = page.content;
-
-          // 🔥 AGORA o select já tem options → setValue funciona
           if (tecnicoId) {
             this.camposForm.get('tecnicoId')?.setValue(tecnicoId);
           }
@@ -369,19 +353,15 @@ export class CadastroOrdemComponent implements OnInit {
     this.credenciadoService
       .buscarProximosPorCep(cep, raioKm)
       .subscribe({
-        next: c => this.credenciadosProximos$.next(c),
+        next: c => this.credenciadosProximos$.next(this.ordenarCredenciados(c)),
         error: () => this.credenciadosProximos$.next([])
       });
   }
 
   private toDatetimeLocal(date: string | Date): string {
-
     const d = new Date(date);
-
     const offset = d.getTimezoneOffset();
-
     const local = new Date(d.getTime() - offset * 60000);
-
     return local.toISOString().slice(0, 16);
   }
 
@@ -390,7 +370,6 @@ export class CadastroOrdemComponent implements OnInit {
   };
 
   private preencherComCopia(os: any): void {
-    // Dados básicos (OSG e status já foram setados pelo buscarProximoOsg)
     this.camposForm.patchValue({
       osClt: os.osClt,
       contato: os.contato,
@@ -402,8 +381,6 @@ export class CadastroOrdemComponent implements OnInit {
       pib: os.pib,
       defeito: os.defeito,
       rastreio: os.rastreio,
-
-      // Endereço
       logradouro: os.endereco?.logradouro,
       numero: os.endereco?.numero,
       bairro: os.endereco?.bairro,
@@ -413,7 +390,6 @@ export class CadastroOrdemComponent implements OnInit {
       complemento: os.endereco?.complemento,
     });
 
-    // Cliente: busca pelo ID e carrega contratos
     if (os.cliente?.id) {
       this.camposForm.patchValue({
         clienteId: os.cliente.id,
@@ -426,15 +402,12 @@ export class CadastroOrdemComponent implements OnInit {
         catchError(() => of([]))
       ).subscribe(contratos => {
         this.contratosCliente$.next(contratos);
-
-        // Seta contrato após a lista estar disponível
         if (os.contrato?.id) {
           this.camposForm.get('contratoId')?.setValue(os.contrato.id.toString());
         }
       });
     }
 
-    // Credenciado: carrega a lista pelo CEP e depois seta o valor
     const cep = os.endereco?.cep;
     const raioKm = this.camposForm.get('raioKm')?.value ?? 100;
 
@@ -442,7 +415,6 @@ export class CadastroOrdemComponent implements OnInit {
       this.credenciadoService.buscarProximosPorCep(cep, raioKm).pipe(
         catchError(() => of([] as Credenciado[]))
       ).subscribe(credenciados => {
-        // Garante que o credenciado copiado esteja na lista mesmo fora do raio
         const lista = [...credenciados];
         if (!lista.find(c => c.id === os.credenciado.id)) {
           lista.push({
@@ -452,10 +424,9 @@ export class CadastroOrdemComponent implements OnInit {
           });
         }
 
-        this.credenciadosProximos$.next(lista);
+        this.credenciadosProximos$.next(this.ordenarCredenciados(lista));
         this.camposForm.patchValue({ credenciadoId: os.credenciado.id });
 
-        // Técnico: carrega técnicos do credenciado e seta o valor
         if (os.tecnico?.id) {
           this.buscarTecnicosDoCredenciado(os.credenciado.id, os.tecnico.id);
         }
