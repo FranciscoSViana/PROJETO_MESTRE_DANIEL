@@ -97,6 +97,10 @@ public class PagamentoOS {
     @Column(name = "criado_em", insertable = false, updatable = false)
     private OffsetDateTime criadoEm;
 
+    @Column(name = "pago", nullable = false)
+    @Builder.Default
+    private boolean pago = false;
+
     // 🔥 Regra central de negócio
     public void calcularValorTotal() {
         this.valorTotal =

@@ -44,4 +44,6 @@ public class PagamentoOSOutput {
 
     private OffsetDateTime dataPagamento;
     private OffsetDateTime criadoEm;
+
+    private boolean pago;
 }

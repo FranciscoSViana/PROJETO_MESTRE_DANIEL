@@ -86,6 +86,8 @@ export class ConsultaOrdemComponent implements OnInit {
 
   uploadandoComprovante = false;
 
+  pagamentoModoEdicao = false; // ✅ novo controle
+
   constructor(
     private service: OrdemServicoService,
     private clienteService: ClienteService,
@@ -510,10 +512,9 @@ export class ConsultaOrdemComponent implements OnInit {
         catchError(() => of(null))   // OS sem solução → null
       )
     }).subscribe({
+      // dentro do forkJoin, no bloco next:
       next: ({ pagamento: pag, solucao }) => {
-
         if (pag) {
-          // Já tem pagamento salvo: sobrescreve tudo com os dados persistidos
           this.pagamento = {
             km: pag.km,
             valorChamado: pag.valorChamado,
@@ -528,14 +529,18 @@ export class ConsultaOrdemComponent implements OnInit {
             banco: pag.banco ?? '',
             urlComprovante: pag.urlComprovante ?? ''
           };
-        } else if (solucao) {
-          // Sem pagamento ainda: pré-preenche com os dados da solução
-          this.pagamento.km = solucao.km;
-          this.pagamento.pedagio = solucao.pedagio;
-          this.pagamento.estacionamento = solucao.estacionamento;
-          this.pagamento.valorOutros = solucao.outros;
+          // ✅ Já tem pagamento: abre em modo visualização
+          this.pagamentoModoEdicao = false;
+        } else {
+          if (solucao) {
+            this.pagamento.km = solucao.km;
+            this.pagamento.pedagio = solucao.pedagio;
+            this.pagamento.estacionamento = solucao.estacionamento;
+            this.pagamento.valorOutros = solucao.outros;
+          }
+          // ✅ Pagamento novo: já começa editável
+          this.pagamentoModoEdicao = true;
         }
-
         this.carregandoPagamento = false;
       },
       error: () => {
@@ -547,6 +552,7 @@ export class ConsultaOrdemComponent implements OnInit {
   fecharModalPagamento() {
     this.modalPagamentoAberto = false;
     this.pagamento = {};
+    this.pagamentoModoEdicao = false; // ✅ reset
   }
 
   salvarPagamento() {
@@ -564,18 +570,27 @@ export class ConsultaOrdemComponent implements OnInit {
       urlComprovante: this.pagamento.urlComprovante
     };
 
-    this.service.registrar(this.ordemPagamentoSelecionada.id, payload)
-      .subscribe({
-        next: () => {
-          alert('Pagamento salvo com sucesso!');
-          this.fecharModalPagamento();
-          this.carregarOrdens();
-        },
-        error: err => {
-          console.error(err);
-          alert('Erro ao salvar pagamento');
-        }
-      });
+    // ✅ Se já tem pagamento salvo (pago = true) usa PUT, senão POST
+    const chamada$ = this.pagamento.pago
+      ? this.service.editarPagamento(this.ordemPagamentoSelecionada.id, payload)
+      : this.service.registrar(this.ordemPagamentoSelecionada.id, payload);
+
+    chamada$.subscribe({
+      next: () => {
+        alert('Pagamento salvo com sucesso!');
+        this.pagamentoModoEdicao = false;
+        this.fecharModalPagamento();
+        this.carregarOrdens();
+      },
+      error: err => {
+        console.error(err);
+        alert('Erro ao salvar pagamento.');
+      }
+    });
+  }
+
+  habilitarEdicaoPagamento() {
+    this.pagamentoModoEdicao = true;
   }
 
   calcularTotalPreview(): number {

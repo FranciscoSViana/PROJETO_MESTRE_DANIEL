@@ -18,10 +18,7 @@ public class PagamentoOSController {
     private final PagamentoOSService pagamentoOSService;
 
     /**
-     * POST   /ordens-servico/{id}/pagamento  → cria ou atualiza o pagamento da OS
-     * <p>
-     * Idempotente: se já existe um pagamento para a OS, sobrescreve com os novos dados.
-     * O cálculo do valorTotal é sempre refeito pelo back-end.
+     * POST → cria o pagamento (só se ainda não foi pago)
      */
     @PostMapping
     public ResponseEntity<PagamentoOSOutput> registrar(
@@ -33,13 +30,25 @@ public class PagamentoOSController {
     }
 
     /**
-     * GET    /ordens-servico/{id}/pagamento  → retorna o pagamento da OS
+     * PUT → edita um pagamento já existente
+     */
+    @PutMapping
+    public ResponseEntity<PagamentoOSOutput> editar(
+            @PathVariable UUID ordemServicoId,
+            @Valid @RequestBody PagamentoOSInput input) {
+
+        PagamentoOSOutput output = pagamentoOSService.editar(ordemServicoId, input);
+        return ResponseEntity.ok(output);
+    }
+
+    /**
+     * GET → retorna o pagamento da OS (204 se ainda não existe)
      */
     @GetMapping
     public ResponseEntity<PagamentoOSOutput> buscar(@PathVariable UUID ordemServicoId) {
         return pagamentoOSService
                 .buscarPorOrdemServicoOpcional(ordemServicoId)
                 .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.noContent().build()); // 204 quando não existe ainda
+                .orElse(ResponseEntity.noContent().build());
     }
 }

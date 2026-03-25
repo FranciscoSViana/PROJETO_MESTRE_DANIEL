@@ -161,6 +161,13 @@ export class OrdemServicoService {
     return this.http.post(`${this.apiUrl}/api/ordens-servico/${ordemId}/pagamento`, payload);
   }
 
+  editarPagamento(ordemId: string, payload: any): Observable<any> {
+    return this.http.put(
+      `${this.apiUrl}/api/ordens-servico/${ordemId}/pagamento`,
+      payload
+    );
+  }
+
   // Adicionar também método GET para buscar pagamento existente:
   buscarPagamento(ordemId: string): Observable<any> {
     return this.http.get(`${this.apiUrl}/api/ordens-servico/${ordemId}/pagamento`);

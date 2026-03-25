@@ -52,4 +52,7 @@ public class PagamentoOSInput {
 
     // URL do comprovante após upload — o front faz o upload e manda a URL
     private String urlComprovante;
+
+    // Apenas usado no endpoint de edição para marcar como pago/não pago
+    private Boolean pago;
 }

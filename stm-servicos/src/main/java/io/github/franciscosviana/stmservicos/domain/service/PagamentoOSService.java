@@ -53,11 +53,59 @@ public class PagamentoOSService {
             throw new OrdemServicoException("A OS ainda não possui solução registrada.");
         }
 
+        // Impede re-registro se já foi pago — use o endpoint PUT para editar
+        pagamentoOSRepository.findByOrdemServicoId(ordemServicoId).ifPresent(p -> {
+            if (p.isPago()) {
+                throw new OrdemServicoException(
+                        "Este pagamento já foi registrado. Use o endpoint de edição para alterá-lo.");
+            }
+        });
+
         PagamentoOS pagamento = pagamentoOSRepository
                 .findByOrdemServicoId(ordemServicoId)
                 .orElse(new PagamentoOS());
 
-        // Valores vêm do credenciado
+        preencherPagamento(pagamento, os, solucao, input);
+
+        // Primeiro registro: marca como pago
+        pagamento.setPago(true);
+
+        pagamentoOSRepository.save(pagamento);
+        return pagamentoOSOutputAssembler.toModel(pagamento);
+    }
+
+    @Transactional
+    public PagamentoOSOutput editar(UUID ordemServicoId, PagamentoOSInput input) {
+
+        OrdemServico os = ordemServicoRepository.buscarCompleta(ordemServicoId)
+                .orElseThrow(() -> new OrdemServicoException("Ordem de Serviço não encontrada"));
+
+        SolucaoOS solucao = os.getSolucao();
+        if (solucao == null) {
+            throw new OrdemServicoException("A OS ainda não possui solução registrada.");
+        }
+
+        PagamentoOS pagamento = pagamentoOSRepository
+                .findByOrdemServicoId(ordemServicoId)
+                .orElseThrow(() -> new OrdemServicoException(
+                        "Nenhum pagamento encontrado para edição. Registre o pagamento primeiro."));
+
+        preencherPagamento(pagamento, os, solucao, input);
+
+        // Mantém pago = true; permite alterar via campo explícito se necessário
+        if (input.getPago() != null) {
+            pagamento.setPago(input.getPago());
+        }
+
+        pagamentoOSRepository.save(pagamento);
+        return pagamentoOSOutputAssembler.toModel(pagamento);
+    }
+
+// ── Helper compartilhado ──────────────────────────────────────────────────
+
+    private void preencherPagamento(PagamentoOS pagamento, OrdemServico os,
+                                    SolucaoOS solucao, PagamentoOSInput input) {
+
         BigDecimal valorChamado = resolverValor(
                 os.getCredenciado() != null ? os.getCredenciado().getValorChamado() : null,
                 "valorChamado", os.getOsg()
@@ -67,13 +115,11 @@ public class PagamentoOSService {
                 "valorKm", os.getOsg()
         );
 
-        // Valores vêm da solução da OS
         BigDecimal km = nvl(solucao.getKm());
         BigDecimal pedagio = nvl(solucao.getPedagio());
         BigDecimal estacionamento = nvl(solucao.getEstacionamento());
         BigDecimal valorOutros = nvl(solucao.getOutros());
 
-        // valorTotal = chamado + (km × valorKm) + pedágio + estacionamento + outros
         BigDecimal totalKm = km.multiply(valorKm);
         BigDecimal valorTotal = valorChamado
                 .add(totalKm)
@@ -82,40 +128,42 @@ public class PagamentoOSService {
                 .add(valorOutros);
 
         log.info("[PagamentoOS] OS={} | chamado={} | km={}×{}={} | pedágio={} | estac={} | outros={} | TOTAL={}",
-                os.getOsg(), valorChamado, km, valorKm, totalKm, pedagio, estacionamento, valorOutros, valorTotal);
+                os.getOsg(), valorChamado, km, valorKm, totalKm,
+                pedagio, estacionamento, valorOutros, valorTotal);
 
-        // Snapshot da OS
+        // Snapshot
         pagamento.setOrdemServico(os);
         pagamento.setOsClt(os.getOsClt());
         pagamento.setOsg(os.getOsg());
         pagamento.setCliente(os.getCliente() != null ? os.getCliente().getNome() : null);
-        pagamento.setContrato(os.getContrato() != null ? String.valueOf(os.getContrato().getId()) : null);
+        pagamento.setContrato(os.getContrato() != null
+                ? String.valueOf(os.getContrato().getId()) : null);
 
-        // Valores calculados
+        // Valores
         pagamento.setValorChamado(valorChamado);
         pagamento.setKm(km);
         pagamento.setValorKm(valorKm);
         pagamento.setPedagio(pedagio);
         pagamento.setEstacionamento(estacionamento);
-        pagamento.setOutros(solucao.getOutros() != null ? solucao.getOutros().toPlainString() : null);
+        pagamento.setOutros(solucao.getOutros() != null
+                ? solucao.getOutros().toPlainString() : null);
         pagamento.setValorOutros(valorOutros);
         pagamento.setValorTotal(valorTotal);
 
-        // Dados de pagamento — vêm do input do usuário
+        // Dados do usuário
         pagamento.setLote(input.getLote());
         pagamento.setCpfNf(input.getCpfNf());
         pagamento.setTipoPagamento(input.getTipoPagamento());
         pagamento.setBanco(input.getBanco());
         pagamento.setDataPagamento(
-                input.getDataPagamento() != null ? input.getDataPagamento() : OffsetDateTime.now()
+                input.getDataPagamento() != null
+                        ? input.getDataPagamento()
+                        : OffsetDateTime.now()
         );
 
         if (input.getUrlComprovante() != null && !input.getUrlComprovante().isBlank()) {
             pagamento.setUrlComprovante(input.getUrlComprovante());
         }
-
-        pagamentoOSRepository.save(pagamento);
-        return pagamentoOSOutputAssembler.toModel(pagamento);
     }
 
     public PagamentoOSOutput buscarPorOrdemServico(UUID ordemServicoId) {

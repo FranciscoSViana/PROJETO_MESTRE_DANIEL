@@ -33,6 +33,8 @@ public class PagamentoOSOutputAssembler {
                 .urlComprovante(p.getUrlComprovante())
                 .dataPagamento(p.getDataPagamento())
                 .criadoEm(p.getCriadoEm())
+                // ✅ pago = true sempre que o registro existir no banco
+                .pago(p.isPago())  // ← usa o campo real, não mais p.getId() != null
                 .build();
     }
 
