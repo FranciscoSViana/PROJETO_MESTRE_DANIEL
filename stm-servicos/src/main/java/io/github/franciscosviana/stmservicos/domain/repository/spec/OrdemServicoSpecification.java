@@ -138,11 +138,11 @@ public class OrdemServicoSpecification {
 
     /**
      * Tenta parsear a data nos formatos abaixo, nesta ordem de prioridade:
-     *
-     *  1. yyyy-MM-dd  → padrão ISO enviado pelo Angular após conversão no TS
-     *  2. dd/MM/yyyy  → formato BR com barras
-     *  3. ddMMyyyy    → formato BR sem separador (8 dígitos)
-     *
+     * <p>
+     * 1. yyyy-MM-dd  → padrão ISO enviado pelo Angular após conversão no TS
+     * 2. dd/MM/yyyy  → formato BR com barras
+     * 3. ddMMyyyy    → formato BR sem separador (8 dígitos)
+     * <p>
      * Retorna null para qualquer entrada inválida ou incompleta.
      */
     private static LocalDate parsearData(String valor) {

@@ -10,6 +10,8 @@ import java.util.Optional;
 public interface SenhaResetTokenRepository extends JpaRepository<SenhaResetToken, Long> {
 
     void deleteByUsuario(Usuario usuario);
+
     void deleteByExpiryDateBefore(Instant now);
+
     Optional<SenhaResetToken> findByToken(String token);
 }

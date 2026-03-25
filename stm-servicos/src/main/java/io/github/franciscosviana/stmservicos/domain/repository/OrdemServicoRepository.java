@@ -14,21 +14,21 @@ import java.util.UUID;
 public interface OrdemServicoRepository extends JpaRepository<OrdemServico, UUID>, JpaSpecificationExecutor<OrdemServico> {
 
     @Query("""
-    SELECT o.osg
-    FROM OrdemServico o
-    WHERE o.osg LIKE 'OSG%'
-    ORDER BY o.osg DESC
-""")
+                SELECT o.osg
+                FROM OrdemServico o
+                WHERE o.osg LIKE 'OSG%'
+                ORDER BY o.osg DESC
+            """)
     List<String> findLastOsg(PageRequest pageRequest);
 
     @Query("""
-        select os from OrdemServico os
-        join fetch os.cliente c
-        left join fetch c.contratos
-        left join fetch os.contrato
-        left join fetch os.credenciado
-        left join fetch os.tecnico
-        where os.id = :id
-    """)
+                select os from OrdemServico os
+                join fetch os.cliente c
+                left join fetch c.contratos
+                left join fetch os.contrato
+                left join fetch os.credenciado
+                left join fetch os.tecnico
+                where os.id = :id
+            """)
     Optional<OrdemServico> buscarCompleta(@Param("id") UUID id);
 }

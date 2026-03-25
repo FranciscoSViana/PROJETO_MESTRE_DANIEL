@@ -10,5 +10,6 @@ import java.util.UUID;
 public interface HistoricoSenhaRepository extends JpaRepository<HistoricoSenha, UUID> {
 
     void deleteAllByUsuarioId(Usuario usuario);
+
     List<HistoricoSenha> findTop5ByUsuarioIdOrderByCriadaEmDesc(Usuario usuarioId);
 }

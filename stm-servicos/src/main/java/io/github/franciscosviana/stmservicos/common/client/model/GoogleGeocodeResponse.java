@@ -1,6 +1,7 @@
 package io.github.franciscosviana.stmservicos.common.client.model;
 
 import lombok.Data;
+
 import java.util.List;
 
 @Data

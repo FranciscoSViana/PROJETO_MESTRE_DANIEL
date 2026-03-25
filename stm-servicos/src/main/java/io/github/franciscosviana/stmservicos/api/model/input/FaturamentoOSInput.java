@@ -1,10 +1,5 @@
 package io.github.franciscosviana.stmservicos.api.model.input;
 
-import io.github.franciscosviana.stmservicos.domain.model.OrdemServico;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToOne;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

@@ -10,7 +10,6 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -32,7 +31,7 @@ public class CredenciadoTecnicoController {
 
     @GetMapping("/{credenciadoId}/tecnicos")
     public Page<TecnicoOutput> listarTecnicos(@PathVariable UUID credenciadoId, @PageableDefault Pageable pageable) {
-        return tecnicoService.listarPorCredenciado(credenciadoId,  pageable);
+        return tecnicoService.listarPorCredenciado(credenciadoId, pageable);
     }
 
     @GetMapping("/tecnicos/{tecnicoId}")

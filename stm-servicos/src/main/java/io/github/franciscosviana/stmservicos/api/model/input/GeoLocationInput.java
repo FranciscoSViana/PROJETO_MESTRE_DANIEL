@@ -1,6 +1,5 @@
 package io.github.franciscosviana.stmservicos.api.model.input;
 
-import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

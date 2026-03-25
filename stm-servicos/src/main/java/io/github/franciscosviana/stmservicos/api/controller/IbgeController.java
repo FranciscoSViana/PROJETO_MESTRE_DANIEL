@@ -19,12 +19,12 @@ public class IbgeController {
     private final IbgeService ibgeService;
 
     @GetMapping("/estados")
-    public List<EstadoOutput> listarEstados(){
+    public List<EstadoOutput> listarEstados() {
         return ibgeService.listarEstados();
     }
 
     @GetMapping("/estados/{uf}/municipios")
-    public List<MunicipioOutput>  listarMunicipios(@PathVariable String uf){
+    public List<MunicipioOutput> listarMunicipios(@PathVariable String uf) {
         return ibgeService.listarMunicipios(uf);
     }
 }
