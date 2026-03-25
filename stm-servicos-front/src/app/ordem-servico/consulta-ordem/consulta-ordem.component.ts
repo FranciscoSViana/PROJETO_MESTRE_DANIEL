@@ -8,6 +8,7 @@ import { Router } from '@angular/router';
 import { Solucao } from '../../solucao/solucao';
 import { SolucaoService } from '../../solucao/solucao.service';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-consulta-ordem',
@@ -41,6 +42,8 @@ export class ConsultaOrdemComponent implements OnInit {
   modalVisualizarSolucao = false;
   solucaoVisualizacao?: Solucao;
 
+  exportMenuOSAberto?: string;
+
   modalEmail = false;
   textoEmailFormatado!: SafeHtml;
 
@@ -59,6 +62,29 @@ export class ConsultaOrdemComponent implements OnInit {
   statusRastreioSelecionado?: string;
 
   copiarAposFinalizarOS: boolean = false;
+
+  menuPagamentoAberto?: string;
+  modalPagamentoAberto = false;
+  ordemPagamentoSelecionada?: OrdemServico;
+
+  pagamento: any = {
+    km: null,
+    valorChamado: null,
+    valorKm: null,
+    pedagio: null,
+    estacionamento: null,
+    outros: '',
+    valorOutros: null,
+    lote: '',
+    cpfNf: '',
+    tipoPagamento: '',
+    banco: '',
+    urlComprovante: ''
+  };
+
+  carregandoPagamento = false;
+
+  uploadandoComprovante = false;
 
   constructor(
     private service: OrdemServicoService,
@@ -431,5 +457,137 @@ export class ConsultaOrdemComponent implements OnInit {
         alert('Erro ao gerar relatório da OS.');
       }
     });
+  }
+
+  toggleExportMenuOS(id: string) {
+    this.exportMenuOSAberto = this.exportMenuOSAberto === id ? undefined : id;
+  }
+
+  fecharExportMenuOS() {
+    this.exportMenuOSAberto = undefined;
+  }
+
+  togglePagamentoMenu(os: OrdemServico) {
+    this.menuPagamentoAberto =
+      this.menuPagamentoAberto === os.id ? undefined : os.id;
+  }
+
+  fecharMenuPagamento() {
+    this.menuPagamentoAberto = undefined;
+  }
+
+  abrirModalPagamento(os: OrdemServico) {
+    this.ordemPagamentoSelecionada = os;
+    this.pagamento = {
+      km: null, valorChamado: null, valorKm: null,
+      pedagio: null, estacionamento: null, outros: '',
+      valorOutros: null, lote: '', cpfNf: '',
+      tipoPagamento: '', banco: '', urlComprovante: ''
+    };
+    this.carregandoPagamento = true;
+    this.modalPagamentoAberto = true;
+
+    const clienteId = os.cliente?.id;
+    if (clienteId) {
+      this.clienteService.buscarPorId(clienteId).subscribe({
+        next: (cliente) => {
+          if (cliente.valorChamado != null)
+            this.pagamento.valorChamado = cliente.valorChamado;
+          if (cliente.valorKm != null)
+            this.pagamento.valorKm = cliente.valorKm;
+          this.carregandoPagamento = false;
+        },
+        error: () => { this.carregandoPagamento = false; }
+      });
+    } else {
+      this.carregandoPagamento = false;
+    }
+
+    this.service.buscarPagamento(os.id!).subscribe({
+      next: (pag) => {
+        if (!pag) return; // 204 — OS sem pagamento ainda, mantém defaults do cliente
+        this.pagamento = {
+          km: pag.km,
+          valorChamado: pag.valorChamado,
+          valorKm: pag.valorKm,
+          pedagio: pag.pedagio,
+          estacionamento: pag.estacionamento,
+          outros: pag.outros ?? '',
+          valorOutros: pag.valorOutros,
+          lote: pag.lote ?? '',
+          cpfNf: pag.cpfNf ?? '',
+          tipoPagamento: pag.tipoPagamento ?? '',
+          banco: pag.banco ?? '',
+          urlComprovante: pag.urlComprovante ?? ''
+        };
+      },
+      error: () => { } // silencia erros inesperados
+    });
+  }
+
+  fecharModalPagamento() {
+    this.modalPagamentoAberto = false;
+    this.pagamento = {};
+  }
+
+  salvarPagamento() {
+    if (!this.ordemPagamentoSelecionada?.id) return;
+
+    if (!this.pagamento.tipoPagamento) {
+      alert('Selecione o tipo de pagamento.');
+      return;
+    }
+
+    const payload = { ...this.pagamento };
+    if (!payload.contratoId) delete payload.contratoId;
+
+    this.service
+      .registrar(this.ordemPagamentoSelecionada.id, payload)
+      .subscribe({
+        next: () => {
+          alert('Pagamento salvo com sucesso!');
+          this.fecharModalPagamento();
+          this.carregarOrdens();
+        },
+        error: err => {
+          console.error(err);
+          alert('Erro ao salvar pagamento');
+        }
+      });
+  }
+
+  calcularTotalPreview(): number {
+    const p = this.pagamento;
+
+    return (p.valorChamado || 0) +
+      ((p.km || 0) * (p.valorKm || 0)) +
+      (p.pedagio || 0) +
+      (p.estacionamento || 0) +
+      (p.valorOutros || 0);
+  }
+
+  // No componente, ao selecionar o arquivo:
+  async uploadComprovante(event: Event) {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (!file) return;
+
+    this.uploadandoComprovante = true;
+
+    this.service.uploadComprovante(file).subscribe({
+      next: (url) => {
+        this.pagamento.urlComprovante = url;
+        this.uploadandoComprovante = false;
+      },
+      error: () => {
+        alert('Erro ao fazer upload do comprovante.');
+        this.uploadandoComprovante = false;
+      }
+    });
+  }
+
+  async downloadComprovante() {
+    const url = this.pagamento.urlComprovante as string;
+    if (!url) return;
+    window.open(url, '_blank');
   }
 }

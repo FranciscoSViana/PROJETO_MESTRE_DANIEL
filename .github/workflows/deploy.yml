@@ -89,6 +89,11 @@ jobs:
       # ✅ Build da imagem Frontend
       - name: Build da imagem Docker (Frontend)
         run: |
+        # Substitui os placeholders no environment.prod.ts antes do build
+          sed -i "s|#{CLOUDINARY_CLOUD_NAME}#|${{ secrets.CLOUDINARY_CLOUD_NAME }}|g" \
+          stm-servicos-front/src/environments/environment.prod.ts
+          sed -i "s|#{CLOUDINARY_UPLOAD_PRESET}#|${{ secrets.CLOUDINARY_UPLOAD_PRESET }}|g" \
+          stm-servicos-front/src/environments/environment.prod.ts
           docker build --no-cache -t ${{ secrets.DOCKER_USERNAME }}/guardian-front:latest ./stm-servicos-front
 
       # ✅ Push da imagem no Docker Hub

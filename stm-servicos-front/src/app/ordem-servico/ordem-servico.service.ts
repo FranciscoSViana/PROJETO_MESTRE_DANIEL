@@ -156,4 +156,23 @@ export class OrdemServicoService {
       { responseType: 'blob' }
     );
   }
+
+  registrar(ordemId: string, payload: any) {
+    return this.http.post(`${this.apiUrl}/api/ordens-servico/${ordemId}/pagamento`, payload);
+  }
+
+  // Adicionar também método GET para buscar pagamento existente:
+  buscarPagamento(ordemId: string): Observable<any> {
+    return this.http.get(`${this.apiUrl}/api/ordens-servico/${ordemId}/pagamento`);
+  }
+
+  uploadComprovante(file: File): Observable<string> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post(
+      `${this.apiUrl}/api/uploads/comprovante`,
+      formData,
+      { responseType: 'text' }
+    );
+  }
 }

@@ -36,6 +36,13 @@ brevo:
 google:
   maps:
     api-key: ${GOOGLE_MAPS}
+
+aws:
+  access-key: ${AWS_ACCESS_KEY}
+  secret-key: ${AWS_SECRET_KEY}
+  region: ${AWS_REGION:us-east-1}
+  bucket: ${AWS_BUCKET}
+
 app:
   frontend:
     reset-url: ${TOKEN_URL}
