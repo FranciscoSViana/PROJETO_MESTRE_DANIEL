@@ -15,7 +15,7 @@ public class CorsConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
 
-        corsConfiguration.setAllowedOrigins(List.of("http://localhost:4200", "https://projeto-mestre-daniel-gyn2qcqwu.vercel.app", "https://guardian-front-356067300836.southamerica-east1.run.app"));
+        corsConfiguration.setAllowedOriginPatterns(List.of("http://localhost:4200", "https://projeto-mestre-daniel-*.vercel.app", "https://guardian-front-356067300836.southamerica-east1.run.app"));
         corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         corsConfiguration.setAllowedHeaders(List.of("*"));
         corsConfiguration.setAllowCredentials(true);
