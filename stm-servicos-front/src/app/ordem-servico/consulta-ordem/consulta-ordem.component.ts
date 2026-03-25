@@ -3,7 +3,7 @@ import { OrdemServico } from '../ordem-servico';
 import { OrdemServicoService } from '../ordem-servico.service';
 import { ClienteService } from '../../clientes/cliente.service';
 import { CredenciadoService } from '../../credenciados/credenciado.service';
-import { debounceTime, forkJoin, map, Subject } from 'rxjs';
+import { catchError, debounceTime, forkJoin, map, of, Subject } from 'rxjs';
 import { Router } from '@angular/router';
 import { Solucao } from '../../solucao/solucao';
 import { SolucaoService } from '../../solucao/solucao.service';
@@ -487,41 +487,60 @@ export class ConsultaOrdemComponent implements OnInit {
     this.carregandoPagamento = true;
     this.modalPagamentoAberto = true;
 
-    const clienteId = os.cliente?.id;
-    if (clienteId) {
-      this.clienteService.buscarPorId(clienteId).subscribe({
-        next: (cliente) => {
-          if (cliente.valorChamado != null)
-            this.pagamento.valorChamado = cliente.valorChamado;
-          if (cliente.valorKm != null)
-            this.pagamento.valorKm = cliente.valorKm;
-          this.carregandoPagamento = false;
+    // 1️⃣ Valores padrão do credenciado
+    const credenciadoId = os.credenciado?.id;
+    if (credenciadoId) {
+      this.credenciadoService.buscarPorId(credenciadoId).subscribe({
+        next: (credenciado) => {
+          if (credenciado.valorChamado != null)
+            this.pagamento.valorChamado = credenciado.valorChamado;
+          if (credenciado.valorKm != null)
+            this.pagamento.valorKm = credenciado.valorKm;
         },
-        error: () => { this.carregandoPagamento = false; }
+        error: () => { }
       });
-    } else {
-      this.carregandoPagamento = false;
     }
 
-    this.service.buscarPagamento(os.id!).subscribe({
-      next: (pag) => {
-        if (!pag) return; // 204 — OS sem pagamento ainda, mantém defaults do cliente
-        this.pagamento = {
-          km: pag.km,
-          valorChamado: pag.valorChamado,
-          valorKm: pag.valorKm,
-          pedagio: pag.pedagio,
-          estacionamento: pag.estacionamento,
-          outros: pag.outros ?? '',
-          valorOutros: pag.valorOutros,
-          lote: pag.lote ?? '',
-          cpfNf: pag.cpfNf ?? '',
-          tipoPagamento: pag.tipoPagamento ?? '',
-          banco: pag.banco ?? '',
-          urlComprovante: pag.urlComprovante ?? ''
-        };
+    // 2️⃣ Pagamento existente + Solução da OS em paralelo
+    forkJoin({
+      pagamento: this.service.buscarPagamento(os.id!).pipe(
+        catchError(() => of(null))   // 204 ou erro → null
+      ),
+      solucao: this.solucaoService.buscarPorOrdem(os.id!).pipe(
+        catchError(() => of(null))   // OS sem solução → null
+      )
+    }).subscribe({
+      next: ({ pagamento: pag, solucao }) => {
+
+        if (pag) {
+          // Já tem pagamento salvo: sobrescreve tudo com os dados persistidos
+          this.pagamento = {
+            km: pag.km,
+            valorChamado: pag.valorChamado,
+            valorKm: pag.valorKm,
+            pedagio: pag.pedagio,
+            estacionamento: pag.estacionamento,
+            outros: pag.outros ?? '',
+            valorOutros: pag.valorOutros,
+            lote: pag.lote ?? '',
+            cpfNf: pag.cpfNf ?? '',
+            tipoPagamento: pag.tipoPagamento ?? '',
+            banco: pag.banco ?? '',
+            urlComprovante: pag.urlComprovante ?? ''
+          };
+        } else if (solucao) {
+          // Sem pagamento ainda: pré-preenche com os dados da solução
+          this.pagamento.km = solucao.km;
+          this.pagamento.pedagio = solucao.pedagio;
+          this.pagamento.estacionamento = solucao.estacionamento;
+          this.pagamento.valorOutros = solucao.outros;
+        }
+
+        this.carregandoPagamento = false;
       },
-      error: () => { } // silencia erros inesperados
+      error: () => {
+        this.carregandoPagamento = false;
+      }
     });
   }
 
@@ -574,9 +593,15 @@ export class ConsultaOrdemComponent implements OnInit {
     const file = (event.target as HTMLInputElement).files?.[0];
     if (!file) return;
 
+    const osg = this.ordemPagamentoSelecionada?.osg;
+    if (!osg) {
+      alert('OSG não encontrada para nomear o comprovante.');
+      return;
+    }
+
     this.uploadandoComprovante = true;
 
-    this.service.uploadComprovante(file).subscribe({
+    this.service.uploadComprovante(file, osg).subscribe({
       next: (url) => {
         this.pagamento.urlComprovante = url;
         this.uploadandoComprovante = false;
@@ -584,6 +609,23 @@ export class ConsultaOrdemComponent implements OnInit {
       error: () => {
         alert('Erro ao fazer upload do comprovante.');
         this.uploadandoComprovante = false;
+      }
+    });
+  }
+
+  removerComprovante() {
+    const url = this.pagamento.urlComprovante;
+    if (!url) return;
+
+    this.service.deletarComprovante(url).subscribe({
+      next: () => {
+        this.pagamento.urlComprovante = '';
+      },
+      error: () => {
+        // Mesmo com erro no S3, limpa o campo localmente
+        // para não bloquear o usuário
+        this.pagamento.urlComprovante = '';
+        console.warn('Arquivo pode não ter sido removido do S3.');
       }
     });
   }

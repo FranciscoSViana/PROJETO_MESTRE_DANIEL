@@ -4,11 +4,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
-
-import java.io.InputStream;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -19,9 +17,14 @@ public class S3Service {
     @Value("${aws.bucket}")
     private String bucket;
 
-    public String upload(MultipartFile file) {
+    /**
+     * Faz upload do comprovante com nome baseado na OSG.
+     * Formato: comprovantes/OSG-000001.pdf (ou .jpg, etc.)
+     */
+    public String upload(MultipartFile file, String osg) {
         try {
-            String fileName = "comprovantes/" + UUID.randomUUID() + "-" + file.getOriginalFilename();
+            String extensao = obterExtensao(file.getOriginalFilename());
+            String fileName = "comprovantes/" + osg + extensao;
 
             PutObjectRequest request = PutObjectRequest.builder()
                     .bucket(bucket)
@@ -29,15 +32,36 @@ public class S3Service {
                     .contentType(file.getContentType())
                     .build();
 
-            InputStream inputStream = file.getInputStream();
-
             s3Client.putObject(request,
-                    software.amazon.awssdk.core.sync.RequestBody.fromInputStream(inputStream, file.getSize()));
+                    RequestBody.fromInputStream(file.getInputStream(), file.getSize()));
 
             return "https://" + bucket + ".s3.amazonaws.com/" + fileName;
 
         } catch (Exception e) {
             throw new RuntimeException("Erro ao fazer upload para S3", e);
         }
+    }
+
+    /**
+     * Remove o arquivo do bucket a partir da URL pública.
+     */
+    public void deletar(String url) {
+        try {
+            String prefix = "https://" + bucket + ".s3.amazonaws.com/";
+            if (!url.startsWith(prefix)) {
+                throw new RuntimeException("URL não pertence ao bucket configurado: " + url);
+            }
+            String key = url.substring(prefix.length());
+
+            s3Client.deleteObject(builder -> builder.bucket(bucket).key(key));
+
+        } catch (Exception e) {
+            throw new RuntimeException("Erro ao excluir arquivo do S3", e);
+        }
+    }
+
+    private String obterExtensao(String nomeArquivo) {
+        if (nomeArquivo == null || !nomeArquivo.contains(".")) return "";
+        return nomeArquivo.substring(nomeArquivo.lastIndexOf(".")).toLowerCase();
     }
 }

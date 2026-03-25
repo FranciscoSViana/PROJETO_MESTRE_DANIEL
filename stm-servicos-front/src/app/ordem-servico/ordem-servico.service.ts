@@ -166,13 +166,20 @@ export class OrdemServicoService {
     return this.http.get(`${this.apiUrl}/api/ordens-servico/${ordemId}/pagamento`);
   }
 
-  uploadComprovante(file: File): Observable<string> {
+  uploadComprovante(file: File, osg: string): Observable<string> {
     const formData = new FormData();
     formData.append('file', file);
     return this.http.post(
-      `${this.apiUrl}/api/uploads/comprovante`,
+      `${this.apiUrl}/api/uploads/comprovante?osg=${encodeURIComponent(osg)}`,
       formData,
       { responseType: 'text' }
+    );
+  }
+
+  deletarComprovante(url: string): Observable<void> {
+    return this.http.delete<void>(
+      `${this.apiUrl}/api/uploads/comprovante`,
+      { params: { url } }
     );
   }
 }
