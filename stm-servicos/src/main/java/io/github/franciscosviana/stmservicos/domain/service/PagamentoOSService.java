@@ -6,6 +6,7 @@ import io.github.franciscosviana.stmservicos.api.model.output.PagamentoOSOutput;
 import io.github.franciscosviana.stmservicos.common.validation.OrdemServicoException;
 import io.github.franciscosviana.stmservicos.domain.model.OrdemServico;
 import io.github.franciscosviana.stmservicos.domain.model.PagamentoOS;
+import io.github.franciscosviana.stmservicos.domain.model.SolucaoOS;
 import io.github.franciscosviana.stmservicos.domain.repository.OrdemServicoRepository;
 import io.github.franciscosviana.stmservicos.domain.repository.PagamentoOSRepository;
 import jakarta.transaction.Transactional;
@@ -47,31 +48,30 @@ public class PagamentoOSService {
         OrdemServico os = ordemServicoRepository.buscarCompleta(ordemServicoId)
                 .orElseThrow(() -> new OrdemServicoException("Ordem de Serviço não encontrada"));
 
-        // Busca pagamento existente ou cria novo
+        SolucaoOS solucao = os.getSolucao();
+        if (solucao == null) {
+            throw new OrdemServicoException("A OS ainda não possui solução registrada.");
+        }
+
         PagamentoOS pagamento = pagamentoOSRepository
                 .findByOrdemServicoId(ordemServicoId)
                 .orElse(new PagamentoOS());
 
-        // Resolve valorChamado: input > cliente
+        // Valores vêm do credenciado
         BigDecimal valorChamado = resolverValor(
-                input.getValorChamado(),
-                os.getCliente() != null ? os.getCliente().getValorChamado() : null,
-                "valorChamado",
-                os.getOsg()
+                os.getCredenciado() != null ? os.getCredenciado().getValorChamado() : null,
+                "valorChamado", os.getOsg()
         );
-
-        // Resolve valorKm: input > cliente
         BigDecimal valorKm = resolverValor(
-                input.getValorKm(),
-                os.getCliente() != null ? os.getCliente().getValorKm() : null,
-                "valorKm",
-                os.getOsg()
+                os.getCredenciado() != null ? os.getCredenciado().getValorKm() : null,
+                "valorKm", os.getOsg()
         );
 
-        BigDecimal km = nvl(input.getKm());
-        BigDecimal pedagio = nvl(input.getPedagio());
-        BigDecimal estacionamento = nvl(input.getEstacionamento());
-        BigDecimal valorOutros = nvl(input.getValorOutros());
+        // Valores vêm da solução da OS
+        BigDecimal km = nvl(solucao.getKm());
+        BigDecimal pedagio = nvl(solucao.getPedagio());
+        BigDecimal estacionamento = nvl(solucao.getEstacionamento());
+        BigDecimal valorOutros = nvl(solucao.getOutros());
 
         // valorTotal = chamado + (km × valorKm) + pedágio + estacionamento + outros
         BigDecimal totalKm = km.multiply(valorKm);
@@ -84,24 +84,24 @@ public class PagamentoOSService {
         log.info("[PagamentoOS] OS={} | chamado={} | km={}×{}={} | pedágio={} | estac={} | outros={} | TOTAL={}",
                 os.getOsg(), valorChamado, km, valorKm, totalKm, pedagio, estacionamento, valorOutros, valorTotal);
 
-        // Preenche dados desnormalizados da OS
+        // Snapshot da OS
         pagamento.setOrdemServico(os);
         pagamento.setOsClt(os.getOsClt());
         pagamento.setOsg(os.getOsg());
         pagamento.setCliente(os.getCliente() != null ? os.getCliente().getNome() : null);
         pagamento.setContrato(os.getContrato() != null ? String.valueOf(os.getContrato().getId()) : null);
 
-        // Preenche valores
+        // Valores calculados
         pagamento.setValorChamado(valorChamado);
         pagamento.setKm(km);
         pagamento.setValorKm(valorKm);
         pagamento.setPedagio(pedagio);
         pagamento.setEstacionamento(estacionamento);
-        pagamento.setOutros(input.getOutros());
+        pagamento.setOutros(solucao.getOutros() != null ? solucao.getOutros().toPlainString() : null);
         pagamento.setValorOutros(valorOutros);
         pagamento.setValorTotal(valorTotal);
 
-        // Preenche dados de pagamento
+        // Dados de pagamento — vêm do input do usuário
         pagamento.setLote(input.getLote());
         pagamento.setCpfNf(input.getCpfNf());
         pagamento.setTipoPagamento(input.getTipoPagamento());
@@ -110,15 +110,11 @@ public class PagamentoOSService {
                 input.getDataPagamento() != null ? input.getDataPagamento() : OffsetDateTime.now()
         );
 
-        // Comprovante: o front faz o upload (S3, Cloudinary, imgbb, etc.)
-        // e manda apenas a URL resultante neste campo.
-        // Caso o front ainda não tenha enviado o arquivo, mantém a URL anterior.
         if (input.getUrlComprovante() != null && !input.getUrlComprovante().isBlank()) {
             pagamento.setUrlComprovante(input.getUrlComprovante());
         }
 
         pagamentoOSRepository.save(pagamento);
-
         return pagamentoOSOutputAssembler.toModel(pagamento);
     }
 
@@ -145,15 +141,9 @@ public class PagamentoOSService {
      * Retorna o valor do input se não nulo; caso contrário usa o padrão do cliente.
      * Loga um aviso se nenhum dos dois estiver disponível e retorna ZERO.
      */
-    private BigDecimal resolverValor(BigDecimal fromInput, BigDecimal fromCliente,
-                                     String campo, String osg) {
-        if (fromInput != null) return fromInput;
-        if (fromCliente != null) {
-            log.debug("[PagamentoOS] OS={} | {} não informado no input, usando valor do cliente: {}",
-                    osg, campo, fromCliente);
-            return fromCliente;
-        }
-        log.warn("[PagamentoOS] OS={} | {} não informado e cliente não possui valor padrão. Usando ZERO.", osg, campo);
+    private BigDecimal resolverValor(BigDecimal valor, String campo, String osg) {
+        if (valor != null) return valor;
+        log.warn("[PagamentoOS] OS={} | {} não encontrado no credenciado. Usando ZERO.", osg, campo);
         return BigDecimal.ZERO;
     }
 

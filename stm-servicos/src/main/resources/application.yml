@@ -38,8 +38,8 @@ google:
     api-key: ${GOOGLE_MAPS}
 
 aws:
-  access-key: ${AWS_ACCESS_KEY}
-  secret-key: ${AWS_SECRET_KEY}
+  access-key: AKIAU6GD3JUJ5BHZURTK
+  secret-key: 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
   region: ${AWS_REGION:us-east-1}
   bucket: ${AWS_BUCKET}
 

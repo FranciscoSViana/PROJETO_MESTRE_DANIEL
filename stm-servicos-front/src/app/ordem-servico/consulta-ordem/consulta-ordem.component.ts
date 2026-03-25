@@ -532,17 +532,20 @@ export class ConsultaOrdemComponent implements OnInit {
 
   salvarPagamento() {
     if (!this.ordemPagamentoSelecionada?.id) return;
-
     if (!this.pagamento.tipoPagamento) {
       alert('Selecione o tipo de pagamento.');
       return;
     }
 
-    const payload = { ...this.pagamento };
-    if (!payload.contratoId) delete payload.contratoId;
+    const payload = {
+      tipoPagamento: this.pagamento.tipoPagamento,
+      lote: this.pagamento.lote,
+      cpfNf: this.pagamento.cpfNf,
+      banco: this.pagamento.banco,
+      urlComprovante: this.pagamento.urlComprovante
+    };
 
-    this.service
-      .registrar(this.ordemPagamentoSelecionada.id, payload)
+    this.service.registrar(this.ordemPagamentoSelecionada.id, payload)
       .subscribe({
         next: () => {
           alert('Pagamento salvo com sucesso!');
@@ -589,5 +592,11 @@ export class ConsultaOrdemComponent implements OnInit {
     const url = this.pagamento.urlComprovante as string;
     if (!url) return;
     window.open(url, '_blank');
+  }
+
+  calcularTotalKm(): number {
+    const km = this.pagamento?.km || 0;
+    const valorKm = this.pagamento?.valorKm || 0;
+    return km * valorKm;
   }
 }
