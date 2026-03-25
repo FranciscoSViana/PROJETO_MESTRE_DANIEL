@@ -1,5 +1,6 @@
 package io.github.franciscosviana.stmservicos.domain.model;
 
+import io.github.franciscosviana.stmservicos.domain.model.enums.TipoFluxoPagamento;
 import io.github.franciscosviana.stmservicos.domain.model.enums.TipoPessoa;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -34,8 +35,10 @@ public class Credenciado {
     private BigDecimal valorChamado;
     private BigDecimal valorKm;
 
-    @Column(name = "quantidade_os_atendidas")
-    private int quantidadeOsAtendidas;
+    @Enumerated(EnumType.STRING)
+    private TipoFluxoPagamento tipoFluxoPagamento;
+
+    private String chavePix;
 
     private String contato;
     private String telefones;

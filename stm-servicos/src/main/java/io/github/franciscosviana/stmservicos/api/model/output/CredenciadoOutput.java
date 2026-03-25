@@ -25,7 +25,8 @@ public class CredenciadoOutput {
     private BigDecimal valorChamado;
     private BigDecimal valorKm;
 
-    private int quantidadeOSAtendidas;
+    private String tipoFluxoPagamento;
+    private String chavePix;
 
     private String contato;
     private String telefones;

@@ -164,6 +164,9 @@ public class PagamentoOSService {
         if (input.getUrlComprovante() != null && !input.getUrlComprovante().isBlank()) {
             pagamento.setUrlComprovante(input.getUrlComprovante());
         }
+
+        // ✅ Inserir após pagamento.setBanco(input.getBanco()):
+        pagamento.setChavePix(input.getChavePix());
     }
 
     public PagamentoOSOutput buscarPorOrdemServico(UUID ordemServicoId) {

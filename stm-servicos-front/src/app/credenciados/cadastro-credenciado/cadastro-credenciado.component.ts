@@ -14,6 +14,13 @@ export class CadastroCredenciadoComponent implements OnInit {
   camposForm: FormGroup;
   tipoPessoaSelecionado: number | null = null;
 
+  tiposFluxoPagamento = [
+    { label: 'Mensal', value: 'MENSAL' },
+    { label: 'Quinzenal', value: 'QUINZENAL' },
+    { label: 'Semanal', value: 'SEMANAL' },
+    { label: 'Único', value: 'UNICO' },
+  ];
+
   constructor(
     private service: CredenciadoService,
     private router: Router,
@@ -33,7 +40,9 @@ export class CadastroCredenciadoComponent implements OnInit {
 
       valorChamado: new FormControl(),
       valorKm: new FormControl(),
-      quantidadeOSAtendidas: new FormControl(),
+
+      tipoFluxoPagamento: new FormControl<string | null>(null),
+      chavePix: new FormControl<string | null>(null),
 
       contato: new FormControl(),
       telefones: new FormControl(),
@@ -74,7 +83,8 @@ export class CadastroCredenciadoComponent implements OnInit {
           numeroPessoa: credenciado.numeroPessoa,
           valorChamado: credenciado.valorChamado,
           valorKm: credenciado.valorKm,
-          quantidadeOSAtendidas: credenciado.quantidadeOSAtendidas,
+          tipoFluxoPagamento: credenciado.tipoFluxoPagamento ?? null,
+          chavePix:      credenciado.chavePix ?? null,
           contato: credenciado.contato,
           telefones: credenciado.telefones,
           email: credenciado.email,
@@ -116,7 +126,8 @@ export class CadastroCredenciadoComponent implements OnInit {
       numeroPessoa: formValue.numeroPessoa || null,
       valorChamado: parseValor(formValue.valorChamado),
       valorKm: parseValor(formValue.valorKm),
-      quantidadeOSAtendidas: formValue.quantidadeOSAtendidas,
+      tipoFluxoPagamento: formValue.tipoFluxoPagamento || null,
+      chavePix:      formValue.chavePix || null,
       contato: formValue.contato,
       telefones: formValue.telefones,
       email: formValue.email,

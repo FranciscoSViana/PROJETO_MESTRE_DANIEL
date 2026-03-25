@@ -16,7 +16,8 @@ public class CredenciadoInput {
     private BigDecimal valorChamado;
     private BigDecimal valorKm;
 
-    private int quantidadeOSAtendidas;
+    private String tipoFluxoPagamento; // "MENSAL", "QUINZENAL", "SEMANAL", "UNICO"
+    private String chavePix;
 
     private String contato;
     private String telefones;

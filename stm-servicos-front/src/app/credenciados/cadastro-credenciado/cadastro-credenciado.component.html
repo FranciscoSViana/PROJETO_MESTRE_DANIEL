@@ -63,9 +63,19 @@
         </div>
 
         <div>
-          <label class="block text-gray-600 font-medium mb-1 text-sm">Qtd. OS Atendidas</label>
-          <input type="number" formControlName="quantidadeOSAtendidas"
-            class="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm" />
+          <label class="block text-gray-600 font-medium mb-1 text-sm">Tipo de Pagamento</label>
+          <select formControlName="tipoFluxoPagamento"
+            class="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm">
+            <option [ngValue]="null">Selecione</option>
+            <option *ngFor="let tp of tiposFluxoPagamento" [value]="tp.value">{{ tp.label }}</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-gray-600 font-medium mb-1 text-sm">Chave PIX</label>
+          <input type="text" formControlName="chavePix"
+            class="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm"
+            placeholder="CPF, CNPJ, e-mail, telefone ou chave aleatória" />
         </div>
 
         <div>

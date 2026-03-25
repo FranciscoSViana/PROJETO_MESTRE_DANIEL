@@ -101,6 +101,10 @@ public class PagamentoOS {
     @Builder.Default
     private boolean pago = false;
 
+    // ✅ Inserir após o campo `banco`:
+    @Column(name = "chave_pix")
+    private String chavePix;
+
     // 🔥 Regra central de negócio
     public void calcularValorTotal() {
         this.valorTotal =

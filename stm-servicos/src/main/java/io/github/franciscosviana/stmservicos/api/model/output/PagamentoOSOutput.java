@@ -46,4 +46,7 @@ public class PagamentoOSOutput {
     private OffsetDateTime criadoEm;
 
     private boolean pago;
+
+    // ✅ Inserir após o campo `banco`:
+    private String chavePix;
 }

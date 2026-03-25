@@ -55,4 +55,7 @@ public class PagamentoOSInput {
 
     // Apenas usado no endpoint de edição para marcar como pago/não pago
     private Boolean pago;
+
+    // ✅ Inserir após o campo `banco`:
+    private String chavePix;
 }

@@ -64,6 +64,7 @@ export class ConsultaOrdemComponent implements OnInit {
   copiarAposFinalizarOS: boolean = false;
 
   menuPagamentoAberto?: string;
+  menuPagamentoPosicao = { top: 0, left: 0 };  // ✅ Inserir
   modalPagamentoAberto = false;
   ordemPagamentoSelecionada?: OrdemServico;
 
@@ -79,7 +80,8 @@ export class ConsultaOrdemComponent implements OnInit {
     cpfNf: '',
     tipoPagamento: '',
     banco: '',
-    urlComprovante: ''
+    urlComprovante: '',
+    chavePix: ''
   };
 
   carregandoPagamento = false;
@@ -87,6 +89,8 @@ export class ConsultaOrdemComponent implements OnInit {
   uploadandoComprovante = false;
 
   pagamentoModoEdicao = false; // ✅ novo controle
+
+  menuPagamentoDirecao: 'up' | 'down' = 'down';
 
   constructor(
     private service: OrdemServicoService,
@@ -98,6 +102,10 @@ export class ConsultaOrdemComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
+    window.addEventListener('scroll', () => {
+      this.menuPagamentoAberto = undefined;
+    }, true);
+
     this.filtroSubject.pipe(debounceTime(400)).subscribe(() => {
       this.page = 0;
       this._carregarOrdens();
@@ -469,9 +477,26 @@ export class ConsultaOrdemComponent implements OnInit {
     this.exportMenuOSAberto = undefined;
   }
 
-  togglePagamentoMenu(os: OrdemServico) {
-    this.menuPagamentoAberto =
-      this.menuPagamentoAberto === os.id ? undefined : os.id;
+  togglePagamentoMenu(os: OrdemServico, event: MouseEvent) {
+    if (this.menuPagamentoAberto === os.id) {
+      this.menuPagamentoAberto = undefined;
+      return;
+    }
+
+    const botao = (event.currentTarget as HTMLElement).getBoundingClientRect();
+    const alturaMenu = 80; // altura aproximada do menu (2 itens)
+    const espacoAbaixo = window.innerHeight - botao.bottom;
+
+    const top = espacoAbaixo < alturaMenu
+      ? botao.top - alturaMenu        // abre para cima
+      : botao.bottom + 4;             // abre para baixo
+
+    this.menuPagamentoPosicao = {
+      top,
+      left: botao.right - 176         // 176 = w-44
+    };
+
+    this.menuPagamentoAberto = os.id;
   }
 
   fecharMenuPagamento() {
@@ -498,22 +523,37 @@ export class ConsultaOrdemComponent implements OnInit {
             this.pagamento.valorChamado = credenciado.valorChamado;
           if (credenciado.valorKm != null)
             this.pagamento.valorKm = credenciado.valorKm;
+
+          // ✅ Inserir:
+          if (credenciado.tipoFluxoPagamento)
+            this.pagamento.lote = credenciado.tipoFluxoPagamento;
+          if (credenciado.chavePix)
+            this.pagamento.chavePix = credenciado.chavePix;
         },
         error: () => { }
       });
     }
 
     // 2️⃣ Pagamento existente + Solução da OS em paralelo
+    // 2️⃣ Pagamento existente + Solução da OS em paralelo
     forkJoin({
       pagamento: this.service.buscarPagamento(os.id!).pipe(
-        catchError(() => of(null))   // 204 ou erro → null
+        catchError(() => of(null))
       ),
       solucao: this.solucaoService.buscarPorOrdem(os.id!).pipe(
-        catchError(() => of(null))   // OS sem solução → null
+        catchError(() => of(null))   // ✅ captura o erro 404/500 do back
       )
     }).subscribe({
-      // dentro do forkJoin, no bloco next:
       next: ({ pagamento: pag, solucao }) => {
+
+        // ✅ Se não tem solução e não tem pagamento, bloqueia e avisa
+        if (!solucao && !pag) {
+          this.carregandoPagamento = false;
+          this.modalPagamentoAberto = false;
+          alert('Esta OS ainda não possui solução registrada. Finalize a OS antes de registrar o pagamento.');
+          return;
+        }
+
         if (pag) {
           this.pagamento = {
             km: pag.km,
@@ -527,9 +567,9 @@ export class ConsultaOrdemComponent implements OnInit {
             cpfNf: pag.cpfNf ?? '',
             tipoPagamento: pag.tipoPagamento ?? '',
             banco: pag.banco ?? '',
-            urlComprovante: pag.urlComprovante ?? ''
+            urlComprovante: pag.urlComprovante ?? '',
+            chavePix: pag.chavePix ?? this.pagamento.chavePix ?? ''
           };
-          // ✅ Já tem pagamento: abre em modo visualização
           this.pagamentoModoEdicao = false;
         } else {
           if (solucao) {
@@ -538,7 +578,6 @@ export class ConsultaOrdemComponent implements OnInit {
             this.pagamento.estacionamento = solucao.estacionamento;
             this.pagamento.valorOutros = solucao.outros;
           }
-          // ✅ Pagamento novo: já começa editável
           this.pagamentoModoEdicao = true;
         }
         this.carregandoPagamento = false;
@@ -587,6 +626,12 @@ export class ConsultaOrdemComponent implements OnInit {
         alert('Erro ao salvar pagamento.');
       }
     });
+  }
+
+  onTipoPagamentoChange() {
+    if (this.pagamento.tipoPagamento !== 'PIX') {
+      this.pagamento.chavePix = '';
+    }
   }
 
   habilitarEdicaoPagamento() {
@@ -655,5 +700,9 @@ export class ConsultaOrdemComponent implements OnInit {
     const km = this.pagamento?.km || 0;
     const valorKm = this.pagamento?.valorKm || 0;
     return km * valorKm;
+  }
+
+  getOrdemById(id: string): OrdemServico {
+    return this.ordensServico.find(o => o.id === id)!;
   }
 }

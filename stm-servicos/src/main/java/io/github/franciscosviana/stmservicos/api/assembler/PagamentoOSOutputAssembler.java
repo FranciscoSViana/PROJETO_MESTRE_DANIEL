@@ -35,6 +35,8 @@ public class PagamentoOSOutputAssembler {
                 .criadoEm(p.getCriadoEm())
                 // ✅ pago = true sempre que o registro existir no banco
                 .pago(p.isPago())  // ← usa o campo real, não mais p.getId() != null
+                // ✅ Inserir após .banco(p.getBanco()):
+                .chavePix(p.getChavePix())
                 .build();
     }
 

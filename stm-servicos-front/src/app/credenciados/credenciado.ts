@@ -10,7 +10,8 @@ export class Credenciado {
     numeroPessoa?: string;
     valorChamado?: number | null;
     valorKm?: number | null;
-    quantidadeOSAtendidas?: number;
+    tipoFluxoPagamento?: string;
+    chavePix?: string;
     contato?: string;
     telefones?: string;
     email?: string;

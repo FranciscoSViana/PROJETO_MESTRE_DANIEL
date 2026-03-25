@@ -2,6 +2,7 @@ package io.github.franciscosviana.stmservicos.api.assembler;
 
 import io.github.franciscosviana.stmservicos.api.model.input.CredenciadoInput;
 import io.github.franciscosviana.stmservicos.domain.model.Credenciado;
+import io.github.franciscosviana.stmservicos.domain.model.enums.TipoFluxoPagamento;
 import io.github.franciscosviana.stmservicos.domain.model.enums.TipoPessoa;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -18,6 +19,12 @@ public class CredenciadoInputDisassembler {
 
         credenciado.setTipoPessoa(TipoPessoa.fromCodigo(credenciadoInput.getTipoPessoa()));
 
+        if (credenciadoInput.getTipoFluxoPagamento() != null) {
+            credenciado.setTipoFluxoPagamento(
+                    TipoFluxoPagamento.valueOf(credenciadoInput.getTipoFluxoPagamento().toUpperCase())
+            );
+        }
+
         return credenciado;
     }
 
@@ -25,5 +32,11 @@ public class CredenciadoInputDisassembler {
         modelMapper.map(credenciadoInput, credenciado);
 
         credenciado.setTipoPessoa(TipoPessoa.fromCodigo(credenciadoInput.getTipoPessoa()));
+
+        if (credenciadoInput.getTipoFluxoPagamento() != null) {
+            credenciado.setTipoFluxoPagamento(
+                    TipoFluxoPagamento.valueOf(credenciadoInput.getTipoFluxoPagamento().toUpperCase())
+            );
+        }
     }
 }
