@@ -43,6 +43,12 @@ const routes: Routes = [
         canActivate: [authGuard, adminGuard],
         loadChildren: () => import('../usuarios/usuarios.module').then(m => m.UsuariosModule),
         data: { titulo: 'Usuários', subTitulo: 'Gestão do usuário' }
+      },
+      {
+        path: 'financas',
+        canActivate: [authGuard],
+        loadChildren: () => import('../financas/financas.module').then(m => m.FinancasModule),
+        data: { titulo: 'Finanças', subTitulo: 'Gestão Financeira'}
       }
     ]
   }

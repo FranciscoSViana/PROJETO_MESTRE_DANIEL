@@ -1,0 +1,40 @@
+// Estilos mínimos — o grosso é feito via Tailwind no template
+
+:host {
+    display: block;
+}
+
+// Zebra suave na tabela desktop
+table tbody tr:nth-child(4n+3),
+table tbody tr:nth-child(4n+4) {
+    background-color: #f9fafb;
+}
+
+// Linha expandida não sofre zebra
+table tbody tr.expanded-row {
+    background-color: #eff6ff !important;
+}
+
+// Scroll horizontal suave
+.overflow-x-auto {
+    scrollbar-width: thin;
+    scrollbar-color: #93c5fd transparent;
+
+    &::-webkit-scrollbar {
+        height: 6px;
+    }
+
+    &::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background-color: #93c5fd;
+        border-radius: 3px;
+    }
+}
+
+// Badge do status com transição
+span[class*="rounded-full"] {
+    transition: all 0.15s ease;
+}

@@ -8,6 +8,7 @@ import { CredenciadosModule } from '../credenciados/credenciados.module';
 import { OrdemServicoModule } from '../ordem-servico/ordem-servico.module';
 import { LoginModule } from '../login/login.module';
 import { UsuariosModule } from '../usuarios/usuarios.module';
+import { FinancasModule } from '../financas/financas.module';
 
 
 @NgModule({
@@ -21,7 +22,8 @@ import { UsuariosModule } from '../usuarios/usuarios.module';
     CredenciadosModule,
     OrdemServicoModule,
     LoginModule,
-    UsuariosModule
+    UsuariosModule,
+    FinancasModule
   ]
 })
 export class TemplateModule { }

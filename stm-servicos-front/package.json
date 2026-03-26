@@ -22,6 +22,7 @@
     "@angular/router": "^19.0.0",
     "@fortawesome/fontawesome-free": "^7.1.0",
     "autoprefixer": "^10.4.22",
+    "chart.js": "^4.5.1",
     "font-awesome": "^4.7.0",
     "ngx-mask": "^19.0.3",
     "postcss": "^8.5.6",

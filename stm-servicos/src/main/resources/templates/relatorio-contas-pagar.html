@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 9px;
+            margin: 20px;
+        }
+
+        h1 {
+            font-size: 14px;
+            text-align: center;
+            margin-bottom: 12px;
+            color: #003366;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background-color: #003366;
+            color: white;
+            padding: 5px 4px;
+            text-align: left;
+            font-size: 8px;
+        }
+
+        td {
+            padding: 4px;
+            border-bottom: 1px solid #ddd;
+            font-size: 8px;
+        }
+
+        tr:nth-child(even) td {
+            background-color: #f0f4ff;
+        }
+
+        .badge {
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: bold;
+            font-size: 7px;
+        }
+
+        .PAGO {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .PENDENTE {
+            background: #fce4ec;
+            color: #c62828;
+        }
+
+        .CONCLUIDA {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .ABERTA {
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+
+        .CANCELADA {
+            background: #fce4ec;
+            color: #c62828;
+        }
+
+        .footer {
+            margin-top: 10px;
+            font-size: 7px;
+            color: #888;
+            text-align: right;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Relatório de Contas a Pagar</h1>
+
+<table>
+    <thead>
+    <tr>
+        <th>OSG</th>
+        <th>OS Clt</th>
+        <th>Cliente</th>
+        <th>Credenciado</th>
+        <th>Lote</th>
+        <th>Status OS</th>
+        <th>Abertura</th>
+        <th>Vlr. Total</th>
+        <th>Situação</th>
+        <th>Tipo Pgto</th>
+        <th>Data Pgto</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="d : ${dados}">
+        <td th:text="${d.osg}">-</td>
+        <td th:text="${d.osClt}">-</td>
+        <td th:text="${d.cliente}">-</td>
+        <td th:text="${d.credenciadoRag}">-</td>
+        <td th:text="${d.lote != null ? d.lote : '-'}">-</td>
+        <td>
+            <span class="badge"
+                  th:classappend="${d.statusOrdem}"
+                  th:text="${d.statusOrdem != null ? d.statusOrdem.name() : '-'}">-</span>
+        </td>
+        <td th:text="${d.dataHoraAbertura != null
+            ? #temporals.format(d.dataHoraAbertura, 'dd/MM/yyyy HH:mm') : '-'}">-
+        </td>
+        <td th:text="${d.valorTotal != null
+            ? 'R$ ' + #numbers.formatDecimal(d.valorTotal, 1, 'POINT', 2, 'COMMA') : 'R$ 0,00'}">-
+        </td>
+        <td>
+            <span class="badge"
+                  th:classappend="${d.pago ? 'PAGO' : 'PENDENTE'}"
+                  th:text="${d.pago ? 'PAGO' : 'PENDENTE'}">-</span>
+        </td>
+        <td th:text="${d.tipoPagamento != null ? d.tipoPagamento.name() : '-'}">-</td>
+        <td th:text="${d.dataPagamento != null
+            ? #temporals.format(d.dataPagamento, 'dd/MM/yyyy') : '-'}">-
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+<div class="footer">
+    Gerado em <span th:text="${#temporals.formatISO(#temporals.createNow())}"></span>
+    &nbsp;|&nbsp; Total: <span th:text="${dados.size()}"></span> registros
+</div>
+
+</body>
+</html>

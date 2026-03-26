@@ -73,6 +73,9 @@ public class OrdemServico {
     @OneToOne(mappedBy = "ordemServico", cascade = CascadeType.ALL)
     private FaturamentoOS faturamento;
 
+    @OneToOne(mappedBy = "ordemServico", cascade = CascadeType.ALL)
+    private PagamentoOS pagamento;
+
     public void concluirCom(SolucaoOS solucao) {
 
         if (this.status == StatusOrdem.CONCLUIDA) {

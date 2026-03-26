@@ -1,5 +1,4 @@
 import { Cliente } from "../clientes/cliente";
-import { Faturamento } from "../faturamento/faturamento";
 import { Solucao } from "../solucao/solucao";
 import { Endereco } from "./endereco";
 
@@ -44,5 +43,4 @@ export class OrdemServico {
     statusRasteioCor?: string;
 
     solucao?: Solucao;
-    faturamento?: Faturamento;
 }
