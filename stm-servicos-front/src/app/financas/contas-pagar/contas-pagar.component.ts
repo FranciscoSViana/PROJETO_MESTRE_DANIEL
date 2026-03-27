@@ -47,11 +47,12 @@ export class ContasPagarComponent implements OnInit, OnDestroy {
   // Opções de lote extraídas dinamicamente dos dados carregados
   loteOptions: string[] = [];
 
-  pagoOptions = [
-    { label: 'Todos', value: '' },
-    { label: 'Pago', value: 'true' },
-    { label: 'Não Pago', value: 'false' }
-  ];
+  // contas-pagar.component.ts — ajustar pagoOptions
+pagoOptions = [
+  { label: 'Todos', value: '' },
+  { label: 'Pago', value: 'true' },
+  { label: 'Não Pago / Sem pagamento', value: 'false' }  // ← label mais claro
+];
 
   expandedId: string | null = null;
 

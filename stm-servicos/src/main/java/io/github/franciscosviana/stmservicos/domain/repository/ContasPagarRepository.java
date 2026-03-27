@@ -5,6 +5,7 @@ import io.github.franciscosviana.stmservicos.api.model.output.ContasPagarOutput;
 import io.github.franciscosviana.stmservicos.domain.model.*;
 import io.github.franciscosviana.stmservicos.domain.model.enums.StatusOrdem;
 import io.github.franciscosviana.stmservicos.domain.model.enums.TipoFluxoPagamento;
+import io.github.franciscosviana.stmservicos.domain.model.enums.TipoPagamento;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.*;
@@ -14,10 +15,12 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Repository
 @RequiredArgsConstructor
@@ -35,57 +38,67 @@ public class ContasPagarRepository {
         return buildQuery(filtro, null, true);
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // Query principal (Criteria API) — raiz em PagamentoOS
-    // ─────────────────────────────────────────────────────────────────────────
     private List<ContasPagarOutput> buildQuery(ContasPagarFilter filtro,
                                                Pageable pageable,
                                                boolean exportAll) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Object[]> cq = cb.createQuery(Object[].class);
 
-        Root<PagamentoOS> pg = cq.from(PagamentoOS.class);
-        Join<PagamentoOS, OrdemServico> osJoin = pg.join("ordemServico", JoinType.INNER);
-        Join<OrdemServico, Cliente> clienteJoin = osJoin.join("cliente", JoinType.LEFT);
-        Join<OrdemServico, Credenciado> credenciadoJoin = osJoin.join("credenciado", JoinType.LEFT);
-        Join<OrdemServico, Contrato> contratoJoin = osJoin.join("contrato", JoinType.LEFT);
+        Root<OrdemServico> os = cq.from(OrdemServico.class);
+        Join<OrdemServico, Cliente> clienteJoin = os.join("cliente", JoinType.LEFT);
+        Join<OrdemServico, Credenciado> credJoin = os.join("credenciado", JoinType.LEFT);
+        Join<OrdemServico, Contrato> contratoJoin = os.join("contrato", JoinType.LEFT);
+        Join<OrdemServico, PagamentoOS> pg = os.join("pagamento", JoinType.LEFT);
+
+        // ✅ JOIN na SolucaoOS para pegar km, pedágio, estacionamento, outros
+        Join<OrdemServico, SolucaoOS> solucaoJoin = os.join("solucao", JoinType.LEFT);
 
         cq.multiselect(
-                osJoin.get("id"),                              // 0
-                osJoin.get("osg"),                             // 1
-                osJoin.get("osClt"),                           // 2
-                clienteJoin.get("nome"),                       // 3
-                contratoJoin.get("id"),                        // 4
-                credenciadoJoin.get("id"),                     // 5
-                credenciadoJoin.get("codigo"),                 // 6
-                credenciadoJoin.get("rag"),                    // 7
-                credenciadoJoin.get("tipoFluxoPagamento"),     // 8
-                osJoin.get("status"),                          // 9
-                osJoin.get("dataHoraAbertura"),                // 10
-                pg.get("valorChamado"),                        // 11
-                pg.get("km"),                                  // 12
-                pg.get("valorKm"),                             // 13
-                pg.get("pedagio"),                             // 14
-                pg.get("estacionamento"),                      // 15
-                pg.get("valorOutros"),                         // 16
-                pg.get("valorTotal"),                          // 17
-                pg.get("pago"),                                // 18
-                pg.get("tipoPagamento"),                       // 19
-                pg.get("banco"),                               // 20
-                pg.get("chavePix"),                            // 21
-                pg.get("cpfNf"),                               // 22
-                pg.get("lote"),                                // 23
-                pg.get("urlComprovante"),                      // 24
-                pg.get("dataPagamento"),                       // 25
-                pg.get("criadoEm")                             // 26
+                os.get("id"),                               // 0
+                os.get("osg"),                              // 1
+                os.get("osClt"),                            // 2
+                clienteJoin.get("nome"),                    // 3
+                contratoJoin.get("id"),                     // 4
+                credJoin.get("id"),                         // 5
+                credJoin.get("codigo"),                     // 6
+                credJoin.get("rag"),                        // 7
+                credJoin.get("tipoFluxoPagamento"),         // 8
+                os.get("status"),                           // 9
+                os.get("dataHoraAbertura"),                 // 10
+
+                // Valores: usa PagamentoOS se existir, senão usa credenciado/solucao
+                pg.get("valorChamado"),                     // 11  → fallback: credenciado.valorChamado
+                pg.get("km"),                               // 12  → fallback: solucao.km
+                pg.get("valorKm"),                          // 13  → fallback: credenciado.valorKm
+                pg.get("pedagio"),                          // 14  → fallback: solucao.pedagio
+                pg.get("estacionamento"),                   // 15  → fallback: solucao.estacionamento
+                pg.get("valorOutros"),                      // 16  → fallback: solucao.outros
+                pg.get("valorTotal"),                       // 17  → calculado no mapper
+
+                pg.get("pago"),                             // 18
+                pg.get("tipoPagamento"),                    // 19
+                pg.get("banco"),                            // 20
+                pg.get("chavePix"),                         // 21
+                pg.get("cpfNf"),                            // 22
+                pg.get("lote"),                             // 23
+                pg.get("urlComprovante"),                   // 24
+                pg.get("dataPagamento"),                    // 25
+                pg.get("criadoEm"),                         // 26
+
+                // ✅ Fallbacks do credenciado e solucao (usados quando pg é null)
+                credJoin.get("valorChamado"),               // 27
+                credJoin.get("valorKm"),                    // 28
+                solucaoJoin.get("km"),                      // 29
+                solucaoJoin.get("pedagio"),                 // 30
+                solucaoJoin.get("estacionamento"),          // 31
+                solucaoJoin.get("outros")                   // 32
         );
 
-        List<Predicate> predicates = buildPredicates(cb, osJoin, pg, credenciadoJoin, clienteJoin, filtro);
+        List<Predicate> predicates = buildPredicates(cb, os, pg, credJoin, clienteJoin, filtro);
         cq.where(predicates.toArray(new Predicate[0]));
-        cq.orderBy(cb.desc(osJoin.get("dataHoraAbertura")));
+        cq.orderBy(cb.desc(os.get("dataHoraAbertura")));
 
         TypedQuery<Object[]> query = em.createQuery(cq);
-
         if (!exportAll && pageable != null) {
             query.setFirstResult((int) pageable.getOffset());
             query.setMaxResults(pageable.getPageSize());
@@ -99,28 +112,30 @@ public class ContasPagarRepository {
     private long countQuery(ContasPagarFilter filtro) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Long> cq = cb.createQuery(Long.class);
-        Root<PagamentoOS> pg = cq.from(PagamentoOS.class);
-        Join<PagamentoOS, OrdemServico> osJoin = pg.join("ordemServico", JoinType.INNER);
-        Join<OrdemServico, Credenciado> credenciadoJoin = osJoin.join("credenciado", JoinType.LEFT);
-        Join<OrdemServico, Cliente> clienteJoin = osJoin.join("cliente", JoinType.LEFT);
 
-        cq.select(cb.count(pg));
-        List<Predicate> predicates = buildPredicates(cb, osJoin, pg, credenciadoJoin, clienteJoin, filtro);
-        cq.where(predicates.toArray(new Predicate[0]));
+        Root<OrdemServico> os = cq.from(OrdemServico.class);
+        Join<OrdemServico, Credenciado> credJoin = os.join("credenciado", JoinType.LEFT);
+        Join<OrdemServico, Cliente> clienteJoin = os.join("cliente", JoinType.LEFT);
+        Join<OrdemServico, PagamentoOS> pg = os.join("pagamento", JoinType.LEFT);
+
+        cq.select(cb.count(os));
+        cq.where(buildPredicates(cb, os, pg, credJoin, clienteJoin, filtro)
+                .toArray(new Predicate[0]));
 
         return em.createQuery(cq).getSingleResult();
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // Predicates
-    // ─────────────────────────────────────────────────────────────────────────
     private List<Predicate> buildPredicates(CriteriaBuilder cb,
-                                            Join<PagamentoOS, OrdemServico> os,
-                                            Root<PagamentoOS> pg,
+                                            Root<OrdemServico> os,
+                                            Join<OrdemServico, PagamentoOS> pg,
                                             Join<OrdemServico, Credenciado> credenciado,
                                             Join<OrdemServico, Cliente> cliente,
                                             ContasPagarFilter f) {
         List<Predicate> p = new ArrayList<>();
+
+        // Sempre filtra apenas CONCLUÍDAS
+        p.add(cb.equal(os.get("status"), StatusOrdem.CONCLUIDA));
+
         if (f == null) return p;
 
         if (hasText(f.getOsg()))
@@ -135,10 +150,18 @@ public class ContasPagarRepository {
         if (hasText(f.getCredenciado()))
             p.add(cb.like(cb.lower(credenciado.get("rag")), like(f.getCredenciado())));
 
-        if (f.getPago() != null)
-            p.add(cb.equal(pg.get("pago"), f.getPago()));
+        if (f.getPago() != null) {
+            if (Boolean.FALSE.equals(f.getPago())) {
+                // Pendente = sem registro OU pago = false
+                p.add(cb.or(
+                        pg.get("pago").isNull(),
+                        cb.equal(pg.get("pago"), false)
+                ));
+            } else {
+                p.add(cb.equal(pg.get("pago"), true));
+            }
+        }
 
-        // ✅ CORRIGIDO: filtra por pg.lote (campo da tabela pagamento_os)
         if (hasText(f.getLote()))
             p.add(cb.equal(pg.get("lote"), f.getLote()));
 
@@ -158,27 +181,56 @@ public class ContasPagarRepository {
     // ── Mapper ───────────────────────────────────────────────────────────────
     private ContasPagarOutput mapToOutput(Object[] r) {
         ContasPagarOutput o = new ContasPagarOutput();
-        o.setOrdemServicoId(r[0] != null ? (java.util.UUID) r[0] : null);
+
+        o.setOrdemServicoId(r[0] != null ? (UUID) r[0] : null);
         o.setOsg((String) r[1]);
         o.setOsClt((String) r[2]);
         o.setCliente((String) r[3]);
         o.setContrato(r[4] != null ? String.valueOf(r[4]) : null);
-        o.setCredenciadoId(r[5] != null ? (java.util.UUID) r[5] : null);
+        o.setCredenciadoId(r[5] != null ? (UUID) r[5] : null);
         o.setCredenciadoCodigo(r[6] != null ? ((Number) r[6]).longValue() : null);
         o.setCredenciadoRag((String) r[7]);
         o.setTipoFluxoPagamento(r[8] != null ? (TipoFluxoPagamento) r[8] : null);
         o.setStatusOrdem(r[9] != null ? (StatusOrdem) r[9] : null);
         o.setDataHoraAbertura((OffsetDateTime) r[10]);
-        o.setValorChamado(toBD(r[11]));
-        o.setKm(toBD(r[12]));
-        o.setValorKm(toBD(r[13]));
-        o.setPedagio(toBD(r[14]));
-        o.setEstacionamento(toBD(r[15]));
-        o.setValorOutros(toBD(r[16]));
-        o.setValorTotal(toBD(r[17]));
+
+        boolean temPagamento = r[18] != null; // pago só existe se houver PagamentoOS
+
+        if (temPagamento) {
+            // ── OS com pagamento registrado: usa os valores persistidos ──
+            o.setValorChamado(toBD(r[11]));
+            o.setKm(toBD(r[12]));
+            o.setValorKm(toBD(r[13]));
+            o.setPedagio(toBD(r[14]));
+            o.setEstacionamento(toBD(r[15]));
+            o.setValorOutros(toBD(r[16]));
+            o.setValorTotal(toBD(r[17]));
+        } else {
+            // ── OS sem pagamento: calcula com base no credenciado + solução ──
+            BigDecimal valorChamado = toBD(r[27]); // credenciado.valorChamado
+            BigDecimal valorKm = toBD(r[28]); // credenciado.valorKm
+            BigDecimal km = toBD(r[29]); // solucao.km
+            BigDecimal pedagio = toBD(r[30]); // solucao.pedagio
+            BigDecimal estacionamento = toBD(r[31]); // solucao.estacionamento
+            BigDecimal valorOutros = toBD(r[32]); // solucao.outros
+
+            BigDecimal valorTotal = valorChamado
+                    .add(km.multiply(valorKm))
+                    .add(pedagio)
+                    .add(estacionamento)
+                    .add(valorOutros);
+
+            o.setValorChamado(valorChamado);
+            o.setKm(km);
+            o.setValorKm(valorKm);
+            o.setPedagio(pedagio);
+            o.setEstacionamento(estacionamento);
+            o.setValorOutros(valorOutros);
+            o.setValorTotal(valorTotal);
+        }
+
         o.setPago(r[18] != null && (boolean) r[18]);
-        o.setTipoPagamento(r[19] != null
-                ? (io.github.franciscosviana.stmservicos.domain.model.enums.TipoPagamento) r[19] : null);
+        o.setTipoPagamento(r[19] != null ? (TipoPagamento) r[19] : null);
         o.setBanco((String) r[20]);
         o.setChavePix((String) r[21]);
         o.setCpfNf((String) r[22]);
@@ -186,6 +238,7 @@ public class ContasPagarRepository {
         o.setUrlComprovante((String) r[24]);
         o.setDataPagamento((OffsetDateTime) r[25]);
         o.setPagamentoCriadoEm((OffsetDateTime) r[26]);
+
         return o;
     }
 
@@ -198,7 +251,9 @@ public class ContasPagarRepository {
         return "%" + s.toLowerCase() + "%";
     }
 
-    private java.math.BigDecimal toBD(Object o) {
-        return o instanceof java.math.BigDecimal bd ? bd : java.math.BigDecimal.ZERO;
+    private BigDecimal toBD(Object o) {
+        if (o instanceof BigDecimal bd) return bd;
+        if (o instanceof Number n) return BigDecimal.valueOf(n.doubleValue());
+        return BigDecimal.ZERO;
     }
 }
