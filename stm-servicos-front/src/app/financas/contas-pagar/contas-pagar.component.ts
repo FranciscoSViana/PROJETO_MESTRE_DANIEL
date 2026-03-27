@@ -39,20 +39,20 @@ export class ContasPagarComponent implements OnInit, OnDestroy {
     cliente: '',
     credenciado: '',
     pago: '' as '' | 'true' | 'false',
-    lote: '',           // ✅ campo real em PagamentoOS
-    dataInicio: '',
-    dataFim: '',
+    lote: '',
+    dataAberturaInicio: '',
+    dataAberturaFim: '',
+    dataPagamentoInicio: '',
+    dataPagamentoFim: '',
   };
 
-  // Opções de lote extraídas dinamicamente dos dados carregados
   loteOptions: string[] = [];
 
-  // contas-pagar.component.ts — ajustar pagoOptions
-pagoOptions = [
-  { label: 'Todos', value: '' },
-  { label: 'Pago', value: 'true' },
-  { label: 'Não Pago / Sem pagamento', value: 'false' }  // ← label mais claro
-];
+  pagoOptions = [
+    { label: 'Todos', value: '' },
+    { label: 'Pago', value: 'true' },
+    { label: 'Não Pago / Sem pagamento', value: 'false' }
+  ];
 
   expandedId: string | null = null;
 
@@ -98,7 +98,6 @@ pagoOptions = [
             pago: i.pago ?? false
           }));
 
-          // Extrai lotes únicos presentes nos dados para popular o select
           const lotesUnicos = new Set<string>();
           this.items.forEach(i => { if (i.lote) lotesUnicos.add(i.lote); });
           const novasOpcoes = Array.from(lotesUnicos).sort();
@@ -128,12 +127,8 @@ pagoOptions = [
   }
 
   calcularTotais(): void {
-    this.totalPago = this.items
-      .filter(i => i.pago)
-      .reduce((acc, i) => acc + (i.valorTotal ?? 0), 0);
-    this.totalNaoPago = this.items
-      .filter(i => !i.pago)
-      .reduce((acc, i) => acc + (i.valorTotal ?? 0), 0);
+    this.totalPago = this.items.filter(i => i.pago).reduce((acc, i) => acc + (i.valorTotal ?? 0), 0);
+    this.totalNaoPago = this.items.filter(i => !i.pago).reduce((acc, i) => acc + (i.valorTotal ?? 0), 0);
     this.totalGeral = this.totalPago + this.totalNaoPago;
   }
 
@@ -193,7 +188,9 @@ pagoOptions = [
   limparFiltros(): void {
     this.filtro = {
       osg: '', osClt: '', cliente: '', credenciado: '',
-      pago: '', lote: '', dataInicio: '', dataFim: ''
+      pago: '', lote: '',
+      dataAberturaInicio: '', dataAberturaFim: '',
+      dataPagamentoInicio: '', dataPagamentoFim: '',
     };
     this.page = 0;
     this.carregar();

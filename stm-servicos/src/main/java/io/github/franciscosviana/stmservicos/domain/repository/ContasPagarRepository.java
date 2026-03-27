@@ -49,8 +49,6 @@ public class ContasPagarRepository {
         Join<OrdemServico, Credenciado> credJoin = os.join("credenciado", JoinType.LEFT);
         Join<OrdemServico, Contrato> contratoJoin = os.join("contrato", JoinType.LEFT);
         Join<OrdemServico, PagamentoOS> pg = os.join("pagamento", JoinType.LEFT);
-
-        // ✅ JOIN na SolucaoOS para pegar km, pedágio, estacionamento, outros
         Join<OrdemServico, SolucaoOS> solucaoJoin = os.join("solucao", JoinType.LEFT);
 
         cq.multiselect(
@@ -65,16 +63,13 @@ public class ContasPagarRepository {
                 credJoin.get("tipoFluxoPagamento"),         // 8
                 os.get("status"),                           // 9
                 os.get("dataHoraAbertura"),                 // 10
-
-                // Valores: usa PagamentoOS se existir, senão usa credenciado/solucao
-                pg.get("valorChamado"),                     // 11  → fallback: credenciado.valorChamado
-                pg.get("km"),                               // 12  → fallback: solucao.km
-                pg.get("valorKm"),                          // 13  → fallback: credenciado.valorKm
-                pg.get("pedagio"),                          // 14  → fallback: solucao.pedagio
-                pg.get("estacionamento"),                   // 15  → fallback: solucao.estacionamento
-                pg.get("valorOutros"),                      // 16  → fallback: solucao.outros
-                pg.get("valorTotal"),                       // 17  → calculado no mapper
-
+                pg.get("valorChamado"),                     // 11
+                pg.get("km"),                               // 12
+                pg.get("valorKm"),                          // 13
+                pg.get("pedagio"),                          // 14
+                pg.get("estacionamento"),                   // 15
+                pg.get("valorOutros"),                      // 16
+                pg.get("valorTotal"),                       // 17
                 pg.get("pago"),                             // 18
                 pg.get("tipoPagamento"),                    // 19
                 pg.get("banco"),                            // 20
@@ -84,8 +79,6 @@ public class ContasPagarRepository {
                 pg.get("urlComprovante"),                   // 24
                 pg.get("dataPagamento"),                    // 25
                 pg.get("criadoEm"),                         // 26
-
-                // ✅ Fallbacks do credenciado e solucao (usados quando pg é null)
                 credJoin.get("valorChamado"),               // 27
                 credJoin.get("valorKm"),                    // 28
                 solucaoJoin.get("km"),                      // 29
@@ -133,7 +126,6 @@ public class ContasPagarRepository {
                                             ContasPagarFilter f) {
         List<Predicate> p = new ArrayList<>();
 
-        // Sempre filtra apenas CONCLUÍDAS
         p.add(cb.equal(os.get("status"), StatusOrdem.CONCLUIDA));
 
         if (f == null) return p;
@@ -152,7 +144,6 @@ public class ContasPagarRepository {
 
         if (f.getPago() != null) {
             if (Boolean.FALSE.equals(f.getPago())) {
-                // Pendente = sem registro OU pago = false
                 p.add(cb.or(
                         pg.get("pago").isNull(),
                         cb.equal(pg.get("pago"), false)
@@ -165,20 +156,29 @@ public class ContasPagarRepository {
         if (hasText(f.getLote()))
             p.add(cb.equal(pg.get("lote"), f.getLote()));
 
-        if (f.getDataInicio() != null) {
-            OffsetDateTime inicio = f.getDataInicio().atStartOfDay().atOffset(ZoneOffset.UTC);
-            p.add(cb.greaterThanOrEqualTo(pg.get("dataPagamento"), inicio));
+        // Data Abertura
+        if (f.getDataAberturaInicio() != null) {
+            OffsetDateTime inicio = f.getDataAberturaInicio().atStartOfDay().atOffset(ZoneOffset.UTC);
+            p.add(cb.greaterThanOrEqualTo(os.get("dataHoraAbertura"), inicio));
+        }
+        if (f.getDataAberturaFim() != null) {
+            OffsetDateTime fim = f.getDataAberturaFim().atTime(23, 59, 59).atOffset(ZoneOffset.UTC);
+            p.add(cb.lessThanOrEqualTo(os.get("dataHoraAbertura"), fim));
         }
 
-        if (f.getDataFim() != null) {
-            OffsetDateTime fim = f.getDataFim().atTime(23, 59, 59).atOffset(ZoneOffset.UTC);
+        // Data Pagamento
+        if (f.getDataPagamentoInicio() != null) {
+            OffsetDateTime inicio = f.getDataPagamentoInicio().atStartOfDay().atOffset(ZoneOffset.UTC);
+            p.add(cb.greaterThanOrEqualTo(pg.get("dataPagamento"), inicio));
+        }
+        if (f.getDataPagamentoFim() != null) {
+            OffsetDateTime fim = f.getDataPagamentoFim().atTime(23, 59, 59).atOffset(ZoneOffset.UTC);
             p.add(cb.lessThanOrEqualTo(pg.get("dataPagamento"), fim));
         }
 
         return p;
     }
 
-    // ── Mapper ───────────────────────────────────────────────────────────────
     private ContasPagarOutput mapToOutput(Object[] r) {
         ContasPagarOutput o = new ContasPagarOutput();
 
@@ -194,10 +194,9 @@ public class ContasPagarRepository {
         o.setStatusOrdem(r[9] != null ? (StatusOrdem) r[9] : null);
         o.setDataHoraAbertura((OffsetDateTime) r[10]);
 
-        boolean temPagamento = r[18] != null; // pago só existe se houver PagamentoOS
+        boolean temPagamento = r[18] != null;
 
         if (temPagamento) {
-            // ── OS com pagamento registrado: usa os valores persistidos ──
             o.setValorChamado(toBD(r[11]));
             o.setKm(toBD(r[12]));
             o.setValorKm(toBD(r[13]));
@@ -206,13 +205,12 @@ public class ContasPagarRepository {
             o.setValorOutros(toBD(r[16]));
             o.setValorTotal(toBD(r[17]));
         } else {
-            // ── OS sem pagamento: calcula com base no credenciado + solução ──
-            BigDecimal valorChamado = toBD(r[27]); // credenciado.valorChamado
-            BigDecimal valorKm = toBD(r[28]); // credenciado.valorKm
-            BigDecimal km = toBD(r[29]); // solucao.km
-            BigDecimal pedagio = toBD(r[30]); // solucao.pedagio
-            BigDecimal estacionamento = toBD(r[31]); // solucao.estacionamento
-            BigDecimal valorOutros = toBD(r[32]); // solucao.outros
+            BigDecimal valorChamado   = toBD(r[27]);
+            BigDecimal valorKm        = toBD(r[28]);
+            BigDecimal km             = toBD(r[29]);
+            BigDecimal pedagio        = toBD(r[30]);
+            BigDecimal estacionamento = toBD(r[31]);
+            BigDecimal valorOutros    = toBD(r[32]);
 
             BigDecimal valorTotal = valorChamado
                     .add(km.multiply(valorKm))
@@ -242,7 +240,6 @@ public class ContasPagarRepository {
         return o;
     }
 
-    // ── Utils ────────────────────────────────────────────────────────────────
     private boolean hasText(String s) {
         return s != null && !s.isBlank();
     }

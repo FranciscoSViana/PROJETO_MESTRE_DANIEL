@@ -13,16 +13,17 @@ public class ContasPagarFilter {
     private String cliente;
     private String credenciado;
     private Boolean pago;
-
-    /**
-     * Filtra pelo campo `lote` de PagamentoOS.
-     * Era "tipoFluxoPagamento" mas o fluxo de pagamento na tabela pagamento_os é o campo lote.
-     */
     private String lote;
 
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-    private LocalDate dataInicio;
+    private LocalDate dataAberturaInicio;
 
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-    private LocalDate dataFim;
+    private LocalDate dataAberturaFim;
+
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+    private LocalDate dataPagamentoInicio;
+
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+    private LocalDate dataPagamentoFim;
 }

@@ -35,17 +35,17 @@ export class FinancasService {
   }
 
   private buildFiltroParams(params: HttpParams, filtro: any): HttpParams {
-    if (filtro.osg) params = params.set('osg', filtro.osg);
-    if (filtro.osClt) params = params.set('osClt', filtro.osClt);
-    if (filtro.cliente) params = params.set('cliente', filtro.cliente);
+    if (filtro.osg)         params = params.set('osg', filtro.osg);
+    if (filtro.osClt)       params = params.set('osClt', filtro.osClt);
+    if (filtro.cliente)     params = params.set('cliente', filtro.cliente);
     if (filtro.credenciado) params = params.set('credenciado', filtro.credenciado);
     if (filtro.pago !== '') params = params.set('pago', filtro.pago);
+    if (filtro.lote)        params = params.set('lote', filtro.lote);
 
-    // ✅ CORRIGIDO: envia como "lote", que é o campo real em PagamentoOS
-    if (filtro.lote) params = params.set('lote', filtro.lote);
-
-    if (filtro.dataInicio) params = params.set('dataInicio', filtro.dataInicio);
-    if (filtro.dataFim) params = params.set('dataFim', filtro.dataFim);
+    if (filtro.dataAberturaInicio)  params = params.set('dataAberturaInicio',  filtro.dataAberturaInicio);
+    if (filtro.dataAberturaFim)     params = params.set('dataAberturaFim',     filtro.dataAberturaFim);
+    if (filtro.dataPagamentoInicio) params = params.set('dataPagamentoInicio', filtro.dataPagamentoInicio);
+    if (filtro.dataPagamentoFim)    params = params.set('dataPagamentoFim',    filtro.dataPagamentoFim);
 
     return params;
   }

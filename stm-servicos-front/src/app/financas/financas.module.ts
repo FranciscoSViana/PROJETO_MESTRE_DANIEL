@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FinancasRoutingModule } from './financas-routing.module';
 import { ContasPagarComponent } from './contas-pagar/contas-pagar.component';
 import { FormsModule } from '@angular/forms';
+import { NgxDaterangepickerMd } from 'ngx-daterangepicker-material';
 
 
 @NgModule({
@@ -13,7 +14,8 @@ import { FormsModule } from '@angular/forms';
   imports: [
     CommonModule,
     FormsModule,
-    FinancasRoutingModule
+    FinancasRoutingModule,
+    NgxDaterangepickerMd.forRoot()
   ]
 })
 export class FinancasModule { }
