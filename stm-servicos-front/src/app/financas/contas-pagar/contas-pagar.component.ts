@@ -192,6 +192,7 @@ export class ContasPagarComponent implements OnInit, OnDestroy {
       dataAberturaInicio: '', dataAberturaFim: '',
       dataPagamentoInicio: '', dataPagamentoFim: '',
     };
+    this.loteOptions = []; // limpa também as opções de lote acumuladas
     this.page = 0;
     this.carregar();
   }
@@ -217,7 +218,11 @@ export class ContasPagarComponent implements OnInit, OnDestroy {
   }
 
   formatDate(dt?: string): string {
-    return dt ? new Date(dt).toLocaleDateString('pt-BR') : '-';
+    if (!dt) return '-';
+    // Evita deslocamento de fuso: extrai direto da string ISO
+    const part = dt.substring(0, 10); // "2026-03-24"
+    const [y, m, d] = part.split('-');
+    return `${d}/${m}/${y}`;
   }
 
   private downloadBlob(blob: Blob, filename: string): void {

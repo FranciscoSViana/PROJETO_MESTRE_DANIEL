@@ -1,0 +1,48 @@
+<div class="relative inline-block w-full">
+
+    <!-- Botão trigger -->
+    <button type="button" (click)="toggle()"
+        class="w-full flex items-center gap-1 border rounded px-2 py-1 text-xs bg-white hover:bg-gray-50 text-left"
+        [ngClass]="temFiltro
+      ? 'border-blue-400 text-blue-700 font-semibold'
+      : 'border-gray-300 text-gray-500'">
+        <i class="fa-solid fa-calendar-days text-[11px]"></i>
+        <span class="truncate flex-1 text-[10px]">{{ label }}</span>
+        <i *ngIf="temFiltro" (click)="limpar($event)"
+            class="fa-solid fa-xmark text-[10px] text-gray-400 hover:text-red-500 ml-1"></i>
+    </button>
+
+    <!-- Popover -->
+    <div *ngIf="aberto" class="absolute z-50 top-full left-0 mt-1 bg-white border border-gray-200
+           rounded-xl shadow-xl p-4 w-64">
+
+        <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-wide mb-3">
+            {{ titulo }}
+        </p>
+
+        <div class="flex flex-col gap-3">
+            <div>
+                <label class="block text-[10px] font-medium text-gray-500 mb-1">De</label>
+                <input type="date" [(ngModel)]="inicio" (ngModelChange)="emitir()" class="w-full border border-gray-300 rounded-lg px-2 py-1.5 text-xs
+                 focus:outline-none focus:ring-2 focus:ring-blue-400">
+            </div>
+            <div>
+                <label class="block text-[10px] font-medium text-gray-500 mb-1">Até</label>
+                <input type="date" [(ngModel)]="fim" (ngModelChange)="emitir()" class="w-full border border-gray-300 rounded-lg px-2 py-1.5 text-xs
+                 focus:outline-none focus:ring-2 focus:ring-blue-400">
+            </div>
+        </div>
+
+        <div class="flex justify-end mt-4 gap-2">
+            <button (click)="limpar()" type="button" class="text-xs px-3 py-1 rounded border border-gray-300
+               text-gray-500 hover:bg-gray-100 transition">
+                Limpar
+            </button>
+            <button (click)="aberto = false" type="button" class="text-xs px-3 py-1 rounded bg-blue-600 text-white
+               hover:bg-blue-700 transition">
+                OK
+            </button>
+        </div>
+    </div>
+
+</div>

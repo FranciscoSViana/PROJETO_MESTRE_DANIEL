@@ -10,7 +10,6 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { registerLocaleData } from '@angular/common';
 import localePt from '@angular/common/locales/pt';
-import { NgxDaterangepickerMd } from 'ngx-daterangepicker-material';
 
 registerLocaleData(localePt);
 
@@ -24,9 +23,7 @@ registerLocaleData(localePt);
     NgxMaskDirective,
     NgxMaskPipe,
     ReactiveFormsModule,
-    RouterModule,
-    NgxDaterangepickerMd.forRoot()
-    
+    RouterModule    
   ],
   providers: [
     provideHttpClient(withFetch(), withInterceptorsFromDi()),

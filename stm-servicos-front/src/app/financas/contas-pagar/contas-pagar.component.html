@@ -199,26 +199,22 @@
               </select>
             </th>
 
-            <!-- Data Abertura -->
+            <!-- Data Abertura — substituir o th antigo -->
             <th class="p-2 border">
-              <div class="flex gap-1 items-center">
-                <input type="date" [(ngModel)]="filtro.dataAberturaInicio" (ngModelChange)="onSelectFiltroChange()"
-                  class="flex-1 border p-1 rounded text-xs" title="Abertura Início">
-                <span class="text-gray-400 text-xs">–</span>
-                <input type="date" [(ngModel)]="filtro.dataAberturaFim" (ngModelChange)="onSelectFiltroChange()"
-                  class="flex-1 border p-1 rounded text-xs" title="Abertura Fim">
-              </div>
+              <app-date-range-picker titulo="Data de Abertura" [inicioValue]="filtro.dataAberturaInicio"
+                [fimValue]="filtro.dataAberturaFim"
+                (inicioChange)="filtro.dataAberturaInicio = $event; onSelectFiltroChange()"
+                (fimChange)="filtro.dataAberturaFim = $event; onSelectFiltroChange()">
+              </app-date-range-picker>
             </th>
 
-            <!-- Data Pagamento -->
+            <!-- Data Pagamento — substituir o th antigo -->
             <th class="p-2 border">
-              <div class="flex gap-1 items-center">
-                <input type="date" [(ngModel)]="filtro.dataPagamentoInicio" (ngModelChange)="onSelectFiltroChange()"
-                  class="flex-1 border p-1 rounded text-xs" title="Pgto Início">
-                <span class="text-gray-400 text-xs">–</span>
-                <input type="date" [(ngModel)]="filtro.dataPagamentoFim" (ngModelChange)="onSelectFiltroChange()"
-                  class="flex-1 border p-1 rounded text-xs" title="Pgto Fim">
-              </div>
+              <app-date-range-picker titulo="Data de Pagamento" [inicioValue]="filtro.dataPagamentoInicio"
+                [fimValue]="filtro.dataPagamentoFim"
+                (inicioChange)="filtro.dataPagamentoInicio = $event; onSelectFiltroChange()"
+                (fimChange)="filtro.dataPagamentoFim = $event; onSelectFiltroChange()">
+              </app-date-range-picker>
             </th>
 
             <th class="border" colspan="5"></th>
