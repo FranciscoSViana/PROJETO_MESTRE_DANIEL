@@ -606,7 +606,17 @@ export class ConsultaOrdemComponent implements OnInit {
       lote: this.pagamento.lote,
       cpfNf: this.pagamento.cpfNf,
       banco: this.pagamento.banco,
-      urlComprovante: this.pagamento.urlComprovante
+      urlComprovante: this.pagamento.urlComprovante,
+
+      // 🔥 ESSENCIAL
+      valorChamado: this.toNumber(this.pagamento.valorChamado),
+      km: this.toNumber(this.pagamento.km),
+      valorKm: this.toNumber(this.pagamento.valorKm),
+      pedagio: this.toNumber(this.pagamento.pedagio),
+      estacionamento: this.toNumber(this.pagamento.estacionamento),
+      valorOutros: this.toNumber(this.pagamento.valorOutros),
+      outros: this.pagamento.outros,
+      chavePix: this.pagamento.chavePix
     };
 
     // ✅ Se já tem pagamento salvo (pago = true) usa PUT, senão POST
@@ -626,6 +636,11 @@ export class ConsultaOrdemComponent implements OnInit {
         alert('Erro ao salvar pagamento.');
       }
     });
+  }
+
+  toNumber(value: any): number {
+    if (value === null || value === undefined || value === '') return 0;
+    return Number(value);
   }
 
   onTipoPagamentoChange() {

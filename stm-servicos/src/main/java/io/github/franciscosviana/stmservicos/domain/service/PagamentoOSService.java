@@ -115,10 +115,10 @@ public class PagamentoOSService {
                 "valorKm", os.getOsg()
         );
 
-        BigDecimal km = nvl(solucao.getKm());
-        BigDecimal pedagio = nvl(solucao.getPedagio());
-        BigDecimal estacionamento = nvl(solucao.getEstacionamento());
-        BigDecimal valorOutros = nvl(solucao.getOutros());
+        BigDecimal km = nvl(input.getKm());
+        BigDecimal pedagio = nvl(input.getPedagio());
+        BigDecimal estacionamento = nvl(input.getEstacionamento());
+        BigDecimal valorOutros = nvl(input.getValorOutros());
 
         BigDecimal totalKm = km.multiply(valorKm);
         BigDecimal valorTotal = valorChamado
