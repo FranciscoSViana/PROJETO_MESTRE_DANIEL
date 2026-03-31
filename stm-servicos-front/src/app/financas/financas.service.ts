@@ -34,6 +34,10 @@ export class FinancasService {
     return this.http.get(`${this.apiUrl}/exportar/pdf`, { params, responseType: 'blob' });
   }
 
+  listarLotes(): Observable<string[]> {
+    return this.http.get<string[]>(`${this.apiUrl}/lotes`);
+  }
+
   private buildFiltroParams(params: HttpParams, filtro: any): HttpParams {
     if (filtro.osg)         params = params.set('osg', filtro.osg);
     if (filtro.osClt)       params = params.set('osClt', filtro.osClt);

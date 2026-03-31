@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @Slf4j
 @RestController
 @RequiredArgsConstructor
@@ -52,5 +54,10 @@ public class ContasPagarController {
                         "attachment; filename=\"contas-pagar.pdf\"")
                 .contentType(MediaType.APPLICATION_PDF)
                 .body(bytes);
+    }
+
+    @GetMapping("/lotes")
+    public List<String> listarLotes() {
+        return contasPagarService.listarLotes();
     }
 }

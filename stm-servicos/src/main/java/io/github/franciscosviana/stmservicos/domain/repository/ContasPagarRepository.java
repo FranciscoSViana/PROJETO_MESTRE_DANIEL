@@ -253,4 +253,16 @@ public class ContasPagarRepository {
         if (o instanceof Number n) return BigDecimal.valueOf(n.doubleValue());
         return BigDecimal.ZERO;
     }
+
+    public List<String> buscarLotesDistintos() {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<String> cq = cb.createQuery(String.class);
+
+        Root<PagamentoOS> pg = cq.from(PagamentoOS.class);
+
+        cq.select(pg.get("lote")).distinct(true);
+        cq.where(cb.isNotNull(pg.get("lote")));
+
+        return em.createQuery(cq).getResultList();
+    }
 }

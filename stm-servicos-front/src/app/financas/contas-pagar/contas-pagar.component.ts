@@ -70,6 +70,10 @@ export class ContasPagarComponent implements OnInit, OnDestroy {
         this.carregar();
       });
 
+      this.financasService.listarLotes().subscribe(lotes => {
+        this.loteOptions = lotes.sort();
+      });
+
     this.carregar();
   }
 

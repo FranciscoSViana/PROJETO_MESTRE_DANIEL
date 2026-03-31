@@ -154,4 +154,8 @@ public class ContasPagarService {
     private String nvl(String s) {
         return s != null ? s : "";
     }
+
+    public List<String> listarLotes() {
+        return contasPagarRepository.buscarLotesDistintos();
+    }
 }
