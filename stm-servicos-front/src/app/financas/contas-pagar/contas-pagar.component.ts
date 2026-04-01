@@ -1,11 +1,12 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Subject } from 'rxjs';
+import { Subject, forkJoin } from 'rxjs';
 import { debounceTime, takeUntil } from 'rxjs/operators';
 import { Chart, registerables } from 'chart.js';
 
 import { FinancasService } from '../financas.service';
 import { Page } from '../../template/utils/page';
 import { ContasPagarItem } from '../contas-pagar-item';
+import { ContasPagarTotais } from '../contas-pagar-totais';
 
 Chart.register(...registerables);
 
@@ -22,7 +23,10 @@ export class ContasPagarComponent implements OnInit, OnDestroy {
   private chartInstance: Chart | null = null;
 
   items: ContasPagarItem[] = [];
+  totais: ContasPagarTotais | null = null;
+
   loading = false;
+  loadingTotais = false;
   exportingXlsx = false;
   exportingPdf = false;
   filtroMobileAberto = false;
@@ -56,6 +60,7 @@ export class ContasPagarComponent implements OnInit, OnDestroy {
 
   expandedId: string | null = null;
 
+  // totais vindos do backend (refletem o filtro inteiro, não só a página)
   totalPago = 0;
   totalNaoPago = 0;
   totalGeral = 0;
@@ -70,9 +75,9 @@ export class ContasPagarComponent implements OnInit, OnDestroy {
         this.carregar();
       });
 
-      this.financasService.listarLotes().subscribe(lotes => {
-        this.loteOptions = lotes.sort();
-      });
+    this.financasService.listarLotes()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(lotes => { this.loteOptions = lotes.sort(); });
 
     this.carregar();
   }
@@ -83,43 +88,61 @@ export class ContasPagarComponent implements OnInit, OnDestroy {
     this.chartInstance?.destroy();
   }
 
+  // ── Carregamento ────────────────────────────────────────────────────────────
+
   carregar(): void {
     this.loading = true;
+    this.loadingTotais = true;
 
+    // tabela paginada
     this.financasService.listar(this.page, this.size, this.filtro)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (res: Page<ContasPagarItem>) => {
           this.items = res.content.map(i => ({
             ...i,
-            valorTotal: i.valorTotal ?? 0,
-            valorChamado: i.valorChamado ?? 0,
-            km: i.km ?? 0,
-            valorKm: i.valorKm ?? 0,
-            pedagio: i.pedagio ?? 0,
-            estacionamento: i.estacionamento ?? 0,
-            valorOutros: i.valorOutros ?? 0,
-            pago: i.pago ?? false
+            valorTotal:      i.valorTotal      ?? 0,
+            valorChamado:    i.valorChamado     ?? 0,
+            km:              i.km              ?? 0,
+            valorKm:         i.valorKm         ?? 0,
+            pedagio:         i.pedagio         ?? 0,
+            estacionamento:  i.estacionamento  ?? 0,
+            valorOutros:     i.valorOutros      ?? 0,
+            pago:            i.pago            ?? false
           }));
 
-          const lotesUnicos = new Set<string>();
-          this.items.forEach(i => { if (i.lote) lotesUnicos.add(i.lote); });
-          const novasOpcoes = Array.from(lotesUnicos).sort();
-          novasOpcoes.forEach(l => {
-            if (!this.loteOptions.includes(l)) this.loteOptions.push(l);
+          // acumula lotes novos encontrados na página
+          this.items.forEach(i => {
+            if (i.lote && !this.loteOptions.includes(i.lote)) {
+              this.loteOptions.push(i.lote);
+            }
           });
           this.loteOptions.sort();
 
-          this.totalPages = res.totalPages;
+          this.totalPages    = res.totalPages;
           this.totalElements = res.totalElements;
-
-          this.calcularTotais();
-          this.renderChart();
           this.loading = false;
         },
         error: () => (this.loading = false)
       });
+
+    // totais globais (independente da paginação)
+    this.financasService.totais(this.filtro)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (t: ContasPagarTotais) => {
+          this.totais       = t;
+          this.totalPago    = t.totalPago    ?? 0;
+          this.totalNaoPago = t.totalNaoPago ?? 0;
+          this.totalGeral   = t.totalGeral   ?? 0;
+          this.renderChart(t.qtdPago, t.qtdNaoPago);
+          this.loadingTotais = false;
+        },
+        error: () => (this.loadingTotais = false)
+      });
   }
+
+  // ── Filtros ─────────────────────────────────────────────────────────────────
 
   onFiltroChange(): void {
     this.filterChange$.next();
@@ -130,20 +153,25 @@ export class ContasPagarComponent implements OnInit, OnDestroy {
     this.carregar();
   }
 
-  calcularTotais(): void {
-    this.totalPago = this.items.filter(i => i.pago).reduce((acc, i) => acc + (i.valorTotal ?? 0), 0);
-    this.totalNaoPago = this.items.filter(i => !i.pago).reduce((acc, i) => acc + (i.valorTotal ?? 0), 0);
-    this.totalGeral = this.totalPago + this.totalNaoPago;
+  limparFiltros(): void {
+    this.filtro = {
+      osg: '', osClt: '', cliente: '', credenciado: '',
+      pago: '', lote: '',
+      dataAberturaInicio: '', dataAberturaFim: '',
+      dataPagamentoInicio: '', dataPagamentoFim: '',
+    };
+    this.loteOptions = [];
+    this.page = 0;
+    this.carregar();
   }
 
-  renderChart(): void {
+  // ── Gráfico ─────────────────────────────────────────────────────────────────
+
+  renderChart(pago: number, naoPago: number): void {
     setTimeout(() => {
       const canvas = document.getElementById('chartPizza') as HTMLCanvasElement;
       if (!canvas) return;
       this.chartInstance?.destroy();
-
-      const pago = this.items.filter(i => i.pago).length;
-      const naoPago = this.items.filter(i => !i.pago).length;
 
       this.chartInstance = new Chart(canvas, {
         type: 'doughnut',
@@ -152,7 +180,7 @@ export class ContasPagarComponent implements OnInit, OnDestroy {
           datasets: [{
             data: [pago, naoPago],
             backgroundColor: ['#22c55e', '#ef4444'],
-            borderColor: ['#16a34a', '#dc2626'],
+            borderColor:     ['#16a34a', '#dc2626'],
             borderWidth: 2,
             hoverOffset: 8
           }]
@@ -169,6 +197,8 @@ export class ContasPagarComponent implements OnInit, OnDestroy {
       });
     }, 100);
   }
+
+  // ── Paginação ────────────────────────────────────────────────────────────────
 
   toggleExpand(id?: string): void {
     if (!id) return;
@@ -189,17 +219,7 @@ export class ContasPagarComponent implements OnInit, OnDestroy {
     this.carregar();
   }
 
-  limparFiltros(): void {
-    this.filtro = {
-      osg: '', osClt: '', cliente: '', credenciado: '',
-      pago: '', lote: '',
-      dataAberturaInicio: '', dataAberturaFim: '',
-      dataPagamentoInicio: '', dataPagamentoFim: '',
-    };
-    this.loteOptions = []; // limpa também as opções de lote acumuladas
-    this.page = 0;
-    this.carregar();
-  }
+  // ── Exportação ───────────────────────────────────────────────────────────────
 
   exportarXlsx(): void {
     this.exportingXlsx = true;
@@ -217,14 +237,15 @@ export class ContasPagarComponent implements OnInit, OnDestroy {
     });
   }
 
+  // ── Formatação ───────────────────────────────────────────────────────────────
+
   formatCurrency(val?: number): string {
     return (val ?? 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
   }
 
   formatDate(dt?: string): string {
     if (!dt) return '-';
-    // Evita deslocamento de fuso: extrai direto da string ISO
-    const part = dt.substring(0, 10); // "2026-03-24"
+    const part = dt.substring(0, 10);
     const [y, m, d] = part.split('-');
     return `${d}/${m}/${y}`;
   }

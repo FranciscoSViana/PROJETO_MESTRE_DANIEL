@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { Page } from '../template/utils/page';
 import { ContasPagarItem } from './contas-pagar-item';
+import { ContasPagarTotais } from './contas-pagar-totais';
 
 @Injectable({
   providedIn: 'root'
@@ -19,9 +20,13 @@ export class FinancasService {
       .set('page', page)
       .set('size', size)
       .set('sort', 'dataHoraAbertura,desc');
-
     params = this.buildFiltroParams(params, filtro);
     return this.http.get<Page<ContasPagarItem>>(this.apiUrl, { params });
+  }
+
+  totais(filtro: any): Observable<ContasPagarTotais> {
+    const params = this.buildFiltroParams(new HttpParams(), filtro);
+    return this.http.get<ContasPagarTotais>(`${this.apiUrl}/totais`, { params });
   }
 
   exportarXlsx(filtro: any): Observable<Blob> {
@@ -39,18 +44,16 @@ export class FinancasService {
   }
 
   private buildFiltroParams(params: HttpParams, filtro: any): HttpParams {
-    if (filtro.osg)         params = params.set('osg', filtro.osg);
-    if (filtro.osClt)       params = params.set('osClt', filtro.osClt);
-    if (filtro.cliente)     params = params.set('cliente', filtro.cliente);
-    if (filtro.credenciado) params = params.set('credenciado', filtro.credenciado);
-    if (filtro.pago !== '') params = params.set('pago', filtro.pago);
-    if (filtro.lote)        params = params.set('lote', filtro.lote);
-
+    if (filtro.osg)          params = params.set('osg',                  filtro.osg);
+    if (filtro.osClt)        params = params.set('osClt',                filtro.osClt);
+    if (filtro.cliente)      params = params.set('cliente',              filtro.cliente);
+    if (filtro.credenciado)  params = params.set('credenciado',          filtro.credenciado);
+    if (filtro.pago !== '')  params = params.set('pago',                 filtro.pago);
+    if (filtro.lote)         params = params.set('lote',                 filtro.lote);
     if (filtro.dataAberturaInicio)  params = params.set('dataAberturaInicio',  filtro.dataAberturaInicio);
     if (filtro.dataAberturaFim)     params = params.set('dataAberturaFim',     filtro.dataAberturaFim);
     if (filtro.dataPagamentoInicio) params = params.set('dataPagamentoInicio', filtro.dataPagamentoInicio);
     if (filtro.dataPagamentoFim)    params = params.set('dataPagamentoFim',    filtro.dataPagamentoFim);
-
     return params;
   }
 }

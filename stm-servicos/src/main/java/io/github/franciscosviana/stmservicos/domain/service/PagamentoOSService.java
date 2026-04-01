@@ -53,22 +53,17 @@ public class PagamentoOSService {
             throw new OrdemServicoException("A OS ainda não possui solução registrada.");
         }
 
-        // Impede re-registro se já foi pago — use o endpoint PUT para editar
-        pagamentoOSRepository.findByOrdemServicoId(ordemServicoId).ifPresent(p -> {
-            if (p.isPago()) {
-                throw new OrdemServicoException(
-                        "Este pagamento já foi registrado. Use o endpoint de edição para alterá-lo.");
-            }
-        });
-
         PagamentoOS pagamento = pagamentoOSRepository
                 .findByOrdemServicoId(ordemServicoId)
-                .orElse(new PagamentoOS());
+                .orElse(new PagamentoOS()); // fallback seguro
+
+        if (pagamento.isPago()) {
+            throw new OrdemServicoException(
+                    "Este pagamento já foi registrado. Use o endpoint de edição para alterá-lo.");
+        }
 
         preencherPagamento(pagamento, os, solucao, input);
-
-        // Primeiro registro: marca como pago
-        pagamento.setPago(true);
+        pagamento.setPago(true); // confirma o pagamento
 
         pagamentoOSRepository.save(pagamento);
         return pagamentoOSOutputAssembler.toModel(pagamento);

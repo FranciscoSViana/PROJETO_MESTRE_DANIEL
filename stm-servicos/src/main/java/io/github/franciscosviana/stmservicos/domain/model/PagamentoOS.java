@@ -81,8 +81,7 @@ public class PagamentoOS {
     private String cpfNf;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "tipo_pagamento", nullable = false, length = 50)
-    @NotNull
+    @Column(name = "tipo_pagamento", length = 50)
     private TipoPagamento tipoPagamento;
 
     private String banco;

@@ -2,7 +2,6 @@ package io.github.franciscosviana.stmservicos.api.model.input;
 
 import io.github.franciscosviana.stmservicos.domain.model.enums.TipoPagamento;
 import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -42,7 +41,6 @@ public class PagamentoOSInput {
 
     private String cpfNf;
 
-    @NotNull(message = "Tipo de pagamento é obrigatório")
     private TipoPagamento tipoPagamento;
 
     private String banco;

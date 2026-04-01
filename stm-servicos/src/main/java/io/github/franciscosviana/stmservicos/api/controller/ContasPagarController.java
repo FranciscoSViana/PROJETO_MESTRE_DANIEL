@@ -2,6 +2,7 @@ package io.github.franciscosviana.stmservicos.api.controller;
 
 import io.github.franciscosviana.stmservicos.api.model.input.ContasPagarFilter;
 import io.github.franciscosviana.stmservicos.api.model.output.ContasPagarOutput;
+import io.github.franciscosviana.stmservicos.api.model.output.ContasPagarTotaisOutput;
 import io.github.franciscosviana.stmservicos.domain.service.ContasPagarService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -54,6 +55,11 @@ public class ContasPagarController {
                         "attachment; filename=\"contas-pagar.pdf\"")
                 .contentType(MediaType.APPLICATION_PDF)
                 .body(bytes);
+    }
+
+    @GetMapping("/totais")
+    public ContasPagarTotaisOutput totais(@ModelAttribute ContasPagarFilter filtro) {
+        return contasPagarService.buscarTotais(filtro);
     }
 
     @GetMapping("/lotes")

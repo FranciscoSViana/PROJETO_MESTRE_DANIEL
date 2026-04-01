@@ -2,8 +2,7 @@ package io.github.franciscosviana.stmservicos.domain.service;
 
 import io.github.franciscosviana.stmservicos.api.model.input.ContasPagarFilter;
 import io.github.franciscosviana.stmservicos.api.model.output.ContasPagarOutput;
-import io.github.franciscosviana.stmservicos.domain.model.OrdemServico;
-import io.github.franciscosviana.stmservicos.domain.model.PagamentoOS;
+import io.github.franciscosviana.stmservicos.api.model.output.ContasPagarTotaisOutput;
 import io.github.franciscosviana.stmservicos.domain.repository.ContasPagarRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -79,7 +78,7 @@ public class ContasPagarService {
 
             // Dados
             DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
-            DateTimeFormatter df  = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+            DateTimeFormatter df = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
             int rowIdx = 1;
             for (ContasPagarOutput d : dados) {
@@ -142,6 +141,10 @@ public class ContasPagarService {
         } catch (Exception e) {
             throw new RuntimeException("Erro ao gerar PDF de contas a pagar", e);
         }
+    }
+
+    public ContasPagarTotaisOutput buscarTotais(ContasPagarFilter filtro) {
+        return contasPagarRepository.buscarTotais(filtro);
     }
 
     // ── Helpers ─────────────────────────────────────────────────────────────
