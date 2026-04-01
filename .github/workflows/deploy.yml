@@ -54,7 +54,7 @@ jobs:
             --region ${{ secrets.GCP_REGION }} \
             --allow-unauthenticated \
             --timeout 600s \
-            --set-env-vars BREVO_API_KEY=${{ secrets.BREVO_API_KEY }},SPRING_DATASOURCE_URL=${{ secrets.SPRING_DATASOURCE_URL }},SPRING_DATASOURCE_USERNAME=${{ secrets.SPRING_DATASOURCE_USERNAME }},SPRING_DATASOURCE_PASSWORD=${{ secrets.SPRING_DATASOURCE_PASSWORD }},JWT_SECRET=${{ secrets.JWT_SECRET }},MAIL_HOST=${{ secrets.MAIL_HOST }},MAIL_PORT=${{ secrets.MAIL_PORT }},BREVO_USER=${{ secrets.BREVO_USER }},MAIL_PASS=${{ secrets.MAIL_PASS }},TOKEN_URL=${{ secrets.TOKEN_URL }},GOOGLE_MAPS=${{ secrets.GOOGLE_MAPS }},AWS_ACCESS_KEY=${{ secrets.AWS_ACCESS_KEY }},AWS_SECRET_KEY=${{ secrets.AWS_SECRET_KEY }},AWS_REGION=${{ secrets.AWS_REGION }},AWS_BUCKET=${{ secrets.AWS_BUCKET }}, URL=${{ secrets.URL }}
+            --set-env-vars BREVO_API_KEY=${{ secrets.BREVO_API_KEY }},SPRING_DATASOURCE_URL=${{ secrets.SPRING_DATASOURCE_URL }},SPRING_DATASOURCE_USERNAME=${{ secrets.SPRING_DATASOURCE_USERNAME }},SPRING_DATASOURCE_PASSWORD=${{ secrets.SPRING_DATASOURCE_PASSWORD }},JWT_SECRET=${{ secrets.JWT_SECRET }},MAIL_HOST=${{ secrets.MAIL_HOST }},MAIL_PORT=${{ secrets.MAIL_PORT }},BREVO_USER=${{ secrets.BREVO_USER }},MAIL_PASS=${{ secrets.MAIL_PASS }},TOKEN_URL=${{ secrets.TOKEN_URL }},GOOGLE_MAPS=${{ secrets.GOOGLE_MAPS }},AWS_ACCESS_KEY=${{ secrets.AWS_ACCESS_KEY }},AWS_SECRET_KEY=${{ secrets.AWS_SECRET_KEY }},AWS_REGION=${{ secrets.AWS_REGION }},AWS_BUCKET=${{ secrets.AWS_BUCKET }},URL=${{ secrets.URL }}
 
 # ================================
 # ✅ FRONTEND - CLOUD RUN
