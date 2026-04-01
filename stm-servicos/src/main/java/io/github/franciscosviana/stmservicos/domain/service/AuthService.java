@@ -16,6 +16,7 @@ import io.github.franciscosviana.stmservicos.domain.repository.UsuarioRepository
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -26,7 +27,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Pattern;
@@ -40,6 +40,10 @@ public class AuthService {
             "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^A-Za-z0-9]).{8,}$"
     );
 
+    /** URL base do frontend — ex: https://meuapp.com/ */
+    @Value("${app.frontend.url}")
+    private String frontendUrl;
+
     private final EmailService emailService;
     private final TokenService tokenService;
     private final PasswordEncoder passwordEncoder;
@@ -50,32 +54,19 @@ public class AuthService {
     private final UsernameGeneratorService usernameGeneratorService;
 
     // ─────────────────────────────────────────────
-    //  LOGIN  (aceita username ou e-mail)
+    //  LOGIN
     // ─────────────────────────────────────────────
     public AuthResponse login(AuthRequest request) {
-
-        // Spring Security usa "username" como principal — Spring UserDetailsService
-        // deve carregar pelo campo username. O authToken abaixo já funciona se
-        // UserDetailsServiceImpl buscar por username OU email.
         var authToken = new UsernamePasswordAuthenticationToken(
-                request.getUsuario(),
-                request.getSenha()
-        );
-
+                request.getUsuario(), request.getSenha());
         authenticationManager.authenticate(authToken);
 
-        // Busca pelo username; se não achar, tenta pelo e-mail (fallback)
         Usuario user = usuarioRepository.findByUsername(request.getUsuario())
                 .or(() -> usuarioRepository.findByEmail(request.getUsuario()))
                 .orElseThrow(() -> new UsuarioException("Usuário não encontrado"));
 
-        String accessToken = tokenService.generateToken(
-                user.getUsername(),
-                user.getRoles()
-        );
-
+        String accessToken = tokenService.generateToken(user.getUsername(), user.getRoles());
         var refreshToken = refreshTokenService.create(user);
-
         return new AuthResponse(accessToken, refreshToken.getToken(), "Bearer");
     }
 
@@ -84,7 +75,6 @@ public class AuthService {
     // ─────────────────────────────────────────────
     @Transactional
     public void cadastrar(RegisterRequest req) {
-
         validarSenhaForte(req.getSenha());
 
         if (usuarioRepository.existsByEmail(req.getEmail())) {
@@ -103,7 +93,7 @@ public class AuthService {
         Usuario usuario = Usuario.builder()
                 .nomeCompleto(req.getNomeCompleto())
                 .username(username)
-                .nome(username)                         // mantém compatibilidade
+                .nome(username)
                 .email(req.getEmail())
                 .senha(passwordEncoder.encode(req.getSenha()))
                 .dataNascimento(req.getDataNascimento())
@@ -115,7 +105,6 @@ public class AuthService {
 
         try {
             usuarioRepository.save(usuario);
-
             historicoSenhaRepository.save(
                     HistoricoSenha.builder()
                             .usuarioId(usuario)
@@ -130,11 +119,8 @@ public class AuthService {
         try {
             emailService.enviarEmail(
                     usuario.getEmail(),
-                    "Bem-vindo ao sistema STM Serviços",
-                    "Olá " + usuario.getNomeCompleto() + ",\n\n" +
-                            "Sua conta foi criada com sucesso!\n" +
-                            "Seu usuário de acesso é: " + username + "\n\n" +
-                            "Atenciosamente,\nEquipe STM Serviços"
+                    "Bem-vindo a GUARDIAN",
+                    emailBoasVindas(usuario.getNomeCompleto(), username)
             );
         } catch (Exception e) {
             log.error("❌ Erro ao enviar e-mail de boas-vindas", e);
@@ -158,9 +144,9 @@ public class AuthService {
         Usuario usuario = usuarioRepository.findById(usuarioId)
                 .orElseThrow(() -> new UsuarioException("Usuário não encontrado"));
 
-        if (request.getEmail() != null &&
-                !request.getEmail().equals(usuario.getEmail()) &&
-                usuarioRepository.existsByEmail(request.getEmail())) {
+        if (request.getEmail() != null
+                && !request.getEmail().equals(usuario.getEmail())
+                && usuarioRepository.existsByEmail(request.getEmail())) {
             throw new UsuarioException("E-mail já cadastrado");
         }
 
@@ -168,16 +154,9 @@ public class AuthService {
             validarRoles(request.getRoles());
             usuario.setRoles(request.getRoles());
         }
-
-        if (request.getNomeCompleto() != null) {
-            usuario.setNomeCompleto(request.getNomeCompleto());
-        }
-        if (request.getEmail() != null) {
-            usuario.setEmail(request.getEmail());
-        }
-        if (request.getDataNascimento() != null) {
-            usuario.setDataNascimento(request.getDataNascimento());
-        }
+        if (request.getNomeCompleto() != null) usuario.setNomeCompleto(request.getNomeCompleto());
+        if (request.getEmail() != null)        usuario.setEmail(request.getEmail());
+        if (request.getDataNascimento() != null) usuario.setDataNascimento(request.getDataNascimento());
 
         usuarioRepository.save(usuario);
         log.info("✅ Usuário {} atualizado", usuario.getUsername());
@@ -211,7 +190,6 @@ public class AuthService {
     public void validarUltimasSenhas(Usuario usuario, String novaSenha) {
         List<HistoricoSenha> ultimas =
                 historicoSenhaRepository.findTop5ByUsuarioIdOrderByCriadaEmDesc(usuario);
-
         for (HistoricoSenha h : ultimas) {
             if (passwordEncoder.matches(novaSenha, h.getSenhaHash())) {
                 throw new SenhaRepetidaException(
@@ -243,5 +221,57 @@ public class AuthService {
         dto.setRoles(u.getRoles());
         dto.setEnabled(u.isEnabled());
         return dto;
+    }
+
+    // ─────────────────────────────────────────────
+    //  TEMPLATES DE E-MAIL
+    // ─────────────────────────────────────────────
+    private String emailBoasVindas(String nomeCompleto, String username) {
+        String loginUrl = frontendUrl;
+        String primeiroNome = nomeCompleto != null && nomeCompleto.contains(" ")
+                ? nomeCompleto.substring(0, nomeCompleto.indexOf(' '))
+                : nomeCompleto;
+
+        String corpo = """
+                <p>Olá, <strong>%s</strong>!</p>
+                <p>Sua conta na <strong>GUARDIAN</strong> foi criada com sucesso. 🎉</p>
+
+                <table cellpadding="0" cellspacing="0" style="background:#f0f9ff;border:1px solid #bae6fd;
+                       border-radius:8px;padding:16px 20px;margin:20px 0;width:100%%;">
+                  <tr>
+                    <td>
+                      <p style="margin:0 0 6px;color:#0369a1;font-size:13px;font-weight:700;
+                                 text-transform:uppercase;letter-spacing:.5px;">
+                        Seus dados de acesso
+                      </p>
+                      <p style="margin:4px 0;font-size:15px;">
+                        <strong>Usuário:</strong>
+                        <span style="font-family:monospace;background:#e0f2fe;padding:2px 8px;
+                                     border-radius:4px;color:#0c4a6e;">%s</span>
+                      </p>
+                      <p style="margin:4px 0;font-size:13px;color:#64748b;">
+                        Use este usuário junto com a senha que você cadastrou para entrar no sistema.
+                      </p>
+                    </td>
+                  </tr>
+                </table>
+
+                <p style="text-align:center;margin:28px 0 8px;">
+                  <a href="%s"
+                     style="display:inline-block;background:#1d4ed8;color:#ffffff;text-decoration:none;
+                            padding:12px 32px;border-radius:6px;font-size:15px;font-weight:700;">
+                    Acessar o sistema →
+                  </a>
+                </p>
+                <p style="text-align:center;font-size:12px;color:#9ca3af;">
+                  Ou copie o link: <a href="%s" style="color:#1d4ed8;">%s</a>
+                </p>
+
+                <p style="margin-top:28px;font-size:13px;color:#6b7280;">
+                  Se você não solicitou este cadastro, ignore este e-mail.
+                </p>
+                """.formatted(primeiroNome, username, loginUrl, loginUrl, loginUrl);
+
+        return EmailService.template("Bem-vindo ao sistema", corpo);
     }
 }

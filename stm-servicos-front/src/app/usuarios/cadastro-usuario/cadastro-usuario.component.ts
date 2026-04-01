@@ -3,7 +3,7 @@ import { AbstractControl, FormControl, FormGroup, ValidationErrors, Validators }
 import { AuthService } from '../../auth.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { UsuarioService } from '../usuario.service';
-import { debounceTime } from 'rxjs';
+import { debounceTime, distinctUntilChanged, switchMap, catchError, of } from 'rxjs';
 
 @Component({
   selector: 'app-cadastro-usuario',
@@ -22,6 +22,7 @@ export class CadastroUsuarioComponent implements OnInit {
   forcaSenhaClasse = '';
 
   usernamePreview = '';
+  carregandoUsername = false;
 
   private SENHA_FORTE = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
 
@@ -49,9 +50,24 @@ export class CadastroUsuarioComponent implements OnInit {
       { validators: this.senhasConferem }
     );
 
-    this.cadastroForm.get('nomeCompleto')!.valueChanges
-      .pipe(debounceTime(400))
-      .subscribe(nome => this.gerarUsernamePreview(nome));
+    // Preview de username consultando o backend
+    this.cadastroForm.get('nomeCompleto')!.valueChanges.pipe(
+      debounceTime(600),
+      distinctUntilChanged(),
+      switchMap(nome => {
+        if (!nome || nome.trim().length < 3 || this.usuarioId) {
+          this.usernamePreview = '';
+          return of(null);
+        }
+        this.carregandoUsername = true;
+        return this.authService.previewUsername(nome).pipe(
+          catchError(() => of(null))
+        );
+      })
+    ).subscribe(res => {
+      this.carregandoUsername = false;
+      this.usernamePreview = res?.username ?? '';
+    });
 
     this.cadastroForm.get('senha')!.valueChanges
       .subscribe(v => this.avaliarForcaSenha(v || ''));
@@ -91,27 +107,6 @@ export class CadastroUsuarioComponent implements OnInit {
     return null;
   }
 
-  // ─── USERNAME PREVIEW ────────────────────────
-
-  gerarUsernamePreview(nomeCompleto: string) {
-    if (!nomeCompleto || nomeCompleto.trim().length < 3) {
-      this.usernamePreview = '';
-      return;
-    }
-    const partes = this.normalizar(nomeCompleto).split(/\s+/).filter(p => p.length > 0);
-    if (partes.length === 0) { this.usernamePreview = ''; return; }
-    const primeiro = partes[0];
-    const ultimo = partes.length > 1 ? partes[partes.length - 1] : '';
-    this.usernamePreview = ultimo ? `${primeiro}.${ultimo}` : primeiro;
-  }
-
-  private normalizar(texto: string): string {
-    return texto.normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .toLowerCase()
-      .replace(/[^a-z\s]/g, '');
-  }
-
   // ─── FORÇA DA SENHA ──────────────────────────
 
   avaliarForcaSenha(senha: string) {
@@ -125,19 +120,10 @@ export class CadastroUsuarioComponent implements OnInit {
 
     this.forcaSenha = score;
 
-    if (score <= 25) {
-      this.forcaSenhaTexto = 'Senha fraca';
-      this.forcaSenhaClasse = 'bg-red-500';
-    } else if (score <= 50) {
-      this.forcaSenhaTexto = 'Senha média';
-      this.forcaSenhaClasse = 'bg-yellow-500';
-    } else if (score <= 75) {
-      this.forcaSenhaTexto = 'Senha boa';
-      this.forcaSenhaClasse = 'bg-blue-500';
-    } else {
-      this.forcaSenhaTexto = 'Senha forte';
-      this.forcaSenhaClasse = 'bg-green-500';
-    }
+    if (score <= 25)      { this.forcaSenhaTexto = 'Senha fraca';  this.forcaSenhaClasse = 'bg-red-500'; }
+    else if (score <= 50) { this.forcaSenhaTexto = 'Senha média';  this.forcaSenhaClasse = 'bg-yellow-500'; }
+    else if (score <= 75) { this.forcaSenhaTexto = 'Senha boa';    this.forcaSenhaClasse = 'bg-blue-500'; }
+    else                  { this.forcaSenhaTexto = 'Senha forte';  this.forcaSenhaClasse = 'bg-green-500'; }
   }
 
   bloquearColar(event: ClipboardEvent) {
@@ -148,12 +134,9 @@ export class CadastroUsuarioComponent implements OnInit {
     }
   }
 
-  // ─── GETTERS PARA REQUISITOS DE SENHA (evita regex no template) ──
+  // ─── GETTERS PARA REQUISITOS DE SENHA ────────
 
-  get senhaAtual(): string {
-    return this.cadastroForm?.get('senha')?.value ?? '';
-  }
-
+  get senhaAtual(): string         { return this.cadastroForm?.get('senha')?.value ?? ''; }
   get senhaTemMinimo(): boolean    { return this.senhaAtual.length >= 8; }
   get senhaTemMaiuscula(): boolean { return /[A-Z]/.test(this.senhaAtual); }
   get senhaTemMinuscula(): boolean { return /[a-z]/.test(this.senhaAtual); }
@@ -177,7 +160,6 @@ export class CadastroUsuarioComponent implements OnInit {
           });
           this.usernamePreview = usuario.username ?? '';
 
-          // Em modo edição, senha não é obrigatória
           this.cadastroForm.get('senha')?.clearValidators();
           this.cadastroForm.get('confirmarSenha')?.clearValidators();
           this.cadastroForm.get('senha')?.updateValueAndValidity();
@@ -210,18 +192,12 @@ export class CadastroUsuarioComponent implements OnInit {
 
     if (this.usuarioId) {
       this.usuarioService.atualizarUsuario(this.usuarioId, payload).subscribe({
-        next: () => {
-          alert('Usuário atualizado com sucesso!');
-          this.router.navigate(['/usuarios']);
-        },
+        next: () => { alert('Usuário atualizado com sucesso!'); this.router.navigate(['/usuarios']); },
         error: err => alert(err.error?.error ?? 'Erro ao atualizar usuário.')
       });
     } else {
       this.authService.cadastrar(payload).subscribe({
-        next: () => {
-          alert('Usuário cadastrado com sucesso!');
-          this.router.navigate(['/usuarios']);
-        },
+        next: () => { alert('Usuário cadastrado com sucesso!'); this.router.navigate(['/usuarios']); },
         error: err => alert(err.error?.error ?? 'Erro ao cadastrar usuário.')
       });
     }
@@ -229,13 +205,22 @@ export class CadastroUsuarioComponent implements OnInit {
 
   // ─── HELPERS ─────────────────────────────────
 
+  /**
+   * Retorna true apenas se o campo for inválido E já tiver sido tocado.
+   * Usado para controlar bordas vermelhas nos inputs.
+   */
   isCampoInvalido(campo: string): boolean {
     const c = this.cadastroForm.get(campo);
     return !!(c?.invalid && c.touched);
   }
 
+  /**
+   * Retorna true apenas se o campo tiver o erro específico E já tiver sido tocado.
+   * Usado para exibir mensagens de erro individuais.
+   */
   erroCampo(campo: string, erro: string): boolean {
-    return !!this.cadastroForm.get(campo)?.hasError(erro);
+    const c = this.cadastroForm.get(campo);
+    return !!(c?.touched && c.hasError(erro));
   }
 
   calcularIdade(dataNascimento: string): number | null {

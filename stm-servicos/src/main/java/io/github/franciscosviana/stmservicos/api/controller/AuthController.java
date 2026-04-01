@@ -18,6 +18,7 @@ import io.github.franciscosviana.stmservicos.domain.service.AuthService;
 import io.github.franciscosviana.stmservicos.domain.service.RefreshTokenService;
 import io.github.franciscosviana.stmservicos.domain.service.SenhaResetService;
 import io.github.franciscosviana.stmservicos.domain.service.TokenService;
+import io.github.franciscosviana.stmservicos.domain.service.UsernameGeneratorService;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -46,6 +47,7 @@ public class AuthController {
     private final RefreshTokenService refreshTokenService;
     private final UsuarioRepository usuarioRepository;
     private final NotificacaoUsuarioRepository notificacaoRepository;
+    private final UsernameGeneratorService usernameGeneratorService;
 
     // ─── LOGIN ───────────────────────────────────
     @PostMapping("/login")
@@ -66,6 +68,24 @@ public class AuthController {
             authService.cadastrar(req);
             return ResponseEntity.ok(Map.of("message", "Cadastro realizado com sucesso"));
         } catch (UsuarioException | SenhaFracaException | RoleException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    // ─── PREVIEW DE USERNAME ──────────────────────
+    /**
+     * Consulta o banco e retorna o username que seria gerado para um nome.
+     * Não requer autenticação — é chamado durante o preenchimento do cadastro.
+     */
+    @GetMapping("/username-preview")
+    public ResponseEntity<?> usernamePreview(@RequestParam String nome) {
+        if (nome == null || nome.trim().length() < 3) {
+            return ResponseEntity.ok(Map.of("username", ""));
+        }
+        try {
+            String username = usernameGeneratorService.gerar(nome);
+            return ResponseEntity.ok(Map.of("username", username));
+        } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
@@ -130,24 +150,20 @@ public class AuthController {
 
     // ─── NOTIFICAÇÕES DO USUÁRIO LOGADO ──────────
 
-    /** Retorna notificações não lidas do usuário autenticado */
     @GetMapping("/notificacoes")
     public ResponseEntity<?> minhasNotificacoes(@AuthenticationPrincipal Jwt jwt) {
         String username = jwt.getSubject();
-        Usuario usuario = usuarioRepository.findByUsername(username)
-                .orElseThrow();
+        Usuario usuario = usuarioRepository.findByUsername(username).orElseThrow();
         List<NotificacaoUsuario> lista =
                 notificacaoRepository.findByUsuarioAndLidaFalseOrderByCriadaEmDesc(usuario);
         return ResponseEntity.ok(lista);
     }
 
-    /** Marca todas as notificações do usuário logado como lidas */
     @PostMapping("/notificacoes/marcar-lidas")
     @Transactional
     public ResponseEntity<?> marcarNotificacoesComoLidas(@AuthenticationPrincipal Jwt jwt) {
         String username = jwt.getSubject();
-        Usuario usuario = usuarioRepository.findByUsername(username)
-                .orElseThrow();
+        Usuario usuario = usuarioRepository.findByUsername(username).orElseThrow();
         notificacaoRepository.marcarTodasComoLidas(usuario);
         return ResponseEntity.ok(Map.of("message", "Notificações marcadas como lidas"));
     }

@@ -51,7 +51,8 @@ public class SecurityConfig {
                                         "/api/auth/refresh",
                                         "/api/auth/esqueci-senha",
                                         "/api/auth/reset-senha",
-                                        "/api/auth/cadastro"
+                                        "/api/auth/cadastro",
+                                        "/api/auth/username-preview"
                                 ).permitAll()
 
                                 // ✅ ROTAS DE CLIENTES (AGORA LIBERADAS!)

@@ -35,33 +35,50 @@ public class SenhaResetService {
     @Transactional
     public void createPasswordResetTokenForEmail(String email) {
         var userOpt = usuarioRepo.findByEmail(email);
-        if (userOpt.isEmpty()) return; // não vazar se e-mail existe
+        if (userOpt.isEmpty()) return;
 
         Usuario user = userOpt.get();
         tokenRepo.deleteByUsuario(user);
 
         String token = java.util.UUID.randomUUID().toString();
-
         SenhaResetToken prt = SenhaResetToken.builder()
                 .token(token)
                 .usuario(user)
-                .expiryDate(Instant.now().plusSeconds(3600)) // 1h
+                .expiryDate(Instant.now().plusSeconds(3600))
                 .build();
-
         tokenRepo.save(prt);
 
         String link = frontendResetUrl + token;
+        String primeiroNome = primeiroNome(user.getNomeCompleto());
+
+        String corpo = """
+                <p>Olá, <strong>%s</strong>!</p>
+                <p>Recebemos uma solicitação de recuperação de senha para sua conta.</p>
+                <p>Clique no botão abaixo para definir uma nova senha.
+                   Este link é válido por <strong>1 hora</strong>.</p>
+
+                <p style="text-align:center;margin:28px 0 8px;">
+                  <a href="%s"
+                     style="display:inline-block;background:#1d4ed8;color:#ffffff;text-decoration:none;
+                            padding:12px 32px;border-radius:6px;font-size:15px;font-weight:700;">
+                    Redefinir senha →
+                  </a>
+                </p>
+                <p style="text-align:center;font-size:12px;color:#9ca3af;">
+                  Ou copie o link: <a href="%s" style="color:#1d4ed8;">%s</a>
+                </p>
+
+                <p style="margin-top:28px;font-size:13px;color:#6b7280;">
+                  Se você não solicitou a recuperação de senha, ignore este e-mail.
+                  Sua senha permanecerá a mesma.
+                </p>
+                """.formatted(primeiroNome, link, link, link);
 
         try {
             emailService.enviarEmail(
                     user.getEmail(),
-                    "Recuperação de senha — STM Serviços",
-                    "Olá " + user.getNomeCompleto() + ",\n\n" +
-                            "Recebemos uma solicitação de recuperação de senha.\n" +
-                            "Clique no link abaixo para definir uma nova senha (válido por 1 hora):\n\n" +
-                            link + "\n\n" +
-                            "Se não foi você, ignore este e-mail.\n\n" +
-                            "Atenciosamente,\nEquipe STM Serviços"
+                    "Recuperação de senha — GUARDIAN",
+                    EmailService.template("Recuperação de senha", corpo)
             );
             log.info("📧 Link de recuperação enviado para {}", user.getEmail());
         } catch (Exception e) {
@@ -70,23 +87,18 @@ public class SenhaResetService {
     }
 
     public boolean resetPassword(String token, String novaSenha) {
-
-        // Valida força da senha antes de qualquer coisa
         authService.validarSenhaForte(novaSenha);
 
         var tokenOpt = tokenRepo.findByToken(token);
         if (tokenOpt.isEmpty()) return false;
 
         var prt = tokenOpt.get();
-
         if (prt.getExpiryDate().isBefore(Instant.now())) {
             tokenRepo.delete(prt);
             return false;
         }
 
         Usuario user = prt.getUsuario();
-
-        // Valida histórico de senhas
         authService.validarUltimasSenhas(user, novaSenha);
 
         user.setSenha(encoder.encode(novaSenha));
@@ -100,9 +112,7 @@ public class SenhaResetService {
                         .build()
         );
 
-        // Reseta ciclo de notificação de senha antiga
         notificacaoSenhaService.registrarTrocaSenha(user);
-
         tokenRepo.delete(prt);
         return true;
     }
@@ -112,5 +122,12 @@ public class SenhaResetService {
     public void limparTokensExpirados() {
         tokenRepo.deleteByExpiryDateBefore(Instant.now());
         log.info("🧹 Tokens de reset expirados removidos");
+    }
+
+    private String primeiroNome(String nomeCompleto) {
+        if (nomeCompleto == null) return "usuário";
+        return nomeCompleto.contains(" ")
+                ? nomeCompleto.substring(0, nomeCompleto.indexOf(' '))
+                : nomeCompleto;
     }
 }

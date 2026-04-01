@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { environment } from '../environments/environment';
-import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, tap, throwError } from 'rxjs';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { BehaviorSubject, Observable, tap, throwError } from 'rxjs';
 import { Router } from '@angular/router';
 
 export interface Notificacao {
@@ -38,7 +38,6 @@ export class AuthService {
           setTimeout(() => this.tentarRenovar(), 100);
         } else {
           this.iniciarTimerExpiracao(token);
-          // Carrega notificações ao iniciar se já logado
           setTimeout(() => this.carregarNotificacoes(), 500);
         }
       } catch {
@@ -57,7 +56,6 @@ export class AuthService {
         localStorage.setItem('refreshToken', res.refreshToken);
         this.iniciarTimerExpiracao(res.accessToken);
         this.atualizarUsuario();
-        // Carrega notificações logo após o login
         setTimeout(() => this.carregarNotificacoes(), 300);
       })
     );
@@ -97,19 +95,20 @@ export class AuthService {
     return this.http.post(`${this.apiUrl}/cadastro`, usuario);
   }
 
+  /**
+   * Consulta o backend para obter o username que seria gerado para um nome.
+   * Retorna o valor real — consultando o banco — para exibir no preview.
+   */
+  previewUsername(nome: string): Observable<{ username: string }> {
+    const params = new HttpParams().set('nome', nome);
+    return this.http.get<{ username: string }>(`${this.apiUrl}/username-preview`, { params });
+  }
+
   // ─── TOKEN ───────────────────────────────────
 
-  getToken() {
-    return localStorage.getItem('token');
-  }
-
-  getRefreshToken() {
-    return localStorage.getItem('refreshToken');
-  }
-
-  isAuthenticated(): boolean {
-    return !!this.getToken();
-  }
+  getToken() { return localStorage.getItem('token'); }
+  getRefreshToken() { return localStorage.getItem('refreshToken'); }
+  isAuthenticated(): boolean { return !!this.getToken(); }
 
   getUserRoles(): string[] {
     const token = this.getToken();
@@ -123,14 +122,10 @@ export class AuthService {
         return payload.roles.map((r: { authority: string }) => r.authority.replace('ROLE_', ''));
       }
       return [];
-    } catch {
-      return [];
-    }
+    } catch { return []; }
   }
 
-  isAdmin(): boolean {
-    return this.getUserRoles().includes('ADMIN');
-  }
+  isAdmin(): boolean { return this.getUserRoles().includes('ADMIN'); }
 
   getUsuarioDoToken(): string | null {
     const token = this.getToken();
@@ -139,10 +134,8 @@ export class AuthService {
       const payload = JSON.parse(atob(token.split('.')[1]));
       const agora = Math.floor(Date.now() / 1000);
       if (payload.exp && payload.exp < agora) return null;
-      return payload.sub; // sub = username
-    } catch {
-      return null;
-    }
+      return payload.sub;
+    } catch { return null; }
   }
 
   atualizarUsuario() {
@@ -164,7 +157,7 @@ export class AuthService {
   carregarNotificacoes() {
     this.http.get<Notificacao[]>(`${this.apiUrl}/notificacoes`).subscribe({
       next: lista => this.notificacoesSubject.next(lista),
-      error: () => { /* silencioso */ }
+      error: () => { }
     });
   }
 
@@ -190,10 +183,7 @@ export class AuthService {
       const agora = Math.floor(Date.now() / 1000);
       const tempoRestante = (exp - agora) * 1000;
 
-      if (tempoRestante <= 0) {
-        this.tentarRenovar();
-        return;
-      }
+      if (tempoRestante <= 0) { this.tentarRenovar(); return; }
 
       const tempoParaRenovar = Math.max(tempoRestante - 10000, 0);
       this.logoutTimer = setTimeout(() => this.tentarRenovar(), tempoParaRenovar);
@@ -208,7 +198,7 @@ export class AuthService {
 
     this.renovarToken().subscribe({
       next: () => console.log('✅ Token renovado automaticamente'),
-      error: () => { this.logout(); }
+      error: () => this.logout()
     });
   }
 }

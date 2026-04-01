@@ -46,6 +46,7 @@ aws:
 app:
   frontend:
     reset-url: ${TOKEN_URL}
+    url: ${URL}
 
 logging:
   level:
