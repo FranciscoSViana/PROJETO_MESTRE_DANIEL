@@ -64,7 +64,7 @@ export class ConsultaOrdemComponent implements OnInit {
   copiarAposFinalizarOS: boolean = false;
 
   menuPagamentoAberto?: string;
-  menuPagamentoPosicao = { top: 0, left: 0 };  // ✅ Inserir
+  menuPagamentoPosicao = { top: 0, left: 0 };
   modalPagamentoAberto = false;
   ordemPagamentoSelecionada?: OrdemServico;
 
@@ -81,14 +81,17 @@ export class ConsultaOrdemComponent implements OnInit {
     tipoPagamento: '',
     banco: '',
     urlComprovante: '',
-    chavePix: ''
+    chavePix: '',
+    pago: false
   };
 
   carregandoPagamento = false;
-
   uploadandoComprovante = false;
+  pagamentoModoEdicao = false;
 
-  pagamentoModoEdicao = false; // ✅ novo controle
+  // ✅ true apenas quando pago=true (pagamento confirmado).
+  // Controla badge "Pagamento registrado" e botão "Editar" no HTML.
+  pagamentoJaExiste = false;
 
   menuPagamentoDirecao: 'up' | 'down' = 'down';
 
@@ -146,7 +149,6 @@ export class ConsultaOrdemComponent implements OnInit {
     this.errorMessage = '';
 
     const filtroConvertido: any = { ...this.filtro };
-
     const dataISO = this.converterDataParaISO(this.filtro.dataAbertura);
 
     if (dataISO) {
@@ -241,7 +243,7 @@ export class ConsultaOrdemComponent implements OnInit {
     this.modalSolucaoAberto = false;
     this.solucao = new Solucao();
     this.ordemSelecionada = undefined;
-    this.copiarAposFinalizarOS = false; // reset
+    this.copiarAposFinalizarOS = false;
   }
 
   private toISO(dateTimeLocal?: string): string | undefined {
@@ -400,10 +402,8 @@ export class ConsultaOrdemComponent implements OnInit {
   private converterDataParaISO(data?: string): string | undefined {
     if (!data) return undefined;
 
-    // Remove barras caso existam, ficando só com os dígitos
     const soDigitos = data.replace(/\//g, '');
 
-    // Só prossegue se tiver exatamente 8 dígitos
     if (soDigitos.length !== 8 || isNaN(Number(soDigitos))) return undefined;
 
     const dia = soDigitos.substring(0, 2);
@@ -414,7 +414,7 @@ export class ConsultaOrdemComponent implements OnInit {
   }
 
   abrirModalRastreio(os: OrdemServico) {
-    if (!os.rastreio) return; // só abre se tiver rastreio
+    if (!os.rastreio) return;
     this.ordemRastreioSelecionada = os;
     this.statusRastreioSelecionado = os.statusRastreio;
     this.modalRastreioAberto = true;
@@ -442,7 +442,6 @@ export class ConsultaOrdemComponent implements OnInit {
     });
   }
 
-  // Helper para buscar a cor do status atual
   getCorRastreio(statusRastreio?: string): string {
     return this.statusRastreioOpcoes
       .find(s => s.value === statusRastreio)?.cor ?? '#9CA3AF';
@@ -484,16 +483,16 @@ export class ConsultaOrdemComponent implements OnInit {
     }
 
     const botao = (event.currentTarget as HTMLElement).getBoundingClientRect();
-    const alturaMenu = 80; // altura aproximada do menu (2 itens)
+    const alturaMenu = 80;
     const espacoAbaixo = window.innerHeight - botao.bottom;
 
     const top = espacoAbaixo < alturaMenu
-      ? botao.top - alturaMenu        // abre para cima
-      : botao.bottom + 4;             // abre para baixo
+      ? botao.top - alturaMenu
+      : botao.bottom + 4;
 
     this.menuPagamentoPosicao = {
       top,
-      left: botao.right - 176         // 176 = w-44
+      left: botao.right - 176
     };
 
     this.menuPagamentoAberto = os.id;
@@ -509,8 +508,10 @@ export class ConsultaOrdemComponent implements OnInit {
       km: null, valorChamado: null, valorKm: null,
       pedagio: null, estacionamento: null, outros: '',
       valorOutros: null, lote: '', cpfNf: '',
-      tipoPagamento: '', banco: '', urlComprovante: ''
+      tipoPagamento: '', banco: '', urlComprovante: '',
+      chavePix: '', pago: false
     };
+    this.pagamentoJaExiste = false;
     this.carregandoPagamento = true;
     this.modalPagamentoAberto = true;
 
@@ -523,8 +524,6 @@ export class ConsultaOrdemComponent implements OnInit {
             this.pagamento.valorChamado = credenciado.valorChamado;
           if (credenciado.valorKm != null)
             this.pagamento.valorKm = credenciado.valorKm;
-
-          // ✅ Inserir:
           if (credenciado.tipoFluxoPagamento)
             this.pagamento.lote = credenciado.tipoFluxoPagamento;
           if (credenciado.chavePix)
@@ -535,18 +534,17 @@ export class ConsultaOrdemComponent implements OnInit {
     }
 
     // 2️⃣ Pagamento existente + Solução da OS em paralelo
-    // 2️⃣ Pagamento existente + Solução da OS em paralelo
     forkJoin({
       pagamento: this.service.buscarPagamento(os.id!).pipe(
         catchError(() => of(null))
       ),
       solucao: this.solucaoService.buscarPorOrdem(os.id!).pipe(
-        catchError(() => of(null))   // ✅ captura o erro 404/500 do back
+        catchError(() => of(null))
       )
     }).subscribe({
       next: ({ pagamento: pag, solucao }) => {
 
-        // ✅ Se não tem solução e não tem pagamento, bloqueia e avisa
+        // Sem solução e sem pagamento → OS não foi finalizada ainda
         if (!solucao && !pag) {
           this.carregandoPagamento = false;
           this.modalPagamentoAberto = false;
@@ -554,7 +552,8 @@ export class ConsultaOrdemComponent implements OnInit {
           return;
         }
 
-        if (pag) {
+        // ✅ pago = true → pagamento confirmado → abre em modo leitura
+        if (pag && pag.id != null && pag.pago === true) {
           this.pagamento = {
             km: pag.km,
             valorChamado: pag.valorChamado,
@@ -568,18 +567,45 @@ export class ConsultaOrdemComponent implements OnInit {
             tipoPagamento: pag.tipoPagamento ?? '',
             banco: pag.banco ?? '',
             urlComprovante: pag.urlComprovante ?? '',
-            chavePix: pag.chavePix ?? this.pagamento.chavePix ?? ''
+            chavePix: pag.chavePix ?? this.pagamento.chavePix ?? '',
+            pago: true
           };
+          // badge + botão "Editar" aparecem no HTML
+          this.pagamentoJaExiste = true;
           this.pagamentoModoEdicao = false;
+
         } else {
-          if (solucao) {
-            this.pagamento.km = solucao.km;
-            this.pagamento.pedagio = solucao.pedagio;
+          // ✅ pago = false (rascunho criado ao finalizar OS) ou sem registro
+          // → abre direto em modo edição com botão "Salvar" visível
+
+          if (pag && pag.id != null) {
+            // Rascunho existe: carrega os valores já preenchidos pelo backend
+            this.pagamento.km             = pag.km;
+            this.pagamento.valorChamado   = pag.valorChamado;
+            this.pagamento.valorKm        = pag.valorKm;
+            this.pagamento.pedagio        = pag.pedagio;
+            this.pagamento.estacionamento = pag.estacionamento;
+            this.pagamento.outros         = pag.outros ?? '';
+            this.pagamento.valorOutros    = pag.valorOutros;
+            this.pagamento.lote           = pag.lote ?? '';
+            this.pagamento.cpfNf          = pag.cpfNf ?? '';
+            this.pagamento.tipoPagamento  = pag.tipoPagamento ?? '';
+            this.pagamento.banco          = pag.banco ?? '';
+            this.pagamento.urlComprovante = pag.urlComprovante ?? '';
+            this.pagamento.chavePix       = pag.chavePix ?? this.pagamento.chavePix ?? '';
+            this.pagamento.pago           = false;
+          } else if (solucao) {
+            // Sem rascunho: pré-preenche com dados da solução
+            this.pagamento.km             = solucao.km;
+            this.pagamento.pedagio        = solucao.pedagio;
             this.pagamento.estacionamento = solucao.estacionamento;
-            this.pagamento.valorOutros = solucao.outros;
+            this.pagamento.valorOutros    = solucao.outros;
           }
+
+          this.pagamentoJaExiste   = false;
           this.pagamentoModoEdicao = true;
         }
+
         this.carregandoPagamento = false;
       },
       error: () => {
@@ -591,7 +617,8 @@ export class ConsultaOrdemComponent implements OnInit {
   fecharModalPagamento() {
     this.modalPagamentoAberto = false;
     this.pagamento = {};
-    this.pagamentoModoEdicao = false; // ✅ reset
+    this.pagamentoModoEdicao = false;
+    this.pagamentoJaExiste = false;
   }
 
   salvarPagamento() {
@@ -607,8 +634,6 @@ export class ConsultaOrdemComponent implements OnInit {
       cpfNf: this.pagamento.cpfNf,
       banco: this.pagamento.banco,
       urlComprovante: this.pagamento.urlComprovante,
-
-      // 🔥 ESSENCIAL
       valorChamado: this.toNumber(this.pagamento.valorChamado),
       km: this.toNumber(this.pagamento.km),
       valorKm: this.toNumber(this.pagamento.valorKm),
@@ -619,10 +644,14 @@ export class ConsultaOrdemComponent implements OnInit {
       chavePix: this.pagamento.chavePix
     };
 
-    // ✅ Se já tem pagamento salvo (pago = true) usa PUT, senão POST
-    const chamada$ = this.pagamento.pago
-      ? this.service.editarPagamento(this.ordemPagamentoSelecionada.id, payload)
-      : this.service.registrar(this.ordemPagamentoSelecionada.id, payload);
+    // ✅ Lógica de rota:
+    // pagamentoJaExiste = true  → pago=true no banco → PUT (edição)
+    // pagamentoJaExiste = false → pago=false (rascunho) ou sem registro → POST
+    //   O backend no POST já lida com rascunho via orElse(new PagamentoOS())
+    //   e seta pago=true ao confirmar.
+    const chamada$ = this.pagamentoJaExiste
+      ? this.service.editarPagamento(this.ordemPagamentoSelecionada.id!, payload)
+      : this.service.registrar(this.ordemPagamentoSelecionada.id!, payload);
 
     chamada$.subscribe({
       next: () => {
@@ -655,7 +684,6 @@ export class ConsultaOrdemComponent implements OnInit {
 
   calcularTotalPreview(): number {
     const p = this.pagamento;
-
     return (p.valorChamado || 0) +
       ((p.km || 0) * (p.valorKm || 0)) +
       (p.pedagio || 0) +
@@ -663,7 +691,6 @@ export class ConsultaOrdemComponent implements OnInit {
       (p.valorOutros || 0);
   }
 
-  // No componente, ao selecionar o arquivo:
   async uploadComprovante(event: Event) {
     const file = (event.target as HTMLInputElement).files?.[0];
     if (!file) return;
@@ -697,8 +724,6 @@ export class ConsultaOrdemComponent implements OnInit {
         this.pagamento.urlComprovante = '';
       },
       error: () => {
-        // Mesmo com erro no S3, limpa o campo localmente
-        // para não bloquear o usuário
         this.pagamento.urlComprovante = '';
         console.warn('Arquivo pode não ter sido removido do S3.');
       }

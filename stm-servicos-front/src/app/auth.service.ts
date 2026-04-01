@@ -4,18 +4,27 @@ import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, tap, throwError } from 'rxjs';
 import { Router } from '@angular/router';
 
+export interface Notificacao {
+  id: string;
+  tipo: string;
+  mensagem: string;
+  lida: boolean;
+  criadaEm: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
 
   private logoutTimer: any;
-
   private apiUrl: string = environment.apiUrl + '/api/auth';
 
-  // BehaviorSubject para emitir usuário logado
   private usuarioSubject = new BehaviorSubject<string | null>(this.getUsuarioDoToken());
   usuario$ = this.usuarioSubject.asObservable();
+
+  private notificacoesSubject = new BehaviorSubject<Notificacao[]>([]);
+  notificacoes$ = this.notificacoesSubject.asObservable();
 
   constructor(private http: HttpClient, private router: Router) {
     const token = this.getToken();
@@ -26,10 +35,11 @@ export class AuthService {
         const agora = Math.floor(Date.now() / 1000);
 
         if (payload.exp && payload.exp < agora) {
-          // Token expirado — aguarda Angular inicializar antes de renovar
           setTimeout(() => this.tentarRenovar(), 100);
         } else {
           this.iniciarTimerExpiracao(token);
+          // Carrega notificações ao iniciar se já logado
+          setTimeout(() => this.carregarNotificacoes(), 500);
         }
       } catch {
         this.logout();
@@ -37,28 +47,29 @@ export class AuthService {
     }
   }
 
-  login(data: { usuario: string, senha: string }) {
+  // ─── AUTENTICAÇÃO ────────────────────────────
+
+  login(data: { usuario: string; senha: string }) {
     return this.http.post<any>(`${this.apiUrl}/login`, data).pipe(
       tap(res => {
         if (!res.accessToken) return;
         localStorage.setItem('token', res.accessToken);
-        localStorage.setItem('refreshToken', res.refreshToken); // ← salvar
+        localStorage.setItem('refreshToken', res.refreshToken);
         this.iniciarTimerExpiracao(res.accessToken);
         this.atualizarUsuario();
+        // Carrega notificações logo após o login
+        setTimeout(() => this.carregarNotificacoes(), 300);
       })
     );
   }
 
   logout() {
     localStorage.removeItem('token');
-    localStorage.removeItem('refreshToken'); // ← limpar também
+    localStorage.removeItem('refreshToken');
     if (this.logoutTimer) clearTimeout(this.logoutTimer);
     this.atualizarUsuario();
+    this.notificacoesSubject.next([]);
     this.router.navigate(['']);
-  }
-
-  getRefreshToken() {
-    return localStorage.getItem('refreshToken');
   }
 
   renovarToken() {
@@ -74,12 +85,26 @@ export class AuthService {
     );
   }
 
-  cadastrar(usuario: { nome: string, email: string, senha: string, roles: string[] }) {
+  // ─── CADASTRO ────────────────────────────────
+
+  cadastrar(usuario: {
+    nomeCompleto: string;
+    dataNascimento: string;
+    email: string;
+    senha: string;
+    roles: string[];
+  }) {
     return this.http.post(`${this.apiUrl}/cadastro`, usuario);
   }
 
+  // ─── TOKEN ───────────────────────────────────
+
   getToken() {
     return localStorage.getItem('token');
+  }
+
+  getRefreshToken() {
+    return localStorage.getItem('refreshToken');
   }
 
   isAuthenticated(): boolean {
@@ -91,17 +116,12 @@ export class AuthService {
     if (!token) return [];
     try {
       const payload: any = JSON.parse(atob(token.split('.')[1]));
-
       if (Array.isArray(payload.roles)) {
-        // Se for array de strings
         if (typeof payload.roles[0] === 'string') {
           return payload.roles.map((r: string) => r.replace('ROLE_', ''));
         }
-
-        // Se for array de objetos { authority: string }
         return payload.roles.map((r: { authority: string }) => r.authority.replace('ROLE_', ''));
       }
-
       return [];
     } catch {
       return [];
@@ -119,7 +139,7 @@ export class AuthService {
       const payload = JSON.parse(atob(token.split('.')[1]));
       const agora = Math.floor(Date.now() / 1000);
       if (payload.exp && payload.exp < agora) return null;
-      return payload.sub;
+      return payload.sub; // sub = username
     } catch {
       return null;
     }
@@ -129,6 +149,8 @@ export class AuthService {
     this.usuarioSubject.next(this.getUsuarioDoToken());
   }
 
+  // ─── SENHA ───────────────────────────────────
+
   esqueciSenha(email: string) {
     return this.http.post(`${this.apiUrl}/esqueci-senha`, { email });
   }
@@ -137,10 +159,30 @@ export class AuthService {
     return this.http.post(`${this.apiUrl}/reset-senha`, { token, novaSenha });
   }
 
+  // ─── NOTIFICAÇÕES ────────────────────────────
+
+  carregarNotificacoes() {
+    this.http.get<Notificacao[]>(`${this.apiUrl}/notificacoes`).subscribe({
+      next: lista => this.notificacoesSubject.next(lista),
+      error: () => { /* silencioso */ }
+    });
+  }
+
+  marcarNotificacoesComoLidas() {
+    return this.http.post(`${this.apiUrl}/notificacoes/marcar-lidas`, {}).pipe(
+      tap(() => this.notificacoesSubject.next([]))
+    );
+  }
+
+  get quantidadeNotificacoes(): number {
+    return this.notificacoesSubject.value.length;
+  }
+
+  // ─── TIMER INTERNO ───────────────────────────
+
   private iniciarTimerExpiracao(token: string) {
     try {
       if (this.logoutTimer) clearTimeout(this.logoutTimer);
-
       const payload: any = JSON.parse(atob(token.split('.')[1]));
       const exp = payload.exp;
       if (!exp) return;
@@ -149,39 +191,24 @@ export class AuthService {
       const tempoRestante = (exp - agora) * 1000;
 
       if (tempoRestante <= 0) {
-        // Token já expirado — tenta renovar imediatamente
         this.tentarRenovar();
         return;
       }
 
-      console.log(`⏳ Token expira em ${tempoRestante / 1000}s`);
-
-      // Agenda renovação 10s ANTES de expirar (não logout)
       const tempoParaRenovar = Math.max(tempoRestante - 10000, 0);
-
-      this.logoutTimer = setTimeout(() => {
-        console.log('🔄 Renovando token proativamente...');
-        this.tentarRenovar();
-      }, tempoParaRenovar);
-
-    } catch (e) {
+      this.logoutTimer = setTimeout(() => this.tentarRenovar(), tempoParaRenovar);
+    } catch {
       console.error('Erro ao ler expiração do token');
     }
   }
 
   private tentarRenovar() {
     const refreshToken = this.getRefreshToken();
-    if (!refreshToken) {
-      this.logout();
-      return;
-    }
+    if (!refreshToken) { this.logout(); return; }
 
     this.renovarToken().subscribe({
       next: () => console.log('✅ Token renovado automaticamente'),
-      error: () => {
-        console.warn('⚠️ Refresh token expirado — logout necessário');
-        this.logout();
-      }
+      error: () => { this.logout(); }
     });
   }
 }

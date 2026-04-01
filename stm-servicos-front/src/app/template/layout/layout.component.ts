@@ -1,8 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
 import { LayoutProps } from './layoutprops';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
-import { filter, map } from 'rxjs';
-import { AuthService } from '../../auth.service';
+import { filter } from 'rxjs';
+import { AuthService, Notificacao } from '../../auth.service';
 
 @Component({
   selector: 'app-layout',
@@ -17,6 +17,11 @@ export class LayoutComponent implements OnInit {
   isAdmin = false;
   menuUsuarioAberto = false;
   menuMobileAberto = false;
+  notificacoesAbertas = false;
+  bannerSenhaDismissed = false;
+
+  notificacoes: Notificacao[] = [];
+  qtdNotificacoes = 0;
 
   anoAtual: number = new Date().getFullYear();
 
@@ -27,74 +32,80 @@ export class LayoutComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    // Atualiza props a cada navegação
     this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe(() => {
         this.props = this.obterPropriedadesLayout() || { titulo: '', subTitulo: '' };
+        this.menuUsuarioAberto = false;
+        this.menuMobileAberto = false;
+        this.notificacoesAbertas = false;
       });
 
-    // Observa mudanças no usuário logado
     this.auth.usuario$.subscribe(usuario => {
       this.usuarioLogado = usuario;
       this.isAdmin = this.auth.isAdmin();
     });
+
+    this.auth.notificacoes$.subscribe(lista => {
+      this.notificacoes = lista;
+      this.qtdNotificacoes = lista.filter(n => !n.lida).length;
+    });
   }
 
-  obterPropriedadesLayout(): LayoutProps | null {
-    let rotaFilha = this.activatedRoute.firstChild;
+  // ─── NOTIFICAÇÕES ────────────────────────────
 
-    while (rotaFilha?.firstChild) {
-      rotaFilha = rotaFilha.firstChild;
-    }
-
-    const data = rotaFilha?.snapshot.data;
-
-    if (data && 'titulo' in data && 'subTitulo' in data) {
-      return data as LayoutProps;
-    }
-
-    return null;
+  get temNotificacaoTrocarSenha(): boolean {
+    if (this.bannerSenhaDismissed) return false;
+    return this.notificacoes.some(n => n.tipo === 'TROCAR_SENHA' && !n.lida);
   }
 
-  carregarUsuario() {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      this.usuarioLogado = null; // garante que nav não aparece
-      return;
-    }
+  toggleNotificacoes() {
+    this.notificacoesAbertas = !this.notificacoesAbertas;
+    this.menuUsuarioAberto = false;
+  }
 
-    try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      const agora = Math.floor(Date.now() / 1000);
+  marcarTodasLidas() {
+    this.auth.marcarNotificacoesComoLidas().subscribe();
+    this.notificacoesAbertas = false;
+  }
 
-      // verifica expiração
-      if (payload.exp && payload.exp < agora) {
-        this.usuarioLogado = null;
-        localStorage.removeItem('token'); // opcional
-        return;
-      }
+  dispensarBannerSenha() {
+    this.bannerSenhaDismissed = true;
+  }
 
-      this.usuarioLogado = payload.sub;
-      this.isAdmin = payload.roles.some((r: any) => r.authority === 'ROLE_ADMIN');
+  // ─── MENUS ───────────────────────────────────
 
-    } catch (e) {
-      this.usuarioLogado = null; // token inválido
-      localStorage.removeItem('token');
+  toggleMenuUsuario() {
+    this.menuUsuarioAberto = !this.menuUsuarioAberto;
+    this.notificacoesAbertas = false;
+  }
+
+  /**
+   * Fecha dropdowns ao clicar fora — mas IGNORA cliques dentro de elementos
+   * com atributo [data-menu], para não cancelar ações internas (logout, etc.).
+   */
+  @HostListener('document:click', ['$event'])
+  fecharDropdowns(event: MouseEvent) {
+    const alvo = event.target as HTMLElement;
+    if (!alvo.closest('[data-menu]')) {
+      this.menuUsuarioAberto = false;
+      this.notificacoesAbertas = false;
     }
   }
 
   logout() {
     this.auth.logout();
-    this.router.navigate(['/']);
-  }
-
-  toggleMenuUsuario() {
-    this.menuUsuarioAberto = !this.menuUsuarioAberto;
   }
 
   isLoginRoute(): boolean {
     return this.router.url === '/';
   }
 
+  obterPropriedadesLayout(): LayoutProps | null {
+    let rotaFilha = this.activatedRoute.firstChild;
+    while (rotaFilha?.firstChild) rotaFilha = rotaFilha.firstChild;
+    const data = rotaFilha?.snapshot.data;
+    if (data && 'titulo' in data && 'subTitulo' in data) return data as LayoutProps;
+    return null;
+  }
 }

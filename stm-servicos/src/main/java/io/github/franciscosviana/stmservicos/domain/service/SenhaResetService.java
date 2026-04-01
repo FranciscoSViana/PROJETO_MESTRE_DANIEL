@@ -30,15 +30,14 @@ public class SenhaResetService {
     private final UsuarioRepository usuarioRepo;
     private final SenhaResetTokenRepository tokenRepo;
     private final HistoricoSenhaRepository historicoSenhaRepo;
+    private final NotificacaoSenhaService notificacaoSenhaService;
 
     @Transactional
     public void createPasswordResetTokenForEmail(String email) {
-
         var userOpt = usuarioRepo.findByEmail(email);
-        if (userOpt.isEmpty()) return; // para não vazar se email existe: sempre retornar 200
+        if (userOpt.isEmpty()) return; // não vazar se e-mail existe
 
         Usuario user = userOpt.get();
-
         tokenRepo.deleteByUsuario(user);
 
         String token = java.util.UUID.randomUUID().toString();
@@ -49,7 +48,6 @@ public class SenhaResetService {
                 .expiryDate(Instant.now().plusSeconds(3600)) // 1h
                 .build();
 
-
         tokenRepo.save(prt);
 
         String link = frontendResetUrl + token;
@@ -57,21 +55,26 @@ public class SenhaResetService {
         try {
             emailService.enviarEmail(
                     user.getEmail(),
-                    "Recuperação de senha",
-                    "Para resetar sua senha, clique no link: " + link
+                    "Recuperação de senha — STM Serviços",
+                    "Olá " + user.getNomeCompleto() + ",\n\n" +
+                            "Recebemos uma solicitação de recuperação de senha.\n" +
+                            "Clique no link abaixo para definir uma nova senha (válido por 1 hora):\n\n" +
+                            link + "\n\n" +
+                            "Se não foi você, ignore este e-mail.\n\n" +
+                            "Atenciosamente,\nEquipe STM Serviços"
             );
-
-            log.info("📧 Email enviado para {}", user.getEmail());
+            log.info("📧 Link de recuperação enviado para {}", user.getEmail());
         } catch (Exception e) {
-            log.error("❌ Erro ao enviar email", e);
+            log.error("❌ Erro ao enviar e-mail de recuperação", e);
         }
-
     }
 
     public boolean resetPassword(String token, String novaSenha) {
 
-        var tokenOpt = tokenRepo.findByToken(token);
+        // Valida força da senha antes de qualquer coisa
+        authService.validarSenhaForte(novaSenha);
 
+        var tokenOpt = tokenRepo.findByToken(token);
         if (tokenOpt.isEmpty()) return false;
 
         var prt = tokenOpt.get();
@@ -83,10 +86,9 @@ public class SenhaResetService {
 
         Usuario user = prt.getUsuario();
 
-        // 👉 VALIDAR PRIMEIRO
+        // Valida histórico de senhas
         authService.validarUltimasSenhas(user, novaSenha);
 
-        // 👉 Só depois atualizar
         user.setSenha(encoder.encode(novaSenha));
         usuarioRepo.save(user);
 
@@ -98,11 +100,14 @@ public class SenhaResetService {
                         .build()
         );
 
+        // Reseta ciclo de notificação de senha antiga
+        notificacaoSenhaService.registrarTrocaSenha(user);
+
         tokenRepo.delete(prt);
         return true;
     }
 
-    @Scheduled(fixedRate = 1200000) // a cada 10 minutos
+    @Scheduled(fixedRate = 1_200_000)
     @org.springframework.transaction.annotation.Transactional
     public void limparTokensExpirados() {
         tokenRepo.deleteByExpiryDateBefore(Instant.now());

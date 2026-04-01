@@ -1,7 +1,8 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { OrdemServico } from './ordem-servico';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 import { Page } from '../template/utils/page';
 import { environment } from '../../environments/environment';
 import { Solucao } from '../solucao/solucao';
@@ -39,7 +40,6 @@ export class OrdemServicoService {
       .append('sort', 'status,asc')
       .append('sort', 'osg,desc');
 
-    // 🔎 Aplicando filtros dinâmicos
     if (filtro.osClt)
       params = params.set('osClt', filtro.osClt);
 
@@ -128,7 +128,6 @@ export class OrdemServicoService {
     return this.http.get<any[]>(this.apiUrl + '/api/rastreio/status');
   }
 
-  // Método privado para reutilizar a montagem dos filtros
   private buildFiltroParams(filtro: any): HttpParams {
     let params = new HttpParams();
     if (filtro.osClt) params = params.set('osClt', filtro.osClt);
@@ -168,9 +167,20 @@ export class OrdemServicoService {
     );
   }
 
-  // Adicionar também método GET para buscar pagamento existente:
+  /**
+   * Busca o pagamento da OS.
+   * O backend retorna 204 (No Content) quando não existe pagamento ainda.
+   * Usamos `observe: 'response'` para detectar o 204 e retornar null,
+   * evitando que o catchError mascare outros erros reais.
+   */
   buscarPagamento(ordemId: string): Observable<any> {
-    return this.http.get(`${this.apiUrl}/api/ordens-servico/${ordemId}/pagamento`);
+    return this.http.get(
+      `${this.apiUrl}/api/ordens-servico/${ordemId}/pagamento`,
+      { observe: 'response' }
+    ).pipe(
+      map(response => response.status === 204 ? null : response.body),
+      catchError(() => of(null))
+    );
   }
 
   uploadComprovante(file: File, osg: string): Observable<string> {

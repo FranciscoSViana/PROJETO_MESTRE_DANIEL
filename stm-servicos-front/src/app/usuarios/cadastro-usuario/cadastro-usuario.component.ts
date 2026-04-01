@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { AbstractControl, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { AuthService } from '../../auth.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { UsuarioService } from '../usuario.service';
+import { debounceTime } from 'rxjs';
 
 @Component({
   selector: 'app-cadastro-usuario',
@@ -12,189 +13,111 @@ import { UsuarioService } from '../usuario.service';
 })
 export class CadastroUsuarioComponent implements OnInit {
 
-  cadastroForm: FormGroup;
+  cadastroForm!: FormGroup;
   rolesDisponiveis = ['ADMIN', 'USER'];
-  tituloFormulario = 'Cadastro de Usuário'; // 🎯 título dinâmico
-  usuarioId?: string; // para edição
+  usuarioId?: string;
+
   forcaSenha: number | null = null;
   forcaSenhaTexto = '';
   forcaSenhaClasse = '';
 
+  usernamePreview = '';
+
+  private SENHA_FORTE = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
 
   constructor(
-    private service: AuthService,
+    private authService: AuthService,
     private usuarioService: UsuarioService,
     private router: Router,
     private route: ActivatedRoute
-  ) {
-    this.cadastroForm = new FormGroup({
-      nome: new FormControl('', Validators.required),
-      email: new FormControl('', Validators.required),
-      senha: new FormControl('', Validators.required),
-      confirmarSenha: new FormControl('', Validators.required),
-      roles: new FormControl('', Validators.required)
-    });
-
-    // Verifica se senhas conferem
-    this.cadastroForm.valueChanges.subscribe(() => {
-      const senha = this.cadastroForm.get('senha')?.value;
-      const confirmar = this.cadastroForm.get('confirmarSenha')?.value;
-
-      if (senha && confirmar && senha !== confirmar) {
-        this.cadastroForm.get('confirmarSenha')?.setErrors({ naoConfere: true });
-      } else {
-        this.cadastroForm.get('confirmarSenha')?.setErrors(null);
-      }
-    });
-  }
+  ) { }
 
   ngOnInit(): void {
-    // Captura query params → modo edição
+    this.cadastroForm = new FormGroup(
+      {
+        nomeCompleto: new FormControl('', [Validators.required, Validators.minLength(3)]),
+        dataNascimento: new FormControl('', [Validators.required, this.validarIdadeMinima]),
+        email: new FormControl('', [Validators.required, Validators.email]),
+        senha: new FormControl('', [
+          Validators.required,
+          Validators.minLength(8),
+          Validators.pattern(this.SENHA_FORTE)
+        ]),
+        confirmarSenha: new FormControl('', Validators.required),
+        roles: new FormControl('USER', Validators.required)
+      },
+      { validators: this.senhasConferem }
+    );
+
+    this.cadastroForm.get('nomeCompleto')!.valueChanges
+      .pipe(debounceTime(400))
+      .subscribe(nome => this.gerarUsernamePreview(nome));
+
+    this.cadastroForm.get('senha')!.valueChanges
+      .subscribe(v => this.avaliarForcaSenha(v || ''));
+
     this.route.queryParams.subscribe(params => {
-      console.log('Query Params:', params);
       if (params['id']) {
-        this.usuarioId = params['id']; // agora é string
-        console.log('Modo edição, id =', this.usuarioId);
-        this.tituloFormulario = 'Atualização de Cadastro';
-        this.carregarUsuario(this.usuarioId!); // ✅ garante que não é undefined
-      } else {
-        console.log('Modo cadastro');
+        this.usuarioId = params['id'];
+        this.carregarUsuario(this.usuarioId!);
       }
     });
-
   }
 
-  carregarUsuario(id: string) {
-    console.log('Carregando usuário com id:', id);
-    this.usuarioService.listarUsuarios().subscribe({
-      next: (res) => {
-        console.log('Lista de usuários recebida:', res);
-        const usuario = res.content.find(u => u.id === id); // ✅ compara string
-        if (usuario) {
-          console.log('Usuário encontrado:', usuario);
-          this.cadastroForm.patchValue({
-            nome: usuario.nome,
-            email: usuario.email,
-            roles: usuario.roles.join(','),
-            senha: '',
-            confirmarSenha: ''
-          });
-        } else {
-          console.warn('Usuário não encontrado na lista!');
-        }
-      },
-      error: (err) => console.error('Erro ao carregar usuário', err)
-    });
+  // ─── VALIDADORES ─────────────────────────────
+
+  private senhasConferem(group: AbstractControl): ValidationErrors | null {
+    const senha = group.get('senha')?.value;
+    const confirmar = group.get('confirmarSenha')?.value;
+    if (senha && confirmar && senha !== confirmar) {
+      group.get('confirmarSenha')?.setErrors({ naoConfere: true });
+      return { naoConfere: true };
+    }
+    if (group.get('confirmarSenha')?.hasError('naoConfere')) {
+      group.get('confirmarSenha')?.setErrors(null);
+    }
+    return null;
   }
 
-  salvar() {
-    this.cadastroForm.markAllAsTouched();
+  private validarIdadeMinima(control: AbstractControl): ValidationErrors | null {
+    if (!control.value) return null;
+    const nascimento = new Date(control.value);
+    const hoje = new Date();
+    let idade = hoje.getFullYear() - nascimento.getFullYear();
+    const m = hoje.getMonth() - nascimento.getMonth();
+    if (m < 0 || (m === 0 && hoje.getDate() < nascimento.getDate())) idade--;
+    if (idade < 18) return { menorDeIdade: true };
+    if (idade > 120) return { dataInvalida: true };
+    return null;
+  }
 
-    // 1️⃣ Log do estado do formulário
-    console.log('--- INÍCIO DO SALVAR ---');
-    console.log('Formulário válido?', this.cadastroForm.valid);
-    console.log('Erros do formulário:', this.cadastroForm.errors);
-    console.log('Valores do formulário:', this.cadastroForm.getRawValue());
+  // ─── USERNAME PREVIEW ────────────────────────
 
-    if (!this.cadastroForm.valid) {
-      console.warn('Formulário inválido. Corrija os campos antes de enviar.');
+  gerarUsernamePreview(nomeCompleto: string) {
+    if (!nomeCompleto || nomeCompleto.trim().length < 3) {
+      this.usernamePreview = '';
       return;
     }
-
-    const formValue = this.cadastroForm.getRawValue();
-
-    // 2️⃣ Log das senhas
-    console.log('Senha informada:', formValue.senha ? '[OK]' : '[VAZIA]');
-    console.log('Confirmar senha:', formValue.confirmarSenha ? '[OK]' : '[VAZIA]');
-    if (formValue.senha !== formValue.confirmarSenha) {
-      console.warn('As senhas não conferem!');
-      return;
-    }
-
-    // 3️⃣ Transformar roles em array
-    const rolesArray = formValue.roles.split(',').map((r: string) => r.trim());
-    console.log('Roles convertidas para array:', rolesArray);
-
-    // 4️⃣ Montar payload final
-    const usuarioPayload: any = {
-      nome: formValue.nome,
-      email: formValue.email,
-      roles: rolesArray
-    };
-
-    // Só enviar senha se não for vazia (útil para edição)
-    if (formValue.senha) {
-      usuarioPayload.senha = formValue.senha;
-    }
-
-    console.log('Payload final a ser enviado:', usuarioPayload);
-
-    if (this.usuarioId) {
-      console.log('Modo ATUALIZAÇÃO, id:', this.usuarioId);
-      this.usuarioService.atualizarUsuario(this.usuarioId, usuarioPayload).subscribe({
-        next: (res) => {
-          console.log('✅ Atualização OK:', res);
-          alert('Usuário atualizado com sucesso!');
-          this.router.navigate(['/usuarios']);
-        },
-        error: (err) => {
-          console.error('❌ Erro ao atualizar usuário:', err);
-        }
-      });
-    } else {
-      console.log('Modo CADASTRO');
-      this.service.cadastrar(usuarioPayload).subscribe({
-        next: (res) => {
-          console.log('✅ Cadastro OK:', res);
-          alert('Usuário cadastrado com sucesso!');
-          this.router.navigate(['/usuarios']); // ✅ rota para onde você quer ir
-        },
-        error: (err) => {
-          console.error('❌ Erro ao cadastrar usuário:', err);
-
-          const backendError = err.error;
-
-          // ✅ Mensagem geral
-          if (backendError?.userMessage) {
-            alert(backendError.userMessage);
-          }
-
-          // ✅ ERROS DE CAMPOS
-          if (backendError?.fields?.length) {
-            backendError.fields.forEach((campoErro: any) => {
-              const campo = this.cadastroForm.get(campoErro.campo);
-
-              if (campo) {
-                campo.setErrors({ backend: campoErro.mensagem });
-                campo.markAsTouched();
-              }
-            });
-          }
-        }
-
-      });
-    }
-
-    console.log('--- FIM DO SALVAR ---');
+    const partes = this.normalizar(nomeCompleto).split(/\s+/).filter(p => p.length > 0);
+    if (partes.length === 0) { this.usernamePreview = ''; return; }
+    const primeiro = partes[0];
+    const ultimo = partes.length > 1 ? partes[partes.length - 1] : '';
+    this.usernamePreview = ultimo ? `${primeiro}.${ultimo}` : primeiro;
   }
 
-  isCampoInvalido(nomeCampo: string): boolean {
-    const campo = this.cadastroForm.get(nomeCampo);
-    return campo?.invalid && campo.touched && campo.errors?.['required'];
+  private normalizar(texto: string): string {
+    return texto.normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .replace(/[^a-z\s]/g, '');
   }
 
-  avaliarForcaSenha() {
-    const senha = this.cadastroForm.get('senha')?.value || '';
+  // ─── FORÇA DA SENHA ──────────────────────────
 
-    if (!senha) {
-      this.forcaSenha = null;     // ainda não digitou
-      this.forcaSenhaTexto = '';
-      this.forcaSenhaClasse = '';
-      return;
-    }
+  avaliarForcaSenha(senha: string) {
+    if (!senha) { this.forcaSenha = null; this.forcaSenhaTexto = ''; return; }
 
     let score = 0;
-
     if (senha.length >= 8) score += 25;
     if (/[A-Z]/.test(senha)) score += 25;
     if (/[0-9]/.test(senha)) score += 25;
@@ -219,12 +142,109 @@ export class CadastroUsuarioComponent implements OnInit {
 
   bloquearColar(event: ClipboardEvent) {
     const texto = event.clipboardData?.getData('text') || '';
-
-    const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
-
-    if (!regex.test(texto)) {
+    if (!this.SENHA_FORTE.test(texto)) {
       event.preventDefault();
-      alert('⚠️ Não é permitido colar senha fraca.');
+      alert('⚠️ Não é permitido colar uma senha que não atenda aos requisitos de segurança.');
     }
+  }
+
+  // ─── GETTERS PARA REQUISITOS DE SENHA (evita regex no template) ──
+
+  get senhaAtual(): string {
+    return this.cadastroForm?.get('senha')?.value ?? '';
+  }
+
+  get senhaTemMinimo(): boolean    { return this.senhaAtual.length >= 8; }
+  get senhaTemMaiuscula(): boolean { return /[A-Z]/.test(this.senhaAtual); }
+  get senhaTemMinuscula(): boolean { return /[a-z]/.test(this.senhaAtual); }
+  get senhaTemNumero(): boolean    { return /[0-9]/.test(this.senhaAtual); }
+  get senhaTemEspecial(): boolean  { return /[^A-Za-z0-9]/.test(this.senhaAtual); }
+
+  // ─── CARREGAR PARA EDIÇÃO ────────────────────
+
+  carregarUsuario(id: string) {
+    this.usuarioService.listarUsuarios().subscribe({
+      next: (res) => {
+        const usuario = res.content.find((u: any) => u.id === id);
+        if (usuario) {
+          this.cadastroForm.patchValue({
+            nomeCompleto: usuario.nomeCompleto,
+            email: usuario.email,
+            dataNascimento: usuario.dataNascimento,
+            roles: usuario.roles?.[0] ?? 'USER',
+            senha: '',
+            confirmarSenha: ''
+          });
+          this.usernamePreview = usuario.username ?? '';
+
+          // Em modo edição, senha não é obrigatória
+          this.cadastroForm.get('senha')?.clearValidators();
+          this.cadastroForm.get('confirmarSenha')?.clearValidators();
+          this.cadastroForm.get('senha')?.updateValueAndValidity();
+          this.cadastroForm.get('confirmarSenha')?.updateValueAndValidity();
+        }
+      },
+      error: err => console.error('Erro ao carregar usuário', err)
+    });
+  }
+
+  // ─── SALVAR ──────────────────────────────────
+
+  salvar() {
+    this.cadastroForm.markAllAsTouched();
+    if (!this.cadastroForm.valid) return;
+
+    const v = this.cadastroForm.getRawValue();
+    const rolesArray = typeof v.roles === 'string'
+      ? v.roles.split(',').map((r: string) => r.trim())
+      : [v.roles];
+
+    const payload: any = {
+      nomeCompleto: v.nomeCompleto,
+      dataNascimento: v.dataNascimento,
+      email: v.email,
+      roles: rolesArray
+    };
+
+    if (v.senha) payload.senha = v.senha;
+
+    if (this.usuarioId) {
+      this.usuarioService.atualizarUsuario(this.usuarioId, payload).subscribe({
+        next: () => {
+          alert('Usuário atualizado com sucesso!');
+          this.router.navigate(['/usuarios']);
+        },
+        error: err => alert(err.error?.error ?? 'Erro ao atualizar usuário.')
+      });
+    } else {
+      this.authService.cadastrar(payload).subscribe({
+        next: () => {
+          alert('Usuário cadastrado com sucesso!');
+          this.router.navigate(['/usuarios']);
+        },
+        error: err => alert(err.error?.error ?? 'Erro ao cadastrar usuário.')
+      });
+    }
+  }
+
+  // ─── HELPERS ─────────────────────────────────
+
+  isCampoInvalido(campo: string): boolean {
+    const c = this.cadastroForm.get(campo);
+    return !!(c?.invalid && c.touched);
+  }
+
+  erroCampo(campo: string, erro: string): boolean {
+    return !!this.cadastroForm.get(campo)?.hasError(erro);
+  }
+
+  calcularIdade(dataNascimento: string): number | null {
+    if (!dataNascimento) return null;
+    const nascimento = new Date(dataNascimento);
+    const hoje = new Date();
+    let idade = hoje.getFullYear() - nascimento.getFullYear();
+    const m = hoje.getMonth() - nascimento.getMonth();
+    if (m < 0 || (m === 0 && hoje.getDate() < nascimento.getDate())) idade--;
+    return idade;
   }
 }

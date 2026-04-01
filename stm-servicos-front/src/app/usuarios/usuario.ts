@@ -1,10 +1,13 @@
 export class Usuario {
-
-    id?: string;           // equivalente ao Long do Java
-    nome?: string;
+    id?: string;
+    nomeCompleto?: string;
+    username?: string;
+    nome?: string;         // mantido por compatibilidade
     email?: string;
     senha?: string;
-    roles: string[] = [];  // Set<String> do Java → string[]
+    dataNascimento?: string; // ISO date string: "1990-05-15"
+    idade?: number;
+    roles: string[] = [];
     enabled?: boolean = true;
     createdAt?: Date;
 }
