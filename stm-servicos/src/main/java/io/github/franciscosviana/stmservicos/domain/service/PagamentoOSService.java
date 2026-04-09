@@ -102,10 +102,12 @@ public class PagamentoOSService {
                                     SolucaoOS solucao, PagamentoOSInput input) {
 
         BigDecimal valorChamado = resolverValor(
+                input.getValorChamado(),
                 os.getCredenciado() != null ? os.getCredenciado().getValorChamado() : null,
                 "valorChamado", os.getOsg()
         );
         BigDecimal valorKm = resolverValor(
+                input.getValorKm(),
                 os.getCredenciado() != null ? os.getCredenciado().getValorKm() : null,
                 "valorKm", os.getOsg()
         );
@@ -187,9 +189,11 @@ public class PagamentoOSService {
      * Retorna o valor do input se não nulo; caso contrário usa o padrão do cliente.
      * Loga um aviso se nenhum dos dois estiver disponível e retorna ZERO.
      */
-    private BigDecimal resolverValor(BigDecimal valor, String campo, String osg) {
-        if (valor != null) return valor;
-        log.warn("[PagamentoOS] OS={} | {} não encontrado no credenciado. Usando ZERO.", osg, campo);
+    private BigDecimal resolverValor(BigDecimal inputValor, BigDecimal defaultValor,
+                                     String campo, String osg) {
+        if (inputValor != null) return inputValor;           // 1º: o que o usuário digitou
+        if (defaultValor != null) return defaultValor;       // 2º: padrão do credenciado
+        log.warn("[PagamentoOS] OS={} | {} não encontrado. Usando ZERO.", osg, campo);
         return BigDecimal.ZERO;
     }
 
