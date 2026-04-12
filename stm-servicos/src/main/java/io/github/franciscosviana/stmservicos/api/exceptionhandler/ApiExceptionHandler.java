@@ -3,12 +3,14 @@ package io.github.franciscosviana.stmservicos.api.exceptionhandler;
 import io.github.franciscosviana.stmservicos.api.model.input.CampoErro;
 import io.github.franciscosviana.stmservicos.common.validation.CPFInvalidoException;
 import io.github.franciscosviana.stmservicos.common.validation.CepSemGeolocalizacaoException;
+import io.github.franciscosviana.stmservicos.common.validation.CredenciaisInvalidasException;
 import io.github.franciscosviana.stmservicos.common.validation.UsuarioException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -119,10 +121,39 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
         return ResponseEntity
                 .badRequest()
                 .body(Map.of(
-                        "erro", ex.getMessage()
+                        "erro", "CEP não possui geolocalização: " + ex.getMessage()
                 ));
     }
 
+    @ExceptionHandler(CredenciaisInvalidasException.class)
+    public ResponseEntity<Object> handleCredenciaisInvalidas(
+            CredenciaisInvalidasException ex,
+            WebRequest request) {
+
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+        ProblemType problemType = ProblemType.ERRO_NEGOCIO;
+
+        Problem problem = createProblemBuilder(status, problemType, ex.getMessage())
+                .userMessage(ex.getMessage())
+                .build();
+
+        return handleExceptionInternal(ex, problem, new HttpHeaders(), status, request);
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<Object> handleBadCredentials(
+            BadCredentialsException ex, WebRequest request) {
+
+        HttpStatus status = HttpStatus.BAD_REQUEST;  // ou UNAUTHORIZED (401) se preferir
+        ProblemType problemType = ProblemType.ERRO_NEGOCIO;
+        String detail = "Usuário ou senha inválidos.";
+
+        Problem problem = createProblemBuilder(status, problemType, detail)
+                .userMessage(detail)
+                .build();
+
+        return handleExceptionInternal(ex, problem, new HttpHeaders(), status, request);
+    }
 
     // ============================
     // ✅ BUILDER PADRÃO DO PROBLEM

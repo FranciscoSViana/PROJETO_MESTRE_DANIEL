@@ -29,7 +29,7 @@ export class LoginComponent {
           this.router.navigate(['/ordem-servico']);
         },
         error: err => {
-          if (err.status === 400) {
+          if (err.status === 400 || err.status === 401) {
             alert('Usuário ou senha inválidos.');
           } else if (err.status === 0) {
             alert('Servidor indisponível.');

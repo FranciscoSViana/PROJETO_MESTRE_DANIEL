@@ -21,6 +21,8 @@ public class AdminInitializer implements CommandLineRunner {
     public void run(String... args) throws Exception {
         if (!usuarioRepository.existsByNome("admin")) {
             Usuario admin = Usuario.builder()
+                    .nomeCompleto("Admin")
+                    .username("admin")          // ← adicionar
                     .nome("admin")
                     .email("admin@sistema.com")
                     .senha(passwordEncoder.encode("admin"))

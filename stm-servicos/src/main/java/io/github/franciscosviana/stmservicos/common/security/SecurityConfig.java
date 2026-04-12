@@ -40,9 +40,10 @@ public class SecurityConfig {
                                         "/swagger-ui/**",
                                         "/swagger-ui.html",
                                         "/actuator",
-                                        "teste-email",
-                                        "api/enderecos/cep/**",
-                                        "api/credenciados/estados/**"
+                                        "/teste-email",
+                                        "/api/enderecos/cep/**",
+                                        "/api/credenciados/estados/**",
+                                        "/api/rastreio/status"
                                 ).permitAll()
 
                                 // ✅ ROTAS DE AUTENTICAÇÃO

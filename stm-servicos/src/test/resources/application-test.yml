@@ -1,0 +1,51 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;NON_KEYWORDS=value
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+    database-platform: org.hibernate.dialect.H2Dialect
+    open-in-view: false
+
+  flyway:
+    enabled: false
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          secret-key: "test-secret-key-for-tests-only-must-be-atleast32chars!!"
+
+brevo:
+  api:
+    url: http://localhost/mock-brevo
+    key: test-key
+    sender:
+      name: TEST
+      email: test@test.com
+
+google:
+  maps:
+    api-key: test-key
+
+aws:
+  access-key: test
+  secret-key: test
+  region: us-east-1
+  bucket: test-bucket
+
+app:
+  frontend:
+    reset-url: http://localhost:4200/reset?token=
+    url: http://localhost:4200
+
+logging:
+  level:
+    org.springframework.security: WARN
+    org.hibernate: WARN
+    io.github.franciscosviana: WARN

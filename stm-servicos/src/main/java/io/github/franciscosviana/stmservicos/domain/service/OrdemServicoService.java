@@ -199,7 +199,7 @@ public class OrdemServicoService {
     public OrdemServicoOutput atualizarStatusRastreio(UUID id, String statusRastreio) {
         OrdemServico os = buscarOuFalhar(id);
 
-        StatusRastreio novoStatus = StatusRastreio.valueOf(statusRastreio);
+        StatusRastreio novoStatus = StatusRastreio.fromDescricao(statusRastreio);
         os.setStatusRastreio(novoStatus);
 
         repository.save(os);

@@ -15,4 +15,13 @@ public enum StatusRastreio {
 
     private final String descricao;
     private final String cor;
+
+    public static StatusRastreio fromDescricao(String descricao) {
+        for (StatusRastreio status : values()) {
+            if (status.getDescricao().equalsIgnoreCase(descricao)) {
+                return status;
+            }
+        }
+        throw new IllegalArgumentException("Status rastreio inválido: " + descricao);
+    }
 }

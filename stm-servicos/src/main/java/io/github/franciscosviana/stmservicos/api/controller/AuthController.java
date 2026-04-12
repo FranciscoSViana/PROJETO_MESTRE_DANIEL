@@ -6,19 +6,11 @@ import io.github.franciscosviana.stmservicos.api.model.input.ResetSenhaRequest;
 import io.github.franciscosviana.stmservicos.api.model.input.UpdateUsuarioRequest;
 import io.github.franciscosviana.stmservicos.api.model.output.AuthResponse;
 import io.github.franciscosviana.stmservicos.api.model.output.UsuarioResponse;
-import io.github.franciscosviana.stmservicos.common.validation.RoleException;
-import io.github.franciscosviana.stmservicos.common.validation.SenhaFracaException;
-import io.github.franciscosviana.stmservicos.common.validation.SenhaRepetidaException;
-import io.github.franciscosviana.stmservicos.common.validation.UsuarioException;
 import io.github.franciscosviana.stmservicos.domain.model.NotificacaoUsuario;
 import io.github.franciscosviana.stmservicos.domain.model.Usuario;
 import io.github.franciscosviana.stmservicos.domain.repository.NotificacaoUsuarioRepository;
 import io.github.franciscosviana.stmservicos.domain.repository.UsuarioRepository;
-import io.github.franciscosviana.stmservicos.domain.service.AuthService;
-import io.github.franciscosviana.stmservicos.domain.service.RefreshTokenService;
-import io.github.franciscosviana.stmservicos.domain.service.SenhaResetService;
-import io.github.franciscosviana.stmservicos.domain.service.TokenService;
-import io.github.franciscosviana.stmservicos.domain.service.UsernameGeneratorService;
+import io.github.franciscosviana.stmservicos.domain.service.*;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -51,28 +43,20 @@ public class AuthController {
 
     // ─── LOGIN ───────────────────────────────────
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody AuthRequest request) {
+    public ResponseEntity<?> login(@RequestBody @Valid AuthRequest request) {
         log.info("✅ [AuthController] Login: {}", request.getUsuario());
-        try {
-            return ResponseEntity.ok(authService.login(request));
-        } catch (Exception e) {
-            log.error(e.getMessage());
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
-        }
+        return ResponseEntity.ok(authService.login(request));
     }
 
     // ─── CADASTRO ────────────────────────────────
     @PostMapping("/cadastro")
     public ResponseEntity<?> cadastrar(@RequestBody @Valid RegisterRequest req) {
-        try {
-            authService.cadastrar(req);
-            return ResponseEntity.ok(Map.of("message", "Cadastro realizado com sucesso"));
-        } catch (UsuarioException | SenhaFracaException | RoleException e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
-        }
+        authService.cadastrar(req);
+        return ResponseEntity.ok(Map.of("message", "Cadastro realizado com sucesso"));
     }
 
     // ─── PREVIEW DE USERNAME ──────────────────────
+
     /**
      * Consulta o banco e retorna o username que seria gerado para um nome.
      * Não requer autenticação — é chamado durante o preenchimento do cadastro.
@@ -110,23 +94,15 @@ public class AuthController {
     @PutMapping("/usuarios/{id}")
     public ResponseEntity<?> atualizarUsuario(@PathVariable UUID id,
                                               @RequestBody @Valid UpdateUsuarioRequest request) {
-        try {
-            authService.atualizarUsuario(id, request);
-            return ResponseEntity.ok(Map.of("message", "Usuário atualizado com sucesso"));
-        } catch (UsuarioException | RoleException e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
-        }
+        authService.atualizarUsuario(id, request);
+        return ResponseEntity.ok(Map.of("message", "Usuário atualizado com sucesso"));
     }
 
     // ─── EXCLUIR USUÁRIO ─────────────────────────
     @DeleteMapping("/usuarios/{id}")
     public ResponseEntity<?> excluirUsuario(@PathVariable UUID id) {
-        try {
-            authService.excluirUsuario(id);
-            return ResponseEntity.ok(Map.of("message", "Usuário excluído com sucesso"));
-        } catch (UsuarioException e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
-        }
+        authService.excluirUsuario(id);
+        return ResponseEntity.ok(Map.of("message", "Usuário excluído com sucesso"));
     }
 
     // ─── ESQUECI SENHA ───────────────────────────
@@ -139,13 +115,9 @@ public class AuthController {
     // ─── RESET SENHA ─────────────────────────────
     @PostMapping("/reset-senha")
     public ResponseEntity<?> resetPassword(@RequestBody @Valid ResetSenhaRequest req) {
-        try {
-            boolean ok = senhaResetService.resetPassword(req.getToken(), req.getNovaSenha());
-            if (ok) return ResponseEntity.ok(Map.of("message", "Senha atualizada"));
-            return ResponseEntity.badRequest().body(Map.of("error", "Token inválido ou expirado"));
-        } catch (SenhaRepetidaException | SenhaFracaException e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
-        }
+        boolean ok = senhaResetService.resetPassword(req.getToken(), req.getNovaSenha());
+        if (ok) return ResponseEntity.ok(Map.of("message", "Senha atualizada"));
+        return ResponseEntity.badRequest().body(Map.of("error", "Token inválido ou expirado"));
     }
 
     // ─── NOTIFICAÇÕES DO USUÁRIO LOGADO ──────────
