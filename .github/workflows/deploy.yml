@@ -6,6 +6,9 @@ on:
       - develop   # → apenas testes
       - main      # → testes + tag automática + deploy
 
+permissions:
+  contents: write  # necessário para criar e publicar tags
+
 # ================================
 # 🧪 TESTES - BACKEND
 # ================================
@@ -66,18 +69,17 @@ jobs:
       - name: Checkout código
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # necessário para buscar todas as tags existentes
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Incrementar versão (patch)
         id: bump
         run: |
-          # Pega a última tag no formato vX.Y.Z
           LAST_TAG=$(git tag --sort=-v:refname | grep '^v' | head -n1)
 
           if [[ -z "$LAST_TAG" ]]; then
             NEW_TAG="v1.0.0"
           else
-            # Incrementa apenas o patch: v1.2.3 → v1.2.4
             IFS='.' read -r MAJOR MINOR PATCH <<< "${LAST_TAG//v/}"
             NEW_TAG="v${MAJOR}.${MINOR}.$((PATCH + 1))"
           fi
