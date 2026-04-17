@@ -21,6 +21,7 @@ public class ClienteOutputAssembler {
                 .nome(cliente.getNome())
                 .valorChamado(cliente.getValorChamado())
                 .valorKm(cliente.getValorKm())
+                .tipoFluxoPagamento(cliente.getTipoFluxoPagamento())
                 .cnpj(cliente.getCnpj())
                 .inscricaoEstadual(cliente.getInscricaoEstadual())
                 .razaoSocial(cliente.getRazaoSocial())
@@ -29,15 +30,13 @@ public class ClienteOutputAssembler {
                         cliente.getContratos() == null
                                 ? List.of()
                                 : cliente.getContratos().stream()
-                                .map(contratoAssembler::toModel)
-                                .toList()
+                                  .map(contratoAssembler::toModel)
+                                  .toList()
                 )
                 .build();
     }
 
     public List<ClienteOutput> toCollectionModel(List<Cliente> clientes) {
-        return clientes.stream()
-                .map(this::toModel)
-                .toList();
+        return clientes.stream().map(this::toModel).toList();
     }
 }

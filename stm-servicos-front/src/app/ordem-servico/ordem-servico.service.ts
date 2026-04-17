@@ -28,49 +28,24 @@ export class OrdemServicoService {
     return this.http.get<OrdemServico>(this.apiUrl + `/api/ordens-servico/${id}`);
   }
 
-  listar(
-    page: number = 0,
-    size: number = 10,
-    filtro: any = {}
-  ): Observable<Page<OrdemServico>> {
-
+  listar(page: number = 0, size: number = 10, filtro: any = {}): Observable<Page<OrdemServico>> {
     let params = new HttpParams()
       .set('page', page)
       .set('size', size)
       .append('sort', 'status,asc')
       .append('sort', 'osg,desc');
 
-    if (filtro.osClt)
-      params = params.set('osClt', filtro.osClt);
+    if (filtro.osClt)        params = params.set('osClt', filtro.osClt);
+    if (filtro.osg)          params = params.set('osg', filtro.osg);
+    if (filtro.dataAbertura) params = params.set('dataAbertura', filtro.dataAbertura);
+    if (filtro.status)       params = params.set('status', filtro.status);
+    if (filtro.cliente)      params = params.set('cliente', filtro.cliente);
+    if (filtro.credenciado)  params = params.set('credenciado', filtro.credenciado);
+    if (filtro.cidade)       params = params.set('cidade', filtro.cidade);
+    if (filtro.estado)       params = params.set('estado', filtro.estado);
+    if (filtro.rastreio)     params = params.set('rastreio', filtro.rastreio);
 
-    if (filtro.osg)
-      params = params.set('osg', filtro.osg);
-
-    if (filtro.dataAbertura)
-      params = params.set('dataAbertura', filtro.dataAbertura);
-
-    if (filtro.status)
-      params = params.set('status', filtro.status);
-
-    if (filtro.cliente)
-      params = params.set('cliente', filtro.cliente);
-
-    if (filtro.credenciado)
-      params = params.set('credenciado', filtro.credenciado);
-
-    if (filtro.cidade)
-      params = params.set('cidade', filtro.cidade);
-
-    if (filtro.estado)
-      params = params.set('estado', filtro.estado);
-
-    if (filtro.rastreio)
-      params = params.set('rastreio', filtro.rastreio);
-
-    return this.http.get<Page<OrdemServico>>(
-      this.apiUrl + '/api/ordens-servico',
-      { params }
-    );
+    return this.http.get<Page<OrdemServico>>(this.apiUrl + '/api/ordens-servico', { params });
   }
 
   excluir(id: string): Observable<any> {
@@ -94,27 +69,18 @@ export class OrdemServicoService {
   }
 
   exportarXlsx(filtro: any = {}): Observable<Blob> {
-    let params = this.buildFiltroParams(filtro);
-    return this.http.get(this.apiUrl + '/api/ordens-servico/exportar/xlsx', {
-      params,
-      responseType: 'blob'
-    });
+    return this.http.get(this.apiUrl + '/api/ordens-servico/exportar/xlsx',
+      { params: this.buildFiltroParams(filtro), responseType: 'blob' });
   }
 
   exportarCsv(filtro: any = {}): Observable<Blob> {
-    let params = this.buildFiltroParams(filtro);
-    return this.http.get(this.apiUrl + '/api/ordens-servico/exportar/csv', {
-      params,
-      responseType: 'blob'
-    });
+    return this.http.get(this.apiUrl + '/api/ordens-servico/exportar/csv',
+      { params: this.buildFiltroParams(filtro), responseType: 'blob' });
   }
 
   exportarPdf(filtro: any = {}): Observable<Blob> {
-    let params = this.buildFiltroParams(filtro);
-    return this.http.get(this.apiUrl + '/api/ordens-servico/exportar/pdf', {
-      params,
-      responseType: 'blob'
-    });
+    return this.http.get(this.apiUrl + '/api/ordens-servico/exportar/pdf',
+      { params: this.buildFiltroParams(filtro), responseType: 'blob' });
   }
 
   atualizarStatusRastreio(id: string, statusRastreio: string): Observable<OrdemServico> {
@@ -130,49 +96,36 @@ export class OrdemServicoService {
 
   private buildFiltroParams(filtro: any): HttpParams {
     let params = new HttpParams();
-    if (filtro.osClt) params = params.set('osClt', filtro.osClt);
-    if (filtro.osg) params = params.set('osg', filtro.osg);
+    if (filtro.osClt)        params = params.set('osClt', filtro.osClt);
+    if (filtro.osg)          params = params.set('osg', filtro.osg);
     if (filtro.dataAbertura) params = params.set('dataAbertura', filtro.dataAbertura);
-    if (filtro.status) params = params.set('status', filtro.status);
-    if (filtro.cliente) params = params.set('cliente', filtro.cliente);
-    if (filtro.credenciado) params = params.set('credenciado', filtro.credenciado);
-    if (filtro.cidade) params = params.set('cidade', filtro.cidade);
-    if (filtro.estado) params = params.set('estado', filtro.estado);
-    if (filtro.rastreio) params = params.set('rastreio', filtro.rastreio);
+    if (filtro.status)       params = params.set('status', filtro.status);
+    if (filtro.cliente)      params = params.set('cliente', filtro.cliente);
+    if (filtro.credenciado)  params = params.set('credenciado', filtro.credenciado);
+    if (filtro.cidade)       params = params.set('cidade', filtro.cidade);
+    if (filtro.estado)       params = params.set('estado', filtro.estado);
+    if (filtro.rastreio)     params = params.set('rastreio', filtro.rastreio);
     return params;
   }
 
   relatorioIndividualPdf(id: string): Observable<Blob> {
-    return this.http.get(
-      this.apiUrl + `/api/ordens-servico/${id}/relatorio/pdf`,
-      { responseType: 'blob' }
-    );
+    return this.http.get(this.apiUrl + `/api/ordens-servico/${id}/relatorio/pdf`, { responseType: 'blob' });
   }
 
   relatorioIndividualXlsx(id: string): Observable<Blob> {
-    return this.http.get(
-      this.apiUrl + `/api/ordens-servico/${id}/relatorio/xlsx`,
-      { responseType: 'blob' }
-    );
+    return this.http.get(this.apiUrl + `/api/ordens-servico/${id}/relatorio/xlsx`, { responseType: 'blob' });
   }
 
-  registrar(ordemId: string, payload: any) {
+  // ── Pagamento ao credenciado (Contas a Pagar) ────────────────────────────
+
+  registrar(ordemId: string, payload: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/api/ordens-servico/${ordemId}/pagamento`, payload);
   }
 
   editarPagamento(ordemId: string, payload: any): Observable<any> {
-    return this.http.put(
-      `${this.apiUrl}/api/ordens-servico/${ordemId}/pagamento`,
-      payload
-    );
+    return this.http.put(`${this.apiUrl}/api/ordens-servico/${ordemId}/pagamento`, payload);
   }
 
-  /**
-   * Busca o pagamento da OS.
-   * O backend retorna 204 (No Content) quando não existe pagamento ainda.
-   * Usamos `observe: 'response'` para detectar o 204 e retornar null,
-   * evitando que o catchError mascare outros erros reais.
-   */
   buscarPagamento(ordemId: string): Observable<any> {
     return this.http.get(
       `${this.apiUrl}/api/ordens-servico/${ordemId}/pagamento`,
@@ -183,6 +136,7 @@ export class OrdemServicoService {
     );
   }
 
+  /** Upload comprovante de pagamento ao credenciado → pasta comprovantes/ */
   uploadComprovante(file: File, osg: string): Observable<string> {
     const formData = new FormData();
     formData.append('file', file);
@@ -194,6 +148,45 @@ export class OrdemServicoService {
   }
 
   deletarComprovante(url: string): Observable<void> {
+    return this.http.delete<void>(
+      `${this.apiUrl}/api/uploads/comprovante`,
+      { params: { url } }
+    );
+  }
+
+  // ── Recebimento do cliente (Contas a Receber) ────────────────────────────
+
+  registrarRecebimento(ordemId: string, payload: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/api/ordens-servico/${ordemId}/recebimento`, payload);
+  }
+
+  editarRecebimento(ordemId: string, payload: any): Observable<any> {
+    return this.http.put(`${this.apiUrl}/api/ordens-servico/${ordemId}/recebimento`, payload);
+  }
+
+  buscarRecebimento(ordemId: string): Observable<any> {
+    return this.http.get(
+      `${this.apiUrl}/api/ordens-servico/${ordemId}/recebimento`,
+      { observe: 'response' }
+    ).pipe(
+      map(response => response.status === 204 ? null : response.body),
+      catchError(() => of(null))
+    );
+  }
+
+  /** Upload comprovante de recebimento → pasta recebimentos/pagamento-cliente-OSG... */
+  uploadComprovanteRecebimento(file: File, osg: string): Observable<string> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post(
+      `${this.apiUrl}/api/uploads/recebimento?osg=${encodeURIComponent(osg)}`,
+      formData,
+      { responseType: 'text' }
+    );
+  }
+
+  /** Deleta arquivo do S3 (serve tanto para comprovantes/ quanto recebimentos/) */
+  deletarComprovanteRecebimento(url: string): Observable<void> {
     return this.http.delete<void>(
       `${this.apiUrl}/api/uploads/comprovante`,
       { params: { url } }

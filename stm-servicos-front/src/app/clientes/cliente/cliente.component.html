@@ -47,6 +47,18 @@
         </div>
 
         <div>
+          <label class="block text-gray-600 font-medium mb-1 text-sm">Fluxo de Pagamento</label>
+          <select formControlName="tipoFluxoPagamento"
+            class="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm bg-white">
+            <option [ngValue]="null">Selecione</option>
+            <option value="MENSAL">Mensal</option>
+            <option value="QUINZENAL">Quinzenal</option>
+            <option value="SEMANAL">Semanal</option>
+            <option value="UNICO">Único</option>
+          </select>
+        </div>
+
+        <div>
           <label class="block text-gray-600 font-medium mb-1 text-sm">CNPJ</label>
           <input type="text" formControlName="cnpj" mask="00.000.000/0000-00" [dropSpecialCharacters]="true"
             placeholder="00.000.000/0000-00"
