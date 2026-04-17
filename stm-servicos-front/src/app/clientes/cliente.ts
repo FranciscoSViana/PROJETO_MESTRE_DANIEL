@@ -9,6 +9,7 @@ export class Cliente {
     nome?: string;
     valorChamado?: number;
     valorKm?: number;
+    tipoFluxoPagamento?: string;
     cnpj?: string;
     inscricaoEstadual?: string;
     razaoSocial?: string;

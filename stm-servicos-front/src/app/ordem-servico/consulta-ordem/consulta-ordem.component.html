@@ -1,34 +1,35 @@
 <div class="p-4 md:p-6 max-w-7xl mx-auto bg-white shadow-lg rounded-lg mt-6">
 
   <!-- ================= HEADER ================= -->
-  <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-4">
+  <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-3 mb-4">
 
     <h2 class="text-xl md:text-2xl font-semibold text-gray-700">
       Ordens de Serviço
     </h2>
 
-    <div class="flex flex-wrap gap-2">
+    <!-- Botões de exportação + Nova OS — grid 2×2 no mobile, linha no desktop -->
+    <div class="grid grid-cols-2 sm:flex sm:flex-wrap gap-2">
 
       <button (click)="exportar('xlsx')"
-        class="flex items-center gap-1 px-3 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 text-sm">
+        class="flex items-center justify-center gap-1 px-3 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 text-sm">
         <i class="fa-solid fa-file-excel"></i>
-        <span class="hidden sm:inline">Excel</span>
+        <span>Excel</span>
       </button>
 
       <button (click)="exportar('csv')"
-        class="flex items-center gap-1 px-3 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 text-sm">
+        class="flex items-center justify-center gap-1 px-3 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 text-sm">
         <i class="fa-solid fa-file-csv"></i>
-        <span class="hidden sm:inline">CSV</span>
+        <span>CSV</span>
       </button>
 
       <button (click)="exportar('pdf')"
-        class="flex items-center gap-1 px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 text-sm">
+        class="flex items-center justify-center gap-1 px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 text-sm">
         <i class="fa-solid fa-file-pdf"></i>
-        <span class="hidden sm:inline">PDF</span>
+        <span>PDF</span>
       </button>
 
       <button routerLink="/ordem-servico/cadastro"
-        class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm">
+        class="flex items-center justify-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-medium">
         + Nova OS
       </button>
 
@@ -139,31 +140,18 @@
       <table class="min-w-[1200px] w-full border-collapse">
 
         <thead class="bg-gray-100">
-
           <tr class="bg-gray-50 text-sm">
-            <th><input [(ngModel)]="filtro.osClt" (keyup)="carregarOrdens()" class="w-full border p-1 rounded"
-                placeholder="OS CLT"></th>
-            <th><input [(ngModel)]="filtro.osg" (keyup)="carregarOrdens()" class="w-full border p-1 rounded"
-                placeholder="OSG"></th>
-            <th>
-              <input mask="00/00/0000" [(ngModel)]="filtro.dataAbertura" (keyup)="carregarOrdens()"
-                class="w-full border p-1 rounded" placeholder="Data">
-            </th>
-            <th><input [(ngModel)]="filtro.cliente" (keyup)="carregarOrdens()" class="w-full border p-1 rounded"
-                placeholder="Cliente"></th>
-            <th><input [(ngModel)]="filtro.credenciado" (keyup)="carregarOrdens()" class="w-full border p-1 rounded"
-                placeholder="Credenciado"></th>
-            <th><input [(ngModel)]="filtro.cidade" (keyup)="carregarOrdens()" class="w-full border p-1 rounded"
-                placeholder="Cidade"></th>
-            <th><input [(ngModel)]="filtro.estado" (keyup)="carregarOrdens()" class="w-full border p-1 rounded"
-                placeholder="UF"></th>
-            <th><input [(ngModel)]="filtro.rastreio" (keyup)="carregarOrdens()" class="w-full border p-1 rounded"
-                placeholder="Rastreio"></th>
-            <th><input [(ngModel)]="filtro.status" (keyup)="carregarOrdens()" class="w-full border p-1 rounded"
-                placeholder="Status"></th>
+            <th><input [(ngModel)]="filtro.osClt" (keyup)="carregarOrdens()" class="w-full border p-1 rounded" placeholder="OS CLT"></th>
+            <th><input [(ngModel)]="filtro.osg" (keyup)="carregarOrdens()" class="w-full border p-1 rounded" placeholder="OSG"></th>
+            <th><input mask="00/00/0000" [(ngModel)]="filtro.dataAbertura" (keyup)="carregarOrdens()" class="w-full border p-1 rounded" placeholder="Data"></th>
+            <th><input [(ngModel)]="filtro.cliente" (keyup)="carregarOrdens()" class="w-full border p-1 rounded" placeholder="Cliente"></th>
+            <th><input [(ngModel)]="filtro.credenciado" (keyup)="carregarOrdens()" class="w-full border p-1 rounded" placeholder="Credenciado"></th>
+            <th><input [(ngModel)]="filtro.cidade" (keyup)="carregarOrdens()" class="w-full border p-1 rounded" placeholder="Cidade"></th>
+            <th><input [(ngModel)]="filtro.estado" (keyup)="carregarOrdens()" class="w-full border p-1 rounded" placeholder="UF"></th>
+            <th><input [(ngModel)]="filtro.rastreio" (keyup)="carregarOrdens()" class="w-full border p-1 rounded" placeholder="Rastreio"></th>
+            <th><input [(ngModel)]="filtro.status" (keyup)="carregarOrdens()" class="w-full border p-1 rounded" placeholder="Status"></th>
             <th></th>
           </tr>
-
           <tr class="text-gray-700 text-sm">
             <th class="p-3 border text-center">OS CLT</th>
             <th class="p-3 border text-center">OSG</th>
@@ -176,7 +164,6 @@
             <th class="p-3 border text-center">Status</th>
             <th class="p-3 border text-center">Ações</th>
           </tr>
-
         </thead>
 
         <tbody>
@@ -188,10 +175,9 @@
             <td class="p-3 border text-center">{{ os.credenciadoNome }}</td>
             <td class="p-3 border text-center">{{ os.endereco?.cidade }}</td>
             <td class="p-3 border text-center">{{ os.endereco?.estado }}</td>
-            <!-- Coluna Rastreio - tabela desktop -->
             <td class="p-3 border text-center">
-              <button (click)="abrirModalRastreio(os)" [disabled]="!os.rastreio" class="inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium
-           disabled:opacity-40 disabled:cursor-default transition hover:brightness-90"
+              <button (click)="abrirModalRastreio(os)" [disabled]="!os.rastreio"
+                class="inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium disabled:opacity-40 disabled:cursor-default transition hover:brightness-90"
                 [style.backgroundColor]="getCorRastreio(os.statusRastreio) + '22'"
                 [style.color]="getCorRastreio(os.statusRastreio)"
                 [style.border]="'1px solid ' + getCorRastreio(os.statusRastreio)">
@@ -210,58 +196,37 @@
             </td>
             <td class="p-3 border">
               <div class="flex justify-center gap-1">
-
-                <button class="w-8 h-8 flex items-center justify-center rounded hover:bg-gray-200" title="Editar"
-                  (click)="editar(os.id)">
+                <button class="w-8 h-8 flex items-center justify-center rounded hover:bg-gray-200" title="Editar" (click)="editar(os.id)">
                   <i class="fa-solid fa-pen-to-square text-blue-600"></i>
                 </button>
-
-                <button class="w-8 h-8 flex items-center justify-center rounded hover:bg-gray-200" title="Histórico"
-                  (click)="verHistorico(os.id)">
+                <button class="w-8 h-8 flex items-center justify-center rounded hover:bg-gray-200" title="Histórico" (click)="verHistorico(os.id)">
                   <i class="fa-solid fa-clock-rotate-left text-gray-600"></i>
                 </button>
-
                 <button class="w-8 h-8 flex items-center justify-center rounded hover:bg-gray-200"
                   [title]="os.status === 'CONCLUIDA' ? 'Visualizar solução' : 'Finalizar OS'" (click)="acaoSolucao(os)">
-                  <i [ngClass]="os.status === 'CONCLUIDA'
-          ? 'fa-solid fa-eye text-blue-600'
-          : 'fa-solid fa-check text-green-600'"></i>
+                  <i [ngClass]="os.status === 'CONCLUIDA' ? 'fa-solid fa-eye text-blue-600' : 'fa-solid fa-check text-green-600'"></i>
                 </button>
-
                 <div class="relative">
-                  <button (click)="toggleExportMenuOS(os.id!)"
-                    class="w-8 h-8 flex items-center justify-center rounded hover:bg-gray-200" title="Exportar">
+                  <button (click)="toggleExportMenuOS(os.id!)" class="w-8 h-8 flex items-center justify-center rounded hover:bg-gray-200" title="Exportar">
                     <i class="fa-solid fa-download text-gray-600"></i>
                   </button>
-
-                  <div *ngIf="exportMenuOSAberto === os.id"
-                    class="absolute right-0 mt-2 w-36 bg-white border rounded-lg shadow-lg z-50 overflow-hidden">
-
-                    <button (click)="imprimirOS(os, 'pdf'); fecharExportMenuOS()"
-                      class="w-full text-left px-3 py-2 hover:bg-gray-100 flex items-center gap-2 text-sm">
+                  <div *ngIf="exportMenuOSAberto === os.id" class="absolute right-0 mt-2 w-36 bg-white border rounded-lg shadow-lg z-50 overflow-hidden">
+                    <button (click)="imprimirOS(os, 'pdf'); fecharExportMenuOS()" class="w-full text-left px-3 py-2 hover:bg-gray-100 flex items-center gap-2 text-sm">
                       <i class="fa-solid fa-file-pdf text-red-600"></i> PDF
                     </button>
-
-                    <button (click)="imprimirOS(os, 'xlsx'); fecharExportMenuOS()"
-                      class="w-full text-left px-3 py-2 hover:bg-gray-100 flex items-center gap-2 text-sm">
+                    <button (click)="imprimirOS(os, 'xlsx'); fecharExportMenuOS()" class="w-full text-left px-3 py-2 hover:bg-gray-100 flex items-center gap-2 text-sm">
                       <i class="fa-solid fa-file-excel text-emerald-600"></i> Excel
                     </button>
-
                   </div>
                 </div>
-
                 <div class="relative">
-                  <button (click)="togglePagamentoMenu(os, $event)"
-                    class="w-8 h-8 flex items-center justify-center rounded hover:bg-gray-200" title="Financeiro">
+                  <button (click)="togglePagamentoMenu(os, $event)" class="w-8 h-8 flex items-center justify-center rounded hover:bg-gray-200" title="Financeiro">
                     <i class="fa-solid fa-dollar-sign text-green-600"></i>
                   </button>
                 </div>
-
-                <button class="w-8 h-8 flex items-center justify-center rounded hover:bg-gray-200" title="Excluir"
-                  (click)="excluir(os.id)">
+                <button class="w-8 h-8 flex items-center justify-center rounded hover:bg-gray-200" title="Excluir" (click)="excluir(os.id)">
                   <i class="fa-solid fa-trash text-red-600"></i>
                 </button>
-
               </div>
             </td>
           </tr>
@@ -271,28 +236,25 @@
               Nenhuma ordem de serviço encontrada.
             </td>
           </tr>
-
         </tbody>
 
       </table>
 
-      <!-- ================= MENU PAGAMENTO (FIXED) ================= -->
+      <!-- MENU PAGAMENTO DESKTOP (FIXED) -->
       <div *ngIf="menuPagamentoAberto" class="fixed z-[9999] w-44 bg-white border rounded-lg shadow-xl overflow-hidden"
         [style.top.px]="menuPagamentoPosicao.top" [style.left.px]="menuPagamentoPosicao.left">
-
         <button (click)="abrirModalPagamento(getOrdemById(menuPagamentoAberto!)); fecharMenuPagamento()"
           class="w-full text-left px-3 py-2 hover:bg-gray-100 flex items-center gap-2 text-sm">
           <i class="fa-solid fa-arrow-down text-red-500"></i>
           Contas a Pagar
         </button>
-
-        <button
-          class="w-full text-left px-3 py-2 hover:bg-gray-100 flex items-center gap-2 text-sm opacity-50 cursor-not-allowed">
+        <button (click)="abrirModalRecebimento(getOrdemById(menuPagamentoAberto!)); fecharMenuPagamento()"
+          class="w-full text-left px-3 py-2 hover:bg-gray-100 flex items-center gap-2 text-sm">
           <i class="fa-solid fa-arrow-up text-green-500"></i>
-          Contas a Receber (em breve)
+          Contas a Receber
         </button>
-
       </div>
+
     </div>
 
     <!-- ================= CARDS MOBILE ================= -->
@@ -312,13 +274,12 @@
           <p><span class="font-medium">Cidade:</span> {{ os.endereco?.cidade }} - {{ os.endereco?.estado }}</p>
           <p>
             <span class="font-medium">Rastreio: </span>
-            <button (click)="abrirModalRastreio(os)" [disabled]="!os.rastreio" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium
-           disabled:opacity-40 transition hover:brightness-90"
+            <button (click)="abrirModalRastreio(os)" [disabled]="!os.rastreio"
+              class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium disabled:opacity-40 transition hover:brightness-90"
               [style.backgroundColor]="getCorRastreio(os.statusRastreio) + '22'"
               [style.color]="getCorRastreio(os.statusRastreio)"
               [style.border]="'1px solid ' + getCorRastreio(os.statusRastreio)">
-              <span class="w-2 h-2 rounded-full inline-block"
-                [style.backgroundColor]="getCorRastreio(os.statusRastreio)"></span>
+              <span class="w-2 h-2 rounded-full inline-block" [style.backgroundColor]="getCorRastreio(os.statusRastreio)"></span>
               {{ os.rastreio || '—' }}
             </button>
           </p>
@@ -334,55 +295,50 @@
           </p>
         </div>
 
-        <div class="flex justify-end gap-3 pt-2 border-t">
+        <!-- Botões mobile: grid 4 colunas para caber todos sem transbordar -->
+        <div class="grid grid-cols-4 gap-1 pt-2 border-t">
 
-          <button class="w-9 h-9 flex items-center justify-center rounded hover:bg-gray-100" (click)="editar(os.id)">
-            <i class="fa-solid fa-pen-to-square text-blue-600"></i>
+          <button class="h-10 flex items-center justify-center rounded hover:bg-gray-100" title="Editar" (click)="editar(os.id)">
+            <i class="fa-solid fa-pen-to-square text-blue-600 text-base"></i>
           </button>
 
-          <button class="w-9 h-9 flex items-center justify-center rounded hover:bg-gray-100"
-            (click)="verHistorico(os.id)">
-            <i class="fa-solid fa-clock-rotate-left text-gray-600"></i>
+          <button class="h-10 flex items-center justify-center rounded hover:bg-gray-100" title="Histórico" (click)="verHistorico(os.id)">
+            <i class="fa-solid fa-clock-rotate-left text-gray-600 text-base"></i>
           </button>
 
-          <button class="w-9 h-9 flex items-center justify-center rounded hover:bg-gray-100" (click)="acaoSolucao(os)">
-            <i [ngClass]="os.status === 'CONCLUIDA'
-        ? 'fa-solid fa-eye text-blue-600'
-        : 'fa-solid fa-check text-green-600'"></i>
+          <button class="h-10 flex items-center justify-center rounded hover:bg-gray-100" (click)="acaoSolucao(os)"
+            [title]="os.status === 'CONCLUIDA' ? 'Ver solução' : 'Finalizar OS'">
+            <i [ngClass]="os.status === 'CONCLUIDA' ? 'fa-solid fa-eye text-blue-600' : 'fa-solid fa-check text-green-600'" class="text-base"></i>
           </button>
 
           <div class="relative">
-            <button (click)="toggleExportMenuOS(os.id!)"
-              class="w-9 h-9 flex items-center justify-center rounded hover:bg-gray-100" title="Exportar">
-              <i class="fa-solid fa-download text-gray-600"></i>
+            <button (click)="toggleExportMenuOS(os.id!)" class="w-full h-10 flex items-center justify-center rounded hover:bg-gray-100" title="Exportar">
+              <i class="fa-solid fa-download text-gray-600 text-base"></i>
             </button>
-
             <div *ngIf="exportMenuOSAberto === os.id"
-              class="absolute right-0 mt-2 w-36 bg-white border rounded-lg shadow-lg z-50 overflow-hidden">
-
+              class="absolute right-0 mt-1 w-36 bg-white border rounded-lg shadow-lg z-50 overflow-hidden">
               <button (click)="imprimirOS(os, 'pdf'); fecharExportMenuOS()"
                 class="w-full text-left px-3 py-2 hover:bg-gray-100 flex items-center gap-2 text-sm">
                 <i class="fa-solid fa-file-pdf text-red-600"></i> PDF
               </button>
-
               <button (click)="imprimirOS(os, 'xlsx'); fecharExportMenuOS()"
                 class="w-full text-left px-3 py-2 hover:bg-gray-100 flex items-center gap-2 text-sm">
                 <i class="fa-solid fa-file-excel text-emerald-600"></i> Excel
               </button>
-
             </div>
           </div>
 
-          <div class="relative">
-            <button (click)="togglePagamentoMenu(os, $event)"
-              class="w-8 h-8 flex items-center justify-center rounded hover:bg-gray-200" title="Financeiro">
-              <i class="fa-solid fa-dollar-sign text-green-600"></i>
-            </button>
-          </div>
-
-          <button class="w-9 h-9 flex items-center justify-center rounded hover:bg-gray-100" (click)="excluir(os.id)">
-            <i class="fa-solid fa-trash text-red-600"></i>
+          <button (click)="togglePagamentoMenu(os, $event)" class="h-10 flex items-center justify-center rounded hover:bg-gray-100" title="Financeiro">
+            <i class="fa-solid fa-dollar-sign text-green-600 text-base"></i>
           </button>
+
+          <button class="h-10 flex items-center justify-center rounded hover:bg-gray-100" title="Excluir" (click)="excluir(os.id)">
+            <i class="fa-solid fa-trash text-red-600 text-base"></i>
+          </button>
+
+          <!-- Células vazias para completar o grid de 4 colunas -->
+          <div></div>
+          <div></div>
 
         </div>
 
@@ -392,22 +348,19 @@
         Nenhuma ordem de serviço encontrada.
       </div>
 
-      <!-- ================= MENU PAGAMENTO (FIXED) ================= -->
+      <!-- MENU PAGAMENTO MOBILE (FIXED) — Contas a Receber habilitado -->
       <div *ngIf="menuPagamentoAberto" class="fixed z-[9999] w-44 bg-white border rounded-lg shadow-xl overflow-hidden"
         [style.top.px]="menuPagamentoPosicao.top" [style.left.px]="menuPagamentoPosicao.left">
-
         <button (click)="abrirModalPagamento(getOrdemById(menuPagamentoAberto!)); fecharMenuPagamento()"
           class="w-full text-left px-3 py-2 hover:bg-gray-100 flex items-center gap-2 text-sm">
           <i class="fa-solid fa-arrow-down text-red-500"></i>
           Contas a Pagar
         </button>
-
-        <button
-          class="w-full text-left px-3 py-2 hover:bg-gray-100 flex items-center gap-2 text-sm opacity-50 cursor-not-allowed">
+        <button (click)="abrirModalRecebimento(getOrdemById(menuPagamentoAberto!)); fecharMenuPagamento()"
+          class="w-full text-left px-3 py-2 hover:bg-gray-100 flex items-center gap-2 text-sm">
           <i class="fa-solid fa-arrow-up text-green-500"></i>
-          Contas a Receber (em breve)
+          Contas a Receber
         </button>
-
       </div>
 
     </div>
@@ -416,7 +369,6 @@
 
   <!-- ================= PAGINAÇÃO ================= -->
   <div class="mt-6 border-t pt-4">
-
     <div class="flex flex-col md:flex-row items-center justify-between gap-4">
 
       <div class="text-sm text-gray-600">
@@ -428,7 +380,7 @@
       <div class="flex items-center gap-2">
         <button (click)="paginaAnterior()" [disabled]="page === 0"
           class="flex items-center gap-1 px-4 py-2 bg-blue-600 text-white rounded shadow hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed text-sm">
-          Anterior <i class="fa-solid fa-chevron-left"></i>
+          <i class="fa-solid fa-chevron-left"></i> Anterior
         </button>
         <div class="px-4 py-2 border rounded font-medium bg-gray-50 text-sm">{{ page + 1 }}</div>
         <button (click)="proximaPagina()" [disabled]="(page + 1) >= totalPages"
@@ -446,7 +398,6 @@
       </div>
 
     </div>
-
   </div>
 
 </div>
@@ -454,94 +405,65 @@
 
 <!-- ================= MODAL 1: FINALIZAR OS ================= -->
 <div *ngIf="modalSolucaoAberto" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-
   <div class="bg-white w-full max-w-2xl rounded-xl shadow-2xl p-4 md:p-5 max-h-[90vh] overflow-y-auto">
 
     <div class="flex justify-between items-center mb-3 border-b pb-2">
-      <h2 class="text-base md:text-lg font-semibold text-gray-700">
-        Finalizar Ordem de Serviço
-      </h2>
+      <h2 class="text-base md:text-lg font-semibold text-gray-700">Finalizar Ordem de Serviço</h2>
       <button (click)="fecharModalSolucao()" class="text-gray-400 hover:text-gray-600">
         <i class="fa-solid fa-xmark text-lg"></i>
       </button>
     </div>
 
-    <!-- INFO DA OS -->
     <div class="grid grid-cols-2 gap-2 mb-3 bg-gray-50 p-2 rounded-lg border">
       <div>
         <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide">OS CLT</label>
-        <input type="text" [value]="ordemSelecionada?.osClt"
-          class="w-full border rounded p-1.5 bg-gray-100 text-gray-700 text-sm mt-1" disabled>
+        <input type="text" [value]="ordemSelecionada?.osClt" class="w-full border rounded p-1.5 bg-gray-100 text-gray-700 text-sm mt-1" disabled>
       </div>
       <div>
         <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide">OSG</label>
-        <input type="text" [value]="ordemSelecionada?.osg"
-          class="w-full border rounded p-1.5 bg-gray-100 text-gray-700 text-sm mt-1" disabled>
+        <input type="text" [value]="ordemSelecionada?.osg" class="w-full border rounded p-1.5 bg-gray-100 text-gray-700 text-sm mt-1" disabled>
       </div>
     </div>
 
-    <!-- FORMULÁRIO -->
     <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
-
       <div>
         <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Hora Inicial *</label>
-        <input type="datetime-local" [(ngModel)]="solucao.horaInicial"
-          class="w-full border rounded-lg p-1.5 mt-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400">
+        <input type="datetime-local" [(ngModel)]="solucao.horaInicial" class="w-full border rounded-lg p-1.5 mt-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400">
       </div>
-
       <div>
         <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Hora Final *</label>
-        <input type="datetime-local" [(ngModel)]="solucao.horaFinal"
-          class="w-full border rounded-lg p-1.5 mt-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400">
+        <input type="datetime-local" [(ngModel)]="solucao.horaFinal" class="w-full border rounded-lg p-1.5 mt-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400">
       </div>
-
       <div>
         <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Peça Solicitada</label>
-        <input type="text" [(ngModel)]="solucao.pecaSolicitada"
-          class="w-full border rounded-lg p-1.5 mt-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400">
+        <input type="text" [(ngModel)]="solucao.pecaSolicitada" class="w-full border rounded-lg p-1.5 mt-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400">
       </div>
-
       <div>
         <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide">KM</label>
-        <input type="number" [(ngModel)]="solucao.km"
-          class="w-full border rounded-lg p-1.5 mt-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400">
+        <input type="number" [(ngModel)]="solucao.km" class="w-full border rounded-lg p-1.5 mt-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400">
       </div>
-
       <div>
         <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Pedágio</label>
-        <input type="number" [(ngModel)]="solucao.pedagio"
-          class="w-full border rounded-lg p-1.5 mt-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400">
+        <input type="number" [(ngModel)]="solucao.pedagio" class="w-full border rounded-lg p-1.5 mt-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400">
       </div>
-
       <div>
         <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Estacionamento</label>
-        <input type="number" [(ngModel)]="solucao.estacionamento"
-          class="w-full border rounded-lg p-1.5 mt-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400">
+        <input type="number" [(ngModel)]="solucao.estacionamento" class="w-full border rounded-lg p-1.5 mt-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400">
       </div>
-
       <div>
         <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Outros</label>
-        <input type="number" [(ngModel)]="solucao.outros"
-          class="w-full border rounded-lg p-1.5 mt-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400">
+        <input type="number" [(ngModel)]="solucao.outros" class="w-full border rounded-lg p-1.5 mt-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400">
       </div>
-
       <div class="col-span-2 md:col-span-4">
         <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Solução *</label>
-        <textarea [(ngModel)]="solucao.solucao" rows="3"
-          class="w-full border rounded-lg p-1.5 mt-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-          placeholder="Descreva a solução aplicada..."></textarea>
+        <textarea [(ngModel)]="solucao.solucao" rows="3" class="w-full border rounded-lg p-1.5 mt-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="Descreva a solução aplicada..."></textarea>
       </div>
-
       <div class="col-span-2 md:col-span-4">
         <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Observação</label>
-        <textarea [(ngModel)]="solucao.observacao" rows="2"
-          class="w-full border rounded-lg p-1.5 mt-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-          placeholder="Observações adicionais..."></textarea>
+        <textarea [(ngModel)]="solucao.observacao" rows="2" class="w-full border rounded-lg p-1.5 mt-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="Observações adicionais..."></textarea>
       </div>
-
     </div>
 
-    <!-- OPÇÃO: Copiar OS após finalizar -->
     <div class="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
       <p class="text-sm font-semibold text-blue-700 mb-2">
         <i class="fa-solid fa-copy mr-1"></i>
@@ -549,26 +471,19 @@
       </p>
       <div class="flex gap-3">
         <label class="flex items-center gap-2 cursor-pointer">
-          <input type="radio" name="copiarOS" [value]="false" [(ngModel)]="copiarAposFinalizarOS"
-            class="accent-blue-600">
+          <input type="radio" name="copiarOS" [value]="false" [(ngModel)]="copiarAposFinalizarOS" class="accent-blue-600">
           <span class="text-sm text-gray-700">Não, só finalizar</span>
         </label>
         <label class="flex items-center gap-2 cursor-pointer">
-          <input type="radio" name="copiarOS" [value]="true" [(ngModel)]="copiarAposFinalizarOS"
-            class="accent-blue-600">
+          <input type="radio" name="copiarOS" [value]="true" [(ngModel)]="copiarAposFinalizarOS" class="accent-blue-600">
           <span class="text-sm text-gray-700">Sim, finalizar e copiar OS</span>
         </label>
       </div>
     </div>
 
-    <!-- BOTÕES -->
     <div class="flex flex-col-reverse md:flex-row justify-end gap-3 mt-3 pt-3 border-t">
-      <button (click)="fecharModalSolucao()"
-        class="px-5 py-2 bg-gray-400 text-white rounded-lg hover:bg-gray-500 transition text-sm w-full md:w-auto">
-        Cancelar
-      </button>
-      <button (click)="salvarSolucao()"
-        class="px-5 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm w-full md:w-auto">
+      <button (click)="fecharModalSolucao()" class="px-5 py-2 bg-gray-400 text-white rounded-lg hover:bg-gray-500 transition text-sm w-full md:w-auto">Cancelar</button>
+      <button (click)="salvarSolucao()" class="px-5 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm w-full md:w-auto">
         <i class="fa-solid fa-check mr-1"></i> Finalizar OS
       </button>
     </div>
@@ -579,7 +494,6 @@
 
 <!-- ================= MODAL 2: VISUALIZAR SOLUÇÃO ================= -->
 <div *ngIf="modalVisualizarSolucao" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-
   <div class="bg-white w-full max-w-3xl rounded-xl shadow-2xl p-4 md:p-8 max-h-[90vh] overflow-y-auto">
 
     <div class="flex justify-between items-center mb-6 border-b pb-3">
@@ -590,78 +504,53 @@
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-
       <div>
         <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Data Atendimento</label>
-        <input type="text" [value]="solucaoVisualizacao?.dataAtendimento | date:'dd/MM/yyyy HH:mm'"
-          class="w-full border rounded-lg px-3 py-2 bg-gray-100 text-gray-700 text-sm" disabled>
+        <input type="text" [value]="solucaoVisualizacao?.dataAtendimento | date:'dd/MM/yyyy HH:mm'" class="w-full border rounded-lg px-3 py-2 bg-gray-100 text-gray-700 text-sm" disabled>
       </div>
-
       <div>
         <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Hora Inicial</label>
-        <input type="text" [value]="solucaoVisualizacao?.horaInicial | date:'dd/MM/yyyy HH:mm'"
-          class="w-full border rounded-lg px-3 py-2 bg-gray-100 text-gray-700 text-sm" disabled>
+        <input type="text" [value]="solucaoVisualizacao?.horaInicial | date:'dd/MM/yyyy HH:mm'" class="w-full border rounded-lg px-3 py-2 bg-gray-100 text-gray-700 text-sm" disabled>
       </div>
-
       <div>
         <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Hora Final</label>
-        <input type="text" [value]="solucaoVisualizacao?.horaFinal | date:'dd/MM/yyyy HH:mm'"
-          class="w-full border rounded-lg px-3 py-2 bg-gray-100 text-gray-700 text-sm" disabled>
+        <input type="text" [value]="solucaoVisualizacao?.horaFinal | date:'dd/MM/yyyy HH:mm'" class="w-full border rounded-lg px-3 py-2 bg-gray-100 text-gray-700 text-sm" disabled>
       </div>
-
       <div>
         <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Peça Solicitada</label>
-        <input type="text" [value]="solucaoVisualizacao?.pecaSolicitada"
-          class="w-full border rounded-lg px-3 py-2 bg-gray-100 text-gray-700 text-sm" disabled>
+        <input type="text" [value]="solucaoVisualizacao?.pecaSolicitada" class="w-full border rounded-lg px-3 py-2 bg-gray-100 text-gray-700 text-sm" disabled>
       </div>
-
       <div>
         <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">KM</label>
-        <input type="text" [value]="solucaoVisualizacao?.km"
-          class="w-full border rounded-lg px-3 py-2 bg-gray-100 text-gray-700 text-sm" disabled>
+        <input type="text" [value]="solucaoVisualizacao?.km" class="w-full border rounded-lg px-3 py-2 bg-gray-100 text-gray-700 text-sm" disabled>
       </div>
-
       <div>
         <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Pedágio</label>
-        <input type="text" [value]="solucaoVisualizacao?.pedagio"
-          class="w-full border rounded-lg px-3 py-2 bg-gray-100 text-gray-700 text-sm" disabled>
+        <input type="text" [value]="solucaoVisualizacao?.pedagio" class="w-full border rounded-lg px-3 py-2 bg-gray-100 text-gray-700 text-sm" disabled>
       </div>
-
       <div>
         <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Estacionamento</label>
-        <input type="text" [value]="solucaoVisualizacao?.estacionamento"
-          class="w-full border rounded-lg px-3 py-2 bg-gray-100 text-gray-700 text-sm" disabled>
+        <input type="text" [value]="solucaoVisualizacao?.estacionamento" class="w-full border rounded-lg px-3 py-2 bg-gray-100 text-gray-700 text-sm" disabled>
       </div>
-
       <div>
         <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Outros</label>
-        <input type="text" [value]="solucaoVisualizacao?.outros"
-          class="w-full border rounded-lg px-3 py-2 bg-gray-100 text-gray-700 text-sm" disabled>
+        <input type="text" [value]="solucaoVisualizacao?.outros" class="w-full border rounded-lg px-3 py-2 bg-gray-100 text-gray-700 text-sm" disabled>
       </div>
-
       <div class="md:col-span-2">
         <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Solução</label>
-        <textarea class="w-full border rounded-lg px-3 py-2 bg-gray-100 text-gray-700 text-sm min-h-[100px]"
-          [value]="solucaoVisualizacao?.solucao" disabled></textarea>
+        <textarea class="w-full border rounded-lg px-3 py-2 bg-gray-100 text-gray-700 text-sm min-h-[100px]" [value]="solucaoVisualizacao?.solucao" disabled></textarea>
       </div>
-
       <div class="md:col-span-2">
         <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Observação</label>
-        <textarea class="w-full border rounded-lg px-3 py-2 bg-gray-100 text-gray-700 text-sm min-h-[80px]"
-          [value]="solucaoVisualizacao?.observacao" disabled></textarea>
+        <textarea class="w-full border rounded-lg px-3 py-2 bg-gray-100 text-gray-700 text-sm min-h-[80px]" [value]="solucaoVisualizacao?.observacao" disabled></textarea>
       </div>
-
     </div>
 
     <div class="flex flex-col-reverse md:flex-row justify-between items-center gap-3 mt-6 pt-4 border-t">
-      <button (click)="abrirModalEmail()"
-        class="flex items-center gap-2 px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition w-full md:w-auto justify-center">
+      <button (click)="abrirModalEmail()" class="flex items-center gap-2 px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition w-full md:w-auto justify-center">
         <i class="fa-solid fa-envelope"></i> Copiar para E-mail
       </button>
-      <button (click)="fecharModalVisualizacao()"
-        class="px-5 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition w-full md:w-auto">
-        Fechar
-      </button>
+      <button (click)="fecharModalVisualizacao()" class="px-5 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition w-full md:w-auto">Fechar</button>
     </div>
 
   </div>
@@ -670,7 +559,6 @@
 
 <!-- ================= MODAL 3: E-MAIL ================= -->
 <div *ngIf="modalEmail" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-
   <div class="bg-white w-full max-w-2xl rounded-xl shadow-2xl p-4 md:p-6 max-h-[90vh] overflow-y-auto">
 
     <div class="flex justify-between items-center mb-4 border-b pb-3">
@@ -686,22 +574,18 @@
     <div #emailDiv [innerHTML]="textoEmailFormatado" class="border rounded-lg overflow-hidden text-sm"></div>
 
     <div class="flex flex-col-reverse md:flex-row justify-between items-center gap-3 mt-4 pt-4 border-t">
-      <button (click)="copiarTexto(emailDiv)"
-        class="flex items-center justify-center gap-2 px-5 py-2 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition w-full md:w-auto">
+      <button (click)="copiarTexto(emailDiv)" class="flex items-center justify-center gap-2 px-5 py-2 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition w-full md:w-auto">
         <i class="fa-solid fa-copy"></i> Copiar Formatado
       </button>
-      <button (click)="modalEmail = false"
-        class="px-5 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition w-full md:w-auto">
-        Fechar
-      </button>
+      <button (click)="modalEmail = false" class="px-5 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition w-full md:w-auto">Fechar</button>
     </div>
 
   </div>
 </div>
 
+
 <!-- ================= MODAL: STATUS RASTREIO ================= -->
 <div *ngIf="modalRastreioAberto" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-
   <div class="bg-white w-full max-w-sm rounded-xl shadow-2xl p-5">
 
     <div class="flex justify-between items-center mb-4 border-b pb-3">
@@ -714,33 +598,25 @@
       </button>
     </div>
 
-    <!-- Código de rastreio -->
     <p class="text-sm text-gray-500 mb-4">
       Código: <span class="font-semibold text-gray-800">{{ ordemRastreioSelecionada?.rastreio }}</span>
     </p>
 
-    <!-- Opções de status -->
     <div class="grid grid-cols-1 gap-2 mb-5">
-      <button *ngFor="let opcao of statusRastreioOpcoes" (click)="statusRastreioSelecionado = opcao.value" class="flex items-center gap-3 px-4 py-3 rounded-lg border-2 text-sm font-medium
-               transition-all duration-150 text-left"
+      <button *ngFor="let opcao of statusRastreioOpcoes" (click)="statusRastreioSelecionado = opcao.value"
+        class="flex items-center gap-3 px-4 py-3 rounded-lg border-2 text-sm font-medium transition-all duration-150 text-left"
         [style.borderColor]="statusRastreioSelecionado === opcao.value ? opcao.cor : '#E5E7EB'"
         [style.backgroundColor]="statusRastreioSelecionado === opcao.value ? opcao.cor + '18' : 'white'"
         [style.color]="statusRastreioSelecionado === opcao.value ? opcao.cor : '#374151'">
         <span class="w-3 h-3 rounded-full flex-shrink-0" [style.backgroundColor]="opcao.cor"></span>
         {{ opcao.descricao }}
-        <i *ngIf="statusRastreioSelecionado === opcao.value" class="fa-solid fa-check ml-auto"
-          [style.color]="opcao.cor"></i>
+        <i *ngIf="statusRastreioSelecionado === opcao.value" class="fa-solid fa-check ml-auto" [style.color]="opcao.cor"></i>
       </button>
     </div>
 
-    <!-- Botões -->
     <div class="flex gap-3">
-      <button (click)="fecharModalRastreio()" class="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg
-               hover:bg-gray-200 transition text-sm font-medium">
-        Cancelar
-      </button>
-      <button (click)="salvarStatusRastreio()" class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg
-               hover:bg-blue-700 transition text-sm font-medium">
+      <button (click)="fecharModalRastreio()" class="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition text-sm font-medium">Cancelar</button>
+      <button (click)="salvarStatusRastreio()" class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-medium">
         <i class="fa-solid fa-floppy-disk mr-1"></i> Salvar
       </button>
     </div>
@@ -748,14 +624,12 @@
   </div>
 </div>
 
-<!-- ================= MODAL PAGAMENTO ================= -->
-<!-- ================= MODAL PAGAMENTO ================= -->
-<div *ngIf="modalPagamentoAberto" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
 
-  <!-- flex-col separa header / corpo rolável / footer fixo -->
+<!-- ================= MODAL CONTAS A PAGAR ================= -->
+<div *ngIf="modalPagamentoAberto" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
   <div class="bg-white w-full max-w-3xl rounded-2xl shadow-2xl max-h-[95vh] flex flex-col">
 
-    <!-- ── HEADER (fixo, não rola) ── -->
+    <!-- HEADER -->
     <div class="flex justify-between items-center px-6 py-4 border-b bg-red-50 rounded-t-2xl flex-shrink-0">
       <div class="flex items-center gap-3">
         <div class="w-9 h-9 rounded-full bg-red-100 flex items-center justify-center">
@@ -765,16 +639,12 @@
           <h2 class="text-base font-bold text-red-700">Pagamento da Ordem de Serviço</h2>
           <p class="text-xs text-gray-500">Preencha os dados financeiros da OS</p>
         </div>
-
-        <!-- ✅ Badge: usa pagamentoJaExiste em vez de pagamento.tipoPagamento -->
         <span *ngIf="!pagamentoModoEdicao && pagamentoJaExiste"
           class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700 border border-green-200">
           <i class="fa-solid fa-lock text-xs"></i> Pagamento registrado
         </span>
       </div>
-
       <div class="flex items-center gap-2">
-        <!-- ✅ Botão Editar: usa pagamentoJaExiste em vez de pagamento.tipoPagamento -->
         <button *ngIf="!pagamentoModoEdicao && pagamentoJaExiste" (click)="habilitarEdicaoPagamento()"
           class="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-xs font-medium">
           <i class="fa-solid fa-pen-to-square"></i> Editar
@@ -785,10 +655,9 @@
       </div>
     </div>
 
-    <!-- ── CORPO (rola) ── -->
+    <!-- CORPO -->
     <div class="p-5 space-y-5 overflow-y-auto flex-1">
 
-      <!-- LOADING -->
       <div *ngIf="carregandoPagamento" class="flex items-center justify-center py-4">
         <svg class="animate-spin h-6 w-6 text-blue-500 mr-2" viewBox="0 0 24 24">
           <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" class="opacity-25"></circle>
@@ -797,153 +666,118 @@
         <span class="text-sm text-gray-500">Carregando dados...</span>
       </div>
 
-      <!-- ── SEÇÃO 1: DADOS DA OS ── -->
+      <!-- Seção 1: Dados da OS -->
       <div>
         <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3 flex items-center gap-2">
           <i class="fa-solid fa-file-lines text-blue-500"></i> Dados da OS
         </p>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-
           <div>
             <label class="block text-xs font-semibold text-gray-500 mb-1">OS CLT</label>
-            <input [value]="ordemPagamentoSelecionada?.osClt" disabled
-              class="w-full border rounded-lg px-3 py-2 bg-gray-50 text-gray-700 text-sm cursor-default">
+            <input [value]="ordemPagamentoSelecionada?.osClt" disabled class="w-full border rounded-lg px-3 py-2 bg-gray-50 text-gray-700 text-sm cursor-default">
           </div>
-
           <div>
             <label class="block text-xs font-semibold text-gray-500 mb-1">OSG</label>
-            <input [value]="ordemPagamentoSelecionada?.osg" disabled
-              class="w-full border rounded-lg px-3 py-2 bg-gray-50 text-gray-700 text-sm cursor-default">
+            <input [value]="ordemPagamentoSelecionada?.osg" disabled class="w-full border rounded-lg px-3 py-2 bg-gray-50 text-gray-700 text-sm cursor-default">
           </div>
-
           <div>
             <label class="block text-xs font-semibold text-gray-500 mb-1">Cliente</label>
-            <input [value]="ordemPagamentoSelecionada?.cliente?.nome" disabled
-              class="w-full border rounded-lg px-3 py-2 bg-gray-50 text-gray-700 text-sm cursor-default">
+            <input [value]="ordemPagamentoSelecionada?.cliente?.nome" disabled class="w-full border rounded-lg px-3 py-2 bg-gray-50 text-gray-700 text-sm cursor-default">
           </div>
-
           <div>
             <label class="block text-xs font-semibold text-gray-500 mb-1">Contrato</label>
-            <input [value]="($any(ordemPagamentoSelecionada?.contrato)?.numeroContrato ?? '') +
-              ($any(ordemPagamentoSelecionada?.contrato)?.nomeContrato
-                ? ' - ' + $any(ordemPagamentoSelecionada?.contrato)?.nomeContrato
-                : '')" disabled
-              class="w-full border rounded-lg px-3 py-2 bg-gray-50 text-gray-700 text-sm cursor-default">
+            <input [value]="($any(ordemPagamentoSelecionada?.contrato)?.numeroContrato ?? '') + ($any(ordemPagamentoSelecionada?.contrato)?.nomeContrato ? ' - ' + $any(ordemPagamentoSelecionada?.contrato)?.nomeContrato : '')" disabled class="w-full border rounded-lg px-3 py-2 bg-gray-50 text-gray-700 text-sm cursor-default">
           </div>
-
         </div>
       </div>
 
       <hr>
 
-      <!-- ── SEÇÃO 2: VALORES ── -->
+      <!-- Seção 2: Valores -->
       <div>
         <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3 flex items-center gap-2">
           <i class="fa-solid fa-coins text-yellow-500"></i> Valores
         </p>
         <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
-
           <div>
             <label class="block text-xs font-semibold text-gray-500 mb-1">Valor Chamado (R$)</label>
             <div class="relative">
               <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs">R$</span>
-              <input type="number" min="0" [(ngModel)]="pagamento.valorChamado" (ngModelChange)="calcularTotalPreview()"
-                [disabled]="!pagamentoModoEdicao"
+              <input type="number" min="0" [(ngModel)]="pagamento.valorChamado" (ngModelChange)="calcularTotalPreview()" [disabled]="!pagamentoModoEdicao"
                 class="w-full border rounded-lg pl-8 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-default">
             </div>
           </div>
-
           <div>
             <label class="block text-xs font-semibold text-gray-500 mb-1">KM</label>
-            <input type="number" min="0" [(ngModel)]="pagamento.km" (ngModelChange)="calcularTotalPreview()"
-              [disabled]="!pagamentoModoEdicao" placeholder="0"
+            <input type="number" min="0" [(ngModel)]="pagamento.km" (ngModelChange)="calcularTotalPreview()" [disabled]="!pagamentoModoEdicao" placeholder="0"
               class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-default">
           </div>
-
           <div>
             <label class="block text-xs font-semibold text-gray-500 mb-1">Valor KM (R$)</label>
             <div class="relative">
               <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs">R$</span>
-              <input type="number" min="0" [(ngModel)]="pagamento.valorKm" (ngModelChange)="calcularTotalPreview()"
-                [disabled]="!pagamentoModoEdicao"
+              <input type="number" min="0" [(ngModel)]="pagamento.valorKm" (ngModelChange)="calcularTotalPreview()" [disabled]="!pagamentoModoEdicao"
                 class="w-full border rounded-lg pl-8 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-default">
             </div>
           </div>
-
           <div>
             <label class="block text-xs font-semibold text-gray-500 mb-1">Total KM (R$)</label>
-            <div class="w-full border rounded-lg px-3 py-2 text-sm bg-gray-100 text-gray-700 flex items-center justify-between">
-              <span class="font-semibold" [ngClass]="calcularTotalKm() > 0 ? 'text-green-700' : 'text-gray-400'">
-                {{ calcularTotalKm() | currency:'BRL' }}
-              </span>
+            <div class="w-full border rounded-lg px-3 py-2 text-sm bg-gray-100 text-gray-700 flex items-center">
+              <span class="font-semibold" [ngClass]="calcularTotalKm() > 0 ? 'text-green-700' : 'text-gray-400'">{{ calcularTotalKm() | currency:'BRL' }}</span>
             </div>
           </div>
-
           <div>
             <label class="block text-xs font-semibold text-gray-500 mb-1">Pedágio (R$)</label>
             <div class="relative">
               <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs">R$</span>
-              <input type="number" min="0" [(ngModel)]="pagamento.pedagio" (ngModelChange)="calcularTotalPreview()"
-                [disabled]="!pagamentoModoEdicao"
+              <input type="number" min="0" [(ngModel)]="pagamento.pedagio" (ngModelChange)="calcularTotalPreview()" [disabled]="!pagamentoModoEdicao"
                 class="w-full border rounded-lg pl-8 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-default">
             </div>
           </div>
-
           <div>
             <label class="block text-xs font-semibold text-gray-500 mb-1">Estacionamento (R$)</label>
             <div class="relative">
               <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs">R$</span>
-              <input type="number" min="0" [(ngModel)]="pagamento.estacionamento" (ngModelChange)="calcularTotalPreview()"
-                [disabled]="!pagamentoModoEdicao"
+              <input type="number" min="0" [(ngModel)]="pagamento.estacionamento" (ngModelChange)="calcularTotalPreview()" [disabled]="!pagamentoModoEdicao"
                 class="w-full border rounded-lg pl-8 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-default">
             </div>
           </div>
-
           <div>
             <label class="block text-xs font-semibold text-gray-500 mb-1">Outros (R$)</label>
             <div class="relative">
               <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs">R$</span>
-              <input type="number" min="0" [(ngModel)]="pagamento.valorOutros" (ngModelChange)="calcularTotalPreview()"
-                [disabled]="!pagamentoModoEdicao"
+              <input type="number" min="0" [(ngModel)]="pagamento.valorOutros" (ngModelChange)="calcularTotalPreview()" [disabled]="!pagamentoModoEdicao"
                 class="w-full border rounded-lg pl-8 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-default">
             </div>
           </div>
-
           <div class="col-span-2 md:col-span-3">
             <label class="block text-xs font-semibold text-gray-500 mb-1">Descrição — Outros</label>
-            <input type="text" [(ngModel)]="pagamento.outros" [disabled]="!pagamentoModoEdicao"
-              placeholder="Ex: Material de apoio..."
+            <input type="text" [(ngModel)]="pagamento.outros" [disabled]="!pagamentoModoEdicao" placeholder="Ex: Material de apoio..."
               class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-default">
           </div>
-
         </div>
       </div>
 
-      <!-- TOTAL PREVIEW -->
       <div class="flex items-center justify-between bg-green-50 border border-green-200 rounded-xl px-5 py-3">
         <div class="flex items-center gap-2 text-green-700">
           <i class="fa-solid fa-calculator"></i>
           <span class="text-sm font-semibold">Total Calculado</span>
           <span class="text-xs text-green-500">(cálculo definitivo é feito pelo servidor)</span>
         </div>
-        <span class="text-lg font-bold text-green-700">
-          {{ calcularTotalPreview() | currency:'BRL' }}
-        </span>
+        <span class="text-lg font-bold text-green-700">{{ calcularTotalPreview() | currency:'BRL' }}</span>
       </div>
 
       <hr>
 
-      <!-- ── SEÇÃO 3: DADOS DE PAGAMENTO ── -->
+      <!-- Seção 3: Dados de Pagamento -->
       <div>
         <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3 flex items-center gap-2">
           <i class="fa-solid fa-credit-card text-indigo-500"></i> Dados de Pagamento
         </p>
         <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
-
           <div>
             <label class="block text-xs font-semibold text-gray-500 mb-1">Tipo de Pagamento *</label>
-            <select [(ngModel)]="pagamento.tipoPagamento" [disabled]="!pagamentoModoEdicao"
-              (ngModelChange)="onTipoPagamentoChange()"
+            <select [(ngModel)]="pagamento.tipoPagamento" [disabled]="!pagamentoModoEdicao" (ngModelChange)="onTipoPagamentoChange()"
               class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-default">
               <option value="">— Selecione —</option>
               <option value="BOLETO">Boleto</option>
@@ -951,89 +785,315 @@
               <option value="OUTROS">Outros</option>
             </select>
           </div>
-
           <div *ngIf="pagamento.tipoPagamento === 'PIX'">
             <label class="block text-xs font-semibold text-gray-500 mb-1">Chave PIX</label>
-            <input type="text" [(ngModel)]="pagamento.chavePix" [disabled]="!pagamentoModoEdicao"
-              placeholder="Chave PIX não cadastrada"
+            <input type="text" [(ngModel)]="pagamento.chavePix" [disabled]="!pagamentoModoEdicao" placeholder="Chave PIX não cadastrada"
               class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-default">
           </div>
-
           <div>
             <label class="block text-xs font-semibold text-gray-500 mb-1">Lote</label>
             <input type="text" [(ngModel)]="pagamento.lote" [disabled]="!pagamentoModoEdicao"
               class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-default">
           </div>
-
           <div>
             <label class="block text-xs font-semibold text-gray-500 mb-1">CPF / NF</label>
             <input type="text" [(ngModel)]="pagamento.cpfNf" [disabled]="!pagamentoModoEdicao"
               class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-default">
           </div>
-
           <div>
             <label class="block text-xs font-semibold text-gray-500 mb-1">Banco</label>
             <input type="text" [(ngModel)]="pagamento.banco" [disabled]="!pagamentoModoEdicao"
               class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-default">
           </div>
-
           <div [ngClass]="pagamento.tipoPagamento === 'PIX' ? 'col-span-1' : 'col-span-2'">
             <label class="block text-xs font-semibold text-gray-500 mb-1">Comprovante</label>
             <div class="flex items-center gap-2">
-
-              <label
-                class="flex items-center justify-between gap-3 px-3 h-[38px] border border-gray-300 rounded-lg text-sm flex-1"
-                [class.cursor-pointer]="pagamentoModoEdicao"
-                [class.hover:border-blue-400]="pagamentoModoEdicao"
-                [class.hover:bg-blue-50]="pagamentoModoEdicao"
-                [class.opacity-50]="!pagamentoModoEdicao"
-                [class.cursor-default]="!pagamentoModoEdicao">
+              <label class="flex items-center justify-between gap-3 px-3 h-[38px] border border-gray-300 rounded-lg text-sm flex-1"
+                [class.cursor-pointer]="pagamentoModoEdicao" [class.hover:border-blue-400]="pagamentoModoEdicao"
+                [class.hover:bg-blue-50]="pagamentoModoEdicao" [class.opacity-50]="!pagamentoModoEdicao" [class.cursor-default]="!pagamentoModoEdicao">
                 <div class="flex items-center gap-2 text-gray-600">
                   <i class="fa-solid fa-paperclip text-gray-400 text-xs"></i>
-                  <span class="truncate">
-                    {{ uploadandoComprovante ? 'Enviando...' : 'Anexar comprovante' }}
-                  </span>
+                  <span class="truncate">{{ uploadandoComprovante ? 'Enviando...' : 'Anexar comprovante' }}</span>
                 </div>
-                <span *ngIf="pagamento.tipoPagamento !== 'PIX'"
-                  class="text-[10px] text-gray-400 hidden sm:inline whitespace-nowrap">
-                  JPG, PNG ou PDF
-                </span>
-                <input type="file" accept="image/*,.pdf" class="hidden" (change)="uploadComprovante($event)"
-                  [disabled]="uploadandoComprovante || !pagamentoModoEdicao">
+                <span *ngIf="pagamento.tipoPagamento !== 'PIX'" class="text-[10px] text-gray-400 hidden sm:inline whitespace-nowrap">JPG, PNG ou PDF</span>
+                <input type="file" accept="image/*,.pdf" class="hidden" (change)="uploadComprovante($event)" [disabled]="uploadandoComprovante || !pagamentoModoEdicao">
               </label>
-
               <div *ngIf="pagamento.urlComprovante" class="flex items-center gap-1">
-                <a [href]="pagamento.urlComprovante" target="_blank" title="Visualizar"
-                  class="w-8 h-8 flex items-center justify-center rounded hover:bg-gray-100">
+                <a [href]="pagamento.urlComprovante" target="_blank" title="Visualizar" class="w-8 h-8 flex items-center justify-center rounded hover:bg-gray-100">
                   <i class="fa-solid fa-eye text-blue-600 text-sm"></i>
                 </a>
-                <button (click)="downloadComprovante()" type="button" title="Download"
-                  class="w-8 h-8 flex items-center justify-center rounded hover:bg-gray-100">
+                <button (click)="downloadComprovante()" type="button" title="Download" class="w-8 h-8 flex items-center justify-center rounded hover:bg-gray-100">
                   <i class="fa-solid fa-download text-green-600 text-sm"></i>
                 </button>
-                <button *ngIf="pagamentoModoEdicao" (click)="removerComprovante()" type="button" title="Remover"
-                  class="w-8 h-8 flex items-center justify-center rounded hover:bg-gray-100">
+                <button *ngIf="pagamentoModoEdicao" (click)="removerComprovante()" type="button" title="Remover" class="w-8 h-8 flex items-center justify-center rounded hover:bg-gray-100">
                   <i class="fa-solid fa-xmark text-red-500 text-sm"></i>
                 </button>
               </div>
-
             </div>
           </div>
-
         </div>
       </div>
 
-    </div><!-- fim do corpo rolável -->
+    </div>
 
-    <!-- ── FOOTER (fixo, não rola) ── -->
+    <!-- FOOTER -->
     <div class="flex flex-col-reverse md:flex-row justify-end gap-3 px-5 py-4 border-t bg-gray-50 rounded-b-2xl flex-shrink-0">
-      <button (click)="fecharModalPagamento()"
-        class="px-5 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition text-sm font-medium w-full md:w-auto">
+      <button (click)="fecharModalPagamento()" class="px-5 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition text-sm font-medium w-full md:w-auto">
         {{ pagamentoModoEdicao ? 'Cancelar' : 'Fechar' }}
       </button>
       <button *ngIf="pagamentoModoEdicao" (click)="salvarPagamento()"
         class="flex items-center justify-center gap-2 px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm font-semibold w-full md:w-auto">
         <i class="fa-solid fa-floppy-disk"></i> Salvar Pagamento
+      </button>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ================= OVERLAY MENU RECEBIMENTO ================= -->
+<div *ngIf="menuRecebimentoAberto" class="fixed inset-0 z-40" (click)="fecharMenuRecebimento()"></div>
+
+<!-- MENU FLUTUANTE RECEBIMENTO -->
+<div *ngIf="menuRecebimentoAberto" class="fixed z-[9999] w-44 bg-white border border-gray-200 rounded-lg shadow-xl overflow-hidden"
+  [style.top.px]="menuRecebimentoPosicao.top" [style.left.px]="menuRecebimentoPosicao.left">
+  <button class="w-full text-left px-3 py-2 hover:bg-gray-100 flex items-center gap-2 text-sm"
+    (click)="abrirModalRecebimento(getOrdemById(menuRecebimentoAberto!)); fecharMenuRecebimento()">
+    <i class="fa-solid fa-file-invoice-dollar text-green-600"></i>
+    Registrar / Ver
+  </button>
+</div>
+
+
+<!-- ================= MODAL CONTAS A RECEBER ================= -->
+<div *ngIf="modalRecebimentoAberto" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+  <div class="bg-white w-full max-w-3xl rounded-2xl shadow-2xl max-h-[95vh] flex flex-col">
+
+    <!-- HEADER -->
+    <div class="flex justify-between items-center px-6 py-4 border-b bg-green-50 rounded-t-2xl flex-shrink-0">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-full bg-green-100 flex items-center justify-center">
+          <i class="fa-solid fa-file-invoice-dollar text-green-600"></i>
+        </div>
+        <div>
+          <h2 class="text-base font-bold text-green-700">Contas a Receber</h2>
+          <p class="text-xs text-gray-500">Dados do recebimento da OS</p>
+        </div>
+        <span *ngIf="!recebimentoModoEdicao && recebimentoJaExiste"
+          class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700 border border-green-200">
+          <i class="fa-solid fa-lock text-xs"></i> Recebimento registrado
+        </span>
+      </div>
+      <div class="flex items-center gap-2">
+        <button *ngIf="!recebimentoModoEdicao && recebimentoJaExiste" (click)="habilitarEdicaoRecebimento()"
+          class="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-xs font-medium">
+          <i class="fa-solid fa-pen-to-square"></i> Editar
+        </button>
+        <button (click)="fecharModalRecebimento()" class="text-gray-400 hover:text-gray-600 transition">
+          <i class="fa-solid fa-xmark text-xl"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- CORPO -->
+    <div class="p-5 space-y-5 overflow-y-auto flex-1">
+
+      <div *ngIf="carregandoRecebimento" class="flex items-center justify-center py-8">
+        <svg class="animate-spin h-6 w-6 text-green-500 mr-2" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" class="opacity-25"></circle>
+          <path fill="currentColor" d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 00-8 8z" class="opacity-75"></path>
+        </svg>
+        <span class="text-sm text-gray-500">Carregando dados...</span>
+      </div>
+
+      <ng-container *ngIf="!carregandoRecebimento">
+
+        <!-- Seção 1: Dados da OS -->
+        <div>
+          <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3 flex items-center gap-2">
+            <i class="fa-solid fa-file-lines text-blue-500"></i> Dados da OS
+          </p>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-gray-500 mb-1">OS CLT</label>
+              <input [value]="ordemRecebimentoSelecionada?.osClt ?? ''" disabled class="w-full border rounded-lg px-3 py-2 bg-gray-50 text-gray-700 text-sm cursor-default">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-500 mb-1">OSG</label>
+              <input [value]="ordemRecebimentoSelecionada?.osg ?? ''" disabled class="w-full border rounded-lg px-3 py-2 bg-gray-50 text-gray-700 text-sm cursor-default">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-500 mb-1">Cliente</label>
+              <input [value]="ordemRecebimentoSelecionada?.clienteNome ?? ''" disabled class="w-full border rounded-lg px-3 py-2 bg-gray-50 text-gray-700 text-sm cursor-default">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-500 mb-1">Contrato</label>
+              <input [value]="($any(ordemRecebimentoSelecionada?.contrato)?.numeroContrato ?? '') + ($any(ordemRecebimentoSelecionada?.contrato)?.nomeContrato ? ' - ' + $any(ordemRecebimentoSelecionada?.contrato)?.nomeContrato : '')" disabled
+                class="w-full border rounded-lg px-3 py-2 bg-gray-50 text-gray-700 text-sm cursor-default">
+            </div>
+          </div>
+        </div>
+
+        <hr>
+
+        <!-- Seção 2: Valores -->
+        <div>
+          <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3 flex items-center gap-2">
+            <i class="fa-solid fa-coins text-yellow-500"></i> Valores
+          </p>
+          <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-gray-500 mb-1">Valor Chamado (R$)</label>
+              <div class="relative">
+                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs">R$</span>
+                <input type="number" min="0" [(ngModel)]="recebimento.valorChamado" [disabled]="!recebimentoModoEdicao"
+                  class="w-full border rounded-lg pl-8 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400 disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-default">
+              </div>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-500 mb-1">KM</label>
+              <input type="number" min="0" [(ngModel)]="recebimento.km" [disabled]="!recebimentoModoEdicao" placeholder="0"
+                class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400 disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-default">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-500 mb-1">Valor KM (R$)</label>
+              <div class="relative">
+                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs">R$</span>
+                <input type="number" min="0" [(ngModel)]="recebimento.valorKm" [disabled]="!recebimentoModoEdicao"
+                  class="w-full border rounded-lg pl-8 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400 disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-default">
+              </div>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-500 mb-1">Total KM (R$)</label>
+              <div class="w-full border rounded-lg px-3 py-2 text-sm bg-gray-100 text-gray-700 flex items-center">
+                <span class="font-semibold" [ngClass]="calcularTotalKmRecebimento() > 0 ? 'text-green-700' : 'text-gray-400'">{{ calcularTotalKmRecebimento() | currency:'BRL' }}</span>
+              </div>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-500 mb-1">Pedágio (R$)</label>
+              <div class="relative">
+                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs">R$</span>
+                <input type="number" min="0" [(ngModel)]="recebimento.pedagio" [disabled]="!recebimentoModoEdicao"
+                  class="w-full border rounded-lg pl-8 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400 disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-default">
+              </div>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-500 mb-1">Estacionamento (R$)</label>
+              <div class="relative">
+                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs">R$</span>
+                <input type="number" min="0" [(ngModel)]="recebimento.estacionamento" [disabled]="!recebimentoModoEdicao"
+                  class="w-full border rounded-lg pl-8 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400 disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-default">
+              </div>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-500 mb-1">Outros (R$)</label>
+              <div class="relative">
+                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs">R$</span>
+                <input type="number" min="0" [(ngModel)]="recebimento.valorOutros" [disabled]="!recebimentoModoEdicao"
+                  class="w-full border rounded-lg pl-8 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400 disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-default">
+              </div>
+            </div>
+            <div class="col-span-2 md:col-span-3">
+              <label class="block text-xs font-semibold text-gray-500 mb-1">Descrição — Outros</label>
+              <input type="text" [(ngModel)]="recebimento.outros" [disabled]="!recebimentoModoEdicao" placeholder="Ex: Serviço extra..."
+                class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400 disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-default">
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between bg-green-50 border border-green-200 rounded-xl px-5 py-3">
+          <div class="flex items-center gap-2 text-green-700">
+            <i class="fa-solid fa-calculator"></i>
+            <span class="text-sm font-semibold">Total Calculado</span>
+            <span class="text-xs text-green-500">(cálculo definitivo é feito pelo servidor)</span>
+          </div>
+          <span class="text-lg font-bold text-green-700">{{ calcularTotalPreviewRecebimento() | currency:'BRL' }}</span>
+        </div>
+
+        <hr>
+
+        <!-- Seção 3: Dados do Recebimento -->
+        <div>
+          <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3 flex items-center gap-2">
+            <i class="fa-solid fa-receipt text-indigo-500"></i> Dados do Recebimento
+          </p>
+          <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-gray-500 mb-1">Tipo de Pagamento *</label>
+              <select [(ngModel)]="recebimento.tipoPagamento" [disabled]="!recebimentoModoEdicao"
+                class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400 bg-white disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-default">
+                <option value="">— Selecione —</option>
+                <option value="BOLETO">Boleto</option>
+                <option value="PIX">PIX</option>
+                <option value="OUTROS">Outros</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-500 mb-1">Lote</label>
+              <input type="text" [(ngModel)]="recebimento.lote" [disabled]="!recebimentoModoEdicao"
+                class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400 disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-default">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-500 mb-1">NF</label>
+              <input type="text" [(ngModel)]="recebimento.nf" [disabled]="!recebimentoModoEdicao"
+                class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400 disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-default">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-500 mb-1">Banco</label>
+              <input type="text" [(ngModel)]="recebimento.banco" [disabled]="!recebimentoModoEdicao" placeholder="Ex.: C6 Bank"
+                class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400 disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-default">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-500 mb-1">Data Prevista</label>
+              <input type="date" [(ngModel)]="recebimento.dataPrevista" [disabled]="!recebimentoModoEdicao"
+                class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400 disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-default">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-500 mb-1">Data Pagamento</label>
+              <input type="date" [(ngModel)]="recebimento.dataPagamento" [disabled]="!recebimentoModoEdicao"
+                class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400 disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-default">
+            </div>
+            <!-- Comprovante -->
+            <div class="col-span-2 md:col-span-3">
+              <label class="block text-xs font-semibold text-gray-500 mb-1">Comprovante</label>
+              <div class="flex items-center gap-2">
+                <label class="flex items-center justify-between gap-3 px-3 h-[38px] border border-gray-300 rounded-lg text-sm flex-1"
+                  [class.cursor-pointer]="recebimentoModoEdicao" [class.hover:border-green-400]="recebimentoModoEdicao"
+                  [class.hover:bg-green-50]="recebimentoModoEdicao" [class.opacity-50]="!recebimentoModoEdicao" [class.cursor-default]="!recebimentoModoEdicao">
+                  <div class="flex items-center gap-2 text-gray-600">
+                    <i class="fa-solid fa-paperclip text-gray-400 text-xs"></i>
+                    <span class="truncate">{{ uploadandoComprovanteRec ? 'Enviando...' : 'Anexar comprovante' }}</span>
+                  </div>
+                  <span class="text-[10px] text-gray-400 hidden sm:inline whitespace-nowrap">JPG, PNG ou PDF</span>
+                  <input type="file" accept="image/*,.pdf" class="hidden" (change)="uploadComprovanteRecebimento($event)" [disabled]="uploadandoComprovanteRec || !recebimentoModoEdicao">
+                </label>
+                <div *ngIf="recebimento.urlComprovante" class="flex items-center gap-1">
+                  <a [href]="recebimento.urlComprovante" target="_blank" title="Visualizar" class="w-8 h-8 flex items-center justify-center rounded hover:bg-gray-100">
+                    <i class="fa-solid fa-eye text-blue-600 text-sm"></i>
+                  </a>
+                  <button (click)="downloadComprovanteRecebimento()" type="button" title="Download" class="w-8 h-8 flex items-center justify-center rounded hover:bg-gray-100">
+                    <i class="fa-solid fa-download text-green-600 text-sm"></i>
+                  </button>
+                  <button *ngIf="recebimentoModoEdicao" (click)="removerComprovanteRecebimento()" type="button" title="Remover" class="w-8 h-8 flex items-center justify-center rounded hover:bg-gray-100">
+                    <i class="fa-solid fa-xmark text-red-500 text-sm"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </ng-container>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="flex flex-col-reverse md:flex-row justify-end gap-3 px-5 py-4 border-t bg-gray-50 rounded-b-2xl flex-shrink-0">
+      <button (click)="fecharModalRecebimento()" class="px-5 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition text-sm font-medium w-full md:w-auto">
+        {{ recebimentoModoEdicao ? 'Cancelar' : 'Fechar' }}
+      </button>
+      <button *ngIf="recebimentoModoEdicao" (click)="salvarRecebimento()"
+        class="flex items-center justify-center gap-2 px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm font-semibold w-full md:w-auto">
+        <i class="fa-solid fa-floppy-disk"></i> Salvar Recebimento
       </button>
     </div>
 

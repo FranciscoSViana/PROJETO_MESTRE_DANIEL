@@ -26,6 +26,7 @@ export class ClienteComponent implements OnInit {
       nome: new FormControl('', Validators.required),
       valorChamado: new FormControl(),
       valorKm: new FormControl(),
+      tipoFluxoPagamento: new FormControl<string | null>(null),
       cnpj: new FormControl(),
       inscricaoEstadual: new FormControl(),
       razaoSocial: new FormControl({ value: '', disabled: true }),
@@ -104,6 +105,7 @@ export class ClienteComponent implements OnInit {
         razaoSocial: raw.razaoSocial,
         valorChamado: null,
         valorKm: null,
+        tipoFluxoPagamento: raw.tipoFluxoPagamento ?? null,
 
         endereco: {
           cep: raw.cep,

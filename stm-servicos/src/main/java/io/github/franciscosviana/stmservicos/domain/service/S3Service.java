@@ -19,8 +19,9 @@ public class S3Service {
     private String bucket;
 
     /**
-     * Faz upload do comprovante com nome baseado na OSG.
-     * Formato: comprovantes/OSG-000001.pdf (ou .jpg, etc.)
+     * Upload de comprovante de pagamento ao credenciado (Contas a Pagar).
+     * Pasta: comprovantes/
+     * Nome:  comprovantes/OSG260277.pdf
      */
     public String upload(MultipartFile file, String osg) {
         try {
@@ -44,7 +45,34 @@ public class S3Service {
     }
 
     /**
+     * Upload de comprovante de recebimento do cliente (Contas a Receber).
+     * Pasta: recebimentos/
+     * Nome:  recebimentos/pagamento-cliente-OSG260277.pdf
+     */
+    public String uploadRecebimento(MultipartFile file, String osg) {
+        try {
+            String extensao = obterExtensao(file.getOriginalFilename());
+            String fileName = "recebimentos/pagamento-cliente-" + osg + extensao;
+
+            PutObjectRequest request = PutObjectRequest.builder()
+                    .bucket(bucket)
+                    .key(fileName)
+                    .contentType(file.getContentType())
+                    .build();
+
+            s3Client.putObject(request,
+                    RequestBody.fromInputStream(file.getInputStream(), file.getSize()));
+
+            return "https://" + bucket + ".s3.amazonaws.com/" + fileName;
+
+        } catch (Exception e) {
+            throw new RuntimeException("Erro ao fazer upload para S3", e);
+        }
+    }
+
+    /**
      * Remove o arquivo do bucket a partir da URL pública.
+     * Funciona tanto para comprovantes/ quanto recebimentos/.
      */
     public void deletar(String url) {
         try {
@@ -62,7 +90,7 @@ public class S3Service {
             s3Client.deleteObject(request);
 
         } catch (Exception e) {
-            throw new RuntimeException("Erro ao excluir arquivo do S3" + e.getMessage(), e);
+            throw new RuntimeException("Erro ao excluir arquivo do S3: " + e.getMessage(), e);
         }
     }
 

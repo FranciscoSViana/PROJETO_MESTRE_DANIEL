@@ -1,5 +1,6 @@
 package io.github.franciscosviana.stmservicos.api.model.input;
 
+import io.github.franciscosviana.stmservicos.domain.model.enums.TipoFluxoPagamento;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -18,6 +19,8 @@ public class ClienteInput {
 
     private BigDecimal valorChamado;
     private BigDecimal valorKm;
+
+    private TipoFluxoPagamento tipoFluxoPagamento;
 
     private String cnpj;
     private String inscricaoEstadual;
