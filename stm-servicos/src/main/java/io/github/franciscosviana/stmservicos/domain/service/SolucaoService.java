@@ -6,11 +6,13 @@ import io.github.franciscosviana.stmservicos.api.model.input.SolucaoOSInput;
 import io.github.franciscosviana.stmservicos.api.model.output.SolucaoOSOutput;
 import io.github.franciscosviana.stmservicos.common.validation.OrdemServicoException;
 import io.github.franciscosviana.stmservicos.domain.model.OrdemServico;
+import io.github.franciscosviana.stmservicos.domain.model.PagamentoClienteOS;
 import io.github.franciscosviana.stmservicos.domain.model.PagamentoOS;
 import io.github.franciscosviana.stmservicos.domain.model.SolucaoOS;
 import io.github.franciscosviana.stmservicos.domain.model.enums.StatusOrdem;
 import io.github.franciscosviana.stmservicos.domain.model.enums.TipoAcaoOS;
 import io.github.franciscosviana.stmservicos.domain.repository.OrdemServicoRepository;
+import io.github.franciscosviana.stmservicos.domain.repository.PagamentoClienteOSRepository;
 import io.github.franciscosviana.stmservicos.domain.repository.PagamentoOSRepository;
 import io.github.franciscosviana.stmservicos.domain.repository.SolucaoOSRepository;
 import jakarta.transaction.Transactional;
@@ -34,6 +36,7 @@ public class SolucaoService {
     private final SolucaoOSOutputAssembler solucaoOSOutputAssembler;
     private final SolucaoOSInputDisassembler solucaoOSInputDisassembler;
     private final HistoricoOrdemServicoService historicoOrdemServicoService;
+    private final PagamentoClienteOSRepository  pagamentoClienteOSRepository;
 
     @Transactional
     public SolucaoOSOutput finalizarOS(UUID ordemId, SolucaoOSInput input) {
@@ -54,6 +57,7 @@ public class SolucaoService {
 
         // Cria rascunho de pagamento (pago = false) com valores base do credenciado
         criarRascunhoPagamento(ordem, salva);
+        criarRascunhoPagamentoCliente(ordem, salva);
 
         historicoOrdemServicoService.registrar(
                 ordem,
@@ -113,6 +117,55 @@ public class SolucaoService {
         pagamentoOSRepository.save(rascunho);
 
         log.info("[SolucaoService] Rascunho de pagamento criado para OS={} | total={}", ordem.getOsg(), valorTotal);
+    }
+
+    // ── Rascunho pagamento CLIENTE (novo) ─────────────────────────────────────
+
+    private void criarRascunhoPagamentoCliente(OrdemServico ordem, SolucaoOS solucao) {
+
+        if (pagamentoClienteOSRepository.findByOrdemServicoId(ordem.getId()).isPresent()) {
+            log.warn("[SolucaoService] PagamentoClienteOS já existe para OS={}, rascunho ignorado.", ordem.getOsg());
+            return;
+        }
+
+        // Usa os mesmos custos da solução como base.
+        // Se o contrato do cliente tiver tabela de preços própria, substitua aqui.
+        BigDecimal valorChamado   = nvl(ordem.getCredenciado() != null ? ordem.getCredenciado().getValorChamado() : null);
+        BigDecimal valorKm        = nvl(ordem.getCredenciado() != null ? ordem.getCredenciado().getValorKm()      : null);
+        BigDecimal km             = nvl(solucao.getKm());
+        BigDecimal pedagio        = nvl(solucao.getPedagio());
+        BigDecimal estacionamento = nvl(solucao.getEstacionamento());
+        BigDecimal valorOutros    = nvl(solucao.getOutros());
+
+        BigDecimal valorTotal = valorChamado
+                .add(km.multiply(valorKm))
+                .add(pedagio)
+                .add(estacionamento)
+                .add(valorOutros);
+
+        PagamentoClienteOS rascunho = PagamentoClienteOS.builder()
+                .ordemServico(ordem)
+                .osClt(ordem.getOsClt())
+                .osg(ordem.getOsg())
+                .cliente(ordem.getCliente() != null ? ordem.getCliente().getNome() : null)
+                .contrato(ordem.getContrato() != null ? String.valueOf(ordem.getContrato().getId()) : null)
+                .valorChamado(valorChamado)
+                .km(km)
+                .valorKm(valorKm)
+                .pedagio(pedagio)
+                .estacionamento(estacionamento)
+                .outros(solucao.getOutros() != null ? solucao.getOutros().toPlainString() : null)
+                .valorOutros(valorOutros)
+                .valorTotal(valorTotal)
+                .tipoPagamento(null)
+                .recebido(false)
+                .pago(false)
+                .corrigido(false)
+                .build();
+
+        pagamentoClienteOSRepository.save(rascunho);
+
+        log.info("[SolucaoService] Rascunho PagamentoClienteOS criado para OS={} | total={}", ordem.getOsg(), valorTotal);
     }
 
     // ── Demais métodos ────────────────────────────────────────────────────────

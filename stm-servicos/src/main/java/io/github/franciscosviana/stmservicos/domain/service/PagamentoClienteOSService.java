@@ -2,7 +2,9 @@ package io.github.franciscosviana.stmservicos.domain.service;
 
 import io.github.franciscosviana.stmservicos.api.assembler.PagamentoClienteOSOutputAssembler;
 import io.github.franciscosviana.stmservicos.api.model.input.PagamentoClienteOSInput;
+import io.github.franciscosviana.stmservicos.api.model.input.PagamentoLoteInput;
 import io.github.franciscosviana.stmservicos.api.model.output.PagamentoClienteOSOutput;
+import io.github.franciscosviana.stmservicos.api.model.output.PagamentoLoteResultado;
 import io.github.franciscosviana.stmservicos.common.validation.OrdemServicoException;
 import io.github.franciscosviana.stmservicos.domain.model.OrdemServico;
 import io.github.franciscosviana.stmservicos.domain.model.PagamentoClienteOS;
@@ -18,6 +20,8 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -52,6 +56,7 @@ public class PagamentoClienteOSService {
 
         preencherPagamento(pagamento, os, solucao, input);
         pagamento.setRecebido(true);
+        pagamento.setCorrigido(true);
 
         pagamentoClienteOSRepository.save(pagamento);
         return assembler.toModel(pagamento);
@@ -95,6 +100,79 @@ public class PagamentoClienteOSService {
         return pagamentoClienteOSRepository
                 .findByOrdemServicoId(ordemServicoId)
                 .map(assembler::toModel);
+    }
+
+    @Transactional
+    public PagamentoLoteResultado registrarLote(PagamentoLoteInput input) {
+
+        List<String> erros = new ArrayList<>();
+        int sucesso = 0;
+
+        for (UUID ordemId : input.getOrdemServicoIds()) {
+            try {
+                OrdemServico os = ordemServicoRepository.buscarCompleta(ordemId)
+                        .orElseThrow(() -> new OrdemServicoException("OS não encontrada: " + ordemId));
+
+                SolucaoOS solucao = os.getSolucao();
+                if (solucao == null) {
+                    erros.add("OS " + os.getOsg() + ": sem solução registrada.");
+                    continue;
+                }
+
+                PagamentoClienteOS pagamento = pagamentoClienteOSRepository
+                        .findByOrdemServicoId(ordemId)
+                        .orElse(new PagamentoClienteOS());
+
+                if (pagamento.isPago()) {
+                    erros.add("OS " + os.getOsg() + ": já foi paga anteriormente.");
+                    continue;
+                }
+
+                // Mantém os valores financeiros existentes no rascunho
+                pagamento.setOrdemServico(os);
+                pagamento.setOsClt(os.getOsClt());
+                pagamento.setOsg(os.getOsg());
+                pagamento.setCliente(os.getCliente() != null ? os.getCliente().getNome() : null);
+                pagamento.setContrato(os.getContrato() != null ? String.valueOf(os.getContrato().getId()) : null);
+
+                // Dados de pagamento — iguais para todas as OS do lote
+                pagamento.setTipoPagamento(input.getTipoPagamento());
+                pagamento.setLote(input.getLote());
+                pagamento.setNf(input.getNf());
+                pagamento.setBanco(input.getBanco());
+                pagamento.setDataPrevista(input.getDataPrevista());
+                pagamento.setDataPagamento(
+                        input.getDataPagamento() != null
+                                ? input.getDataPagamento().atStartOfDay().atOffset(ZoneOffset.UTC)
+                                : OffsetDateTime.now()
+                );
+
+                if (input.getUrlComprovante() != null && !input.getUrlComprovante().isBlank()) {
+                    pagamento.setUrlComprovante(input.getUrlComprovante());
+                }
+
+                pagamento.setRecebido(true);
+                pagamento.setCorrigido(true);
+                pagamento.setPago(true);
+
+                pagamentoClienteOSRepository.save(pagamento);
+                sucesso++;
+
+            } catch (Exception e) {
+                log.error("[PagamentoLote] Erro ao processar ordemId={}: {}", ordemId, e.getMessage());
+                erros.add("OS ID " + ordemId + ": " + e.getMessage());
+            }
+        }
+
+        log.info("[PagamentoLote] Processado={} | Sucesso={} | Erro={}",
+                input.getOrdemServicoIds().size(), sucesso, erros.size());
+
+        return PagamentoLoteResultado.builder()
+                .totalProcessado(input.getOrdemServicoIds().size())
+                .totalSucesso(sucesso)
+                .totalErro(erros.size())
+                .erros(erros)
+                .build();
     }
 
     // -------------------------------------------------------------------------

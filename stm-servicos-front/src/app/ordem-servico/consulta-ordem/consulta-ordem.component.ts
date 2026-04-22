@@ -55,6 +55,7 @@ export class ConsultaOrdemComponent implements OnInit {
   statusRastreioOpcoes: { value: string; descricao: string; cor: string }[] = [
     { value: 'POSTADO',    descricao: 'Postado',    cor: '#3B82F6' },
     { value: 'A_CAMINHO',  descricao: 'A caminho',  cor: '#F59E0B' },
+    { value: 'SAIU_PARA_ENTREGA', descricao: ' Saiu para entrega', cor: '#F97316' },
     { value: 'CHEGOU',     descricao: 'Chegou',     cor: '#10B981' },
     { value: 'DEVOLVIDO',  descricao: 'Devolvido',  cor: '#EF4444' },
     { value: 'AGUARDANDO', descricao: 'Aguardando', cor: '#8B5CF6' },

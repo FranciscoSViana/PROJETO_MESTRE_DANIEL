@@ -103,6 +103,14 @@ public class PagamentoClienteOS {
     @Builder.Default
     private boolean recebido = false;
 
+    @Column(name = "pago", nullable = false)
+    @Builder.Default
+    private boolean pago = false;
+
+    @Column(name = "corrigido", nullable = false)
+    @Builder.Default
+    private boolean corrigido = false;
+
     public void calcularValorTotal() {
         this.valorTotal = valorChamado
                 .add(km.multiply(valorKm))
