@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+<head>
+    <meta charset="UTF-8"/>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 10px;
+            color: #1f2937;
+            padding: 24px;
+        }
+
+        /* ── CABEÇALHO ── */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+            padding-bottom: 14px;
+            border-bottom: 2px solid #16a34a;
+        }
+
+        .header-title h1 {
+            font-size: 18px;
+            font-weight: bold;
+            color: #15803d;
+            letter-spacing: 0.5px;
+        }
+
+        .header-title p {
+            font-size: 9px;
+            color: #6b7280;
+            margin-top: 3px;
+        }
+
+        .header-meta {
+            text-align: right;
+            font-size: 9px;
+            color: #6b7280;
+            line-height: 1.6;
+        }
+
+        /* ── RESUMO ── */
+        .resumo {
+            display: table;
+            width: 100%;
+            margin-bottom: 18px;
+            border-collapse: collapse;
+        }
+
+        .resumo-card {
+            display: table-cell;
+            width: 33.33%;
+            padding: 10px 14px;
+            border-radius: 8px;
+        }
+
+        .resumo-card.recebido {
+            background: #f0fdf4;
+            border: 1px solid #86efac;
+        }
+
+        .resumo-card.pendente {
+            background: #fff7ed;
+            border: 1px solid #fdba74;
+        }
+
+        .resumo-card.total {
+            background: #eff6ff;
+            border: 1px solid #93c5fd;
+        }
+
+        .resumo-card .label {
+            font-size: 8px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .resumo-card.recebido .label {
+            color: #15803d;
+        }
+
+        .resumo-card.pendente .label {
+            color: #c2410c;
+        }
+
+        .resumo-card.total .label {
+            color: #1d4ed8;
+        }
+
+        .resumo-card .valor {
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .resumo-card.recebido .valor {
+            color: #166534;
+        }
+
+        .resumo-card.pendente .valor {
+            color: #9a3412;
+        }
+
+        .resumo-card.total .valor {
+            color: #1e40af;
+        }
+
+        .resumo-card .qtd {
+            font-size: 8px;
+            color: #6b7280;
+            margin-top: 2px;
+        }
+
+        .resumo-spacer {
+            display: table-cell;
+            width: 12px;
+        }
+
+        /* ── TABELA ── */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 4px;
+        }
+
+        thead tr.header-row th {
+            background-color: #15803d;
+            color: #ffffff;
+            padding: 7px 6px;
+            text-align: center;
+            font-size: 8px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            border: 1px solid #166534;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        tbody tr:nth-child(even) {
+            background-color: #f0fdf4;
+        }
+
+        tbody tr:hover {
+            background-color: #dcfce7;
+        }
+
+        tbody td {
+            padding: 6px 6px;
+            font-size: 8.5px;
+            color: #374151;
+            border: 1px solid #e5e7eb;
+            vertical-align: middle;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .text-left {
+            text-align: left;
+        }
+
+        .font-mono {
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: bold;
+            color: #15803d;
+        }
+
+        /* ── BADGES ── */
+        .badge {
+            display: inline-block;
+            padding: 2px 7px;
+            border-radius: 20px;
+            font-size: 7.5px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .badge-recebido {
+            background: #dcfce7;
+            color: #166534;
+            border: 1px solid #86efac;
+        }
+
+        .badge-pendente {
+            background: #fff7ed;
+            color: #9a3412;
+            border: 1px solid #fdba74;
+        }
+
+        .badge-concluida {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .badge-aberta {
+            background: #fef9c3;
+            color: #92400e;
+        }
+
+        .badge-outro {
+            background: #f3f4f6;
+            color: #374151;
+        }
+
+        .badge-corrigido {
+            background: #dbeafe;
+            color: #1e40af;
+            border: 1px solid #93c5fd;
+        }
+
+        .badge-nao {
+            background: #f3f4f6;
+            color: #9ca3af;
+        }
+
+        /* ── RODAPÉ ── */
+        .footer {
+            margin-top: 20px;
+            padding-top: 10px;
+            border-top: 1px solid #d1d5db;
+            display: flex;
+            justify-content: space-between;
+            font-size: 8px;
+            color: #9ca3af;
+        }
+
+        /* ── SEM DADOS ── */
+        .empty {
+            text-align: center;
+            padding: 30px;
+            color: #9ca3af;
+            font-size: 11px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- CABEÇALHO -->
+<div class="header">
+    <div class="header-title">
+        <h1>Relatório — Contas a Receber</h1>
+        <p>Recebimentos de OS dos clientes · STM Serviços</p>
+    </div>
+    <div class="header-meta">
+        <span th:text="${#dates.format(#dates.createNow(), 'dd/MM/yyyy HH:mm')}">00/00/0000</span><br/>
+        <span th:text="${#lists.size(dados)} + ' registros'">0 registros</span>
+    </div>
+</div>
+
+<!-- RESUMO -->
+<div th:if="${#lists.size(dados) > 0}">
+    <table class="resumo">
+        <tr>
+            <td class="resumo-card recebido">
+                <div class="label">Total Recebido</div>
+                <div class="valor"
+                     th:text="${#numbers.formatCurrency(dados.?[recebido == true].![valorTotal].stream().reduce(0, (a,b) -> a + b))}">
+                    R$ 0,00
+                </div>
+                <div class="qtd"
+                     th:text="${#lists.size(dados.?[recebido == true])} + ' OS'">0 OS
+                </div>
+            </td>
+            <td class="resumo-spacer"></td>
+            <td class="resumo-card pendente">
+                <div class="label">Pendente</div>
+                <div class="valor"
+                     th:text="${#numbers.formatCurrency(dados.?[recebido == false].![valorTotal].stream().reduce(0, (a,b) -> a + b))}">
+                    R$ 0,00
+                </div>
+                <div class="qtd"
+                     th:text="${#lists.size(dados.?[recebido == false])} + ' OS'">0 OS
+                </div>
+            </td>
+            <td class="resumo-spacer"></td>
+            <td class="resumo-card total">
+                <div class="label">Total Geral</div>
+                <div class="valor"
+                     th:text="${#numbers.formatCurrency(dados.![valorTotal].stream().reduce(0, (a,b) -> a + b))}">
+                    R$ 0,00
+                </div>
+                <div class="qtd"
+                     th:text="${#lists.size(dados)} + ' OS'">0 OS
+                </div>
+            </td>
+        </tr>
+    </table>
+</div>
+
+<!-- TABELA -->
+<div th:if="${#lists.size(dados) > 0}">
+    <table>
+        <thead>
+        <tr class="header-row">
+            <th>OSG</th>
+            <th>OS Cliente</th>
+            <th>Cliente</th>
+            <th>Abertura</th>
+            <th>Lote</th>
+            <th>Tipo Pgto</th>
+            <th>NF</th>
+            <th>Banco</th>
+            <th>Dt. Prevista</th>
+            <th>Dt. Pagamento</th>
+            <th>Vlr. Chamado</th>
+            <th>Pedágio</th>
+            <th>Estac.</th>
+            <th>Outros</th>
+            <th>Vlr. Total</th>
+            <th>Situação</th>
+            <th>Corrigido</th>
+            <th>Status OS</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="d : ${dados}">
+
+            <td class="text-center font-mono" th:text="${d.osg}">-</td>
+            <td class="text-center" th:text="${d.osClt ?: '-'}">-</td>
+            <td class="text-left" th:text="${d.cliente ?: '-'}">-</td>
+
+            <td class="text-center"
+                th:text="${d.dataHoraAbertura != null}
+              ? ${#temporals.format(d.dataHoraAbertura, 'dd/MM/yyyy')}
+              : '-'">-
+            </td>
+
+            <td class="text-center" th:text="${d.lote ?: '-'}">-</td>
+
+            <td class="text-center"
+                th:text="${d.tipoPagamento != null} ? ${d.tipoPagamento.name()} : '-'">-
+            </td>
+
+            <td class="text-center" th:text="${d.nf ?: '-'}">-</td>
+            <td class="text-center" th:text="${d.banco ?: '-'}">-</td>
+
+            <td class="text-center"
+                th:text="${d.dataPrevista != null}
+              ? ${#temporals.format(d.dataPrevista, 'dd/MM/yyyy')}
+              : '-'">-
+            </td>
+
+            <td class="text-center"
+                th:text="${d.dataPagamento != null}
+              ? ${#temporals.format(d.dataPagamento, 'dd/MM/yyyy')}
+              : '-'">-
+            </td>
+
+            <td class="text-right"
+                th:text="${#numbers.formatCurrency(d.valorChamado ?: 0)}">R$ 0,00
+            </td>
+            <td class="text-right"
+                th:text="${#numbers.formatCurrency(d.pedagio ?: 0)}">R$ 0,00
+            </td>
+            <td class="text-right"
+                th:text="${#numbers.formatCurrency(d.estacionamento ?: 0)}">R$ 0,00
+            </td>
+            <td class="text-right"
+                th:text="${#numbers.formatCurrency(d.valorOutros ?: 0)}">R$ 0,00
+            </td>
+            <td class="text-right"
+                th:text="${#numbers.formatCurrency(d.valorTotal ?: 0)}">R$ 0,00
+            </td>
+
+            <td class="text-center">
+                <span th:if="${d.recebido}" class="badge badge-recebido">Recebido</span>
+                <span th:unless="${d.recebido}" class="badge badge-pendente">Pendente</span>
+            </td>
+
+            <td class="text-center">
+                <span th:if="${d.corrigido}" class="badge badge-corrigido">Sim</span>
+                <span th:unless="${d.corrigido}" class="badge badge-nao">Não</span>
+            </td>
+
+            <td class="text-center">
+                <span th:if="${d.statusOrdem?.name() == 'CONCLUIDA'}" class="badge badge-concluida">Concluída</span>
+                <span th:if="${d.statusOrdem?.name() == 'ABERTA'}" class="badge badge-aberta">Aberta</span>
+                <span th:if="${d.statusOrdem == null}" class="badge badge-outro">-</span>
+            </td>
+
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- SEM DADOS -->
+<div th:if="${#lists.size(dados) == 0}" class="empty">
+    Nenhum registro encontrado para os filtros aplicados.
+</div>
+
+<!-- RODAPÉ -->
+<div class="footer">
+    <span>STM Serviços — Relatório de Contas a Receber</span>
+    <span th:text="'Gerado em ' + ${#dates.format(#dates.createNow(), 'dd/MM/yyyy HH:mm')}">Gerado em</span>
+</div>
+
+</body>
+</html>
