@@ -64,7 +64,7 @@ class EnumsTest {
         @Test
         @DisplayName("deve ter 5 valores definidos")
         void deveTerCincoValores() {
-            assertThat(StatusRastreio.values()).hasSize(5);
+            assertThat(StatusRastreio.values()).hasSize(6);
         }
 
         @ParameterizedTest(name = "{0} deve ter descrição e cor não nulos")

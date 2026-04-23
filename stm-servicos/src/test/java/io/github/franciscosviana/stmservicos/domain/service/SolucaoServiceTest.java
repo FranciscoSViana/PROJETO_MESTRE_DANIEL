@@ -9,6 +9,7 @@ import io.github.franciscosviana.stmservicos.domain.model.*;
 import io.github.franciscosviana.stmservicos.domain.model.enums.StatusOrdem;
 import io.github.franciscosviana.stmservicos.domain.model.enums.TipoAcaoOS;
 import io.github.franciscosviana.stmservicos.domain.repository.OrdemServicoRepository;
+import io.github.franciscosviana.stmservicos.domain.repository.PagamentoClienteOSRepository;
 import io.github.franciscosviana.stmservicos.domain.repository.PagamentoOSRepository;
 import io.github.franciscosviana.stmservicos.domain.repository.SolucaoOSRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -46,6 +47,8 @@ class SolucaoServiceTest {
     private SolucaoOSInputDisassembler solucaoOSInputDisassembler;
     @Mock
     private HistoricoOrdemServicoService historicoOrdemServicoService;
+    @Mock
+    private PagamentoClienteOSRepository pagamentoClienteOSRepository;
 
     @InjectMocks
     private SolucaoService service;
@@ -96,6 +99,8 @@ class SolucaoServiceTest {
             when(solucaoOSRepository.save(solucao)).thenReturn(solucao);
             when(pagamentoOSRepository.findByOrdemServicoId(ordemId)).thenReturn(Optional.empty());
             when(pagamentoOSRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+            when(pagamentoClienteOSRepository.findByOrdemServicoId(ordemId)).thenReturn(Optional.empty());
+            when(pagamentoClienteOSRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
             when(solucaoOSOutputAssembler.toModel(solucao)).thenReturn(new SolucaoOSOutput());
 
             service.finalizarOS(ordemId, input);
@@ -103,6 +108,7 @@ class SolucaoServiceTest {
             assertThat(ordem.getStatus()).isEqualTo(StatusOrdem.CONCLUIDA);
             verify(solucaoOSRepository).save(solucao);
             verify(pagamentoOSRepository).save(any(PagamentoOS.class));
+            verify(pagamentoClienteOSRepository).save(any(PagamentoClienteOS.class));
             verify(historicoOrdemServicoService).registrar(eq(ordem), eq(TipoAcaoOS.CONCLUSAO_ORDEM), any());
         }
 
@@ -121,6 +127,8 @@ class SolucaoServiceTest {
             when(solucaoOSRepository.save(solucao)).thenReturn(solucao);
             when(pagamentoOSRepository.findByOrdemServicoId(ordemId)).thenReturn(Optional.empty());
             when(pagamentoOSRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+            when(pagamentoClienteOSRepository.findByOrdemServicoId(ordemId)).thenReturn(Optional.empty());
+            when(pagamentoClienteOSRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
             when(solucaoOSOutputAssembler.toModel(any())).thenReturn(new SolucaoOSOutput());
 
             service.finalizarOS(ordemId, input);
@@ -145,6 +153,8 @@ class SolucaoServiceTest {
             when(solucaoOSRepository.save(solucao)).thenReturn(solucao);
             when(pagamentoOSRepository.findByOrdemServicoId(ordemId)).thenReturn(Optional.empty());
             when(pagamentoOSRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+            when(pagamentoClienteOSRepository.findByOrdemServicoId(ordemId)).thenReturn(Optional.empty());
+            when(pagamentoClienteOSRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
             when(solucaoOSOutputAssembler.toModel(any())).thenReturn(new SolucaoOSOutput());
 
             service.finalizarOS(ordemId, input);
@@ -165,6 +175,8 @@ class SolucaoServiceTest {
             when(solucaoOSRepository.save(solucao)).thenReturn(solucao);
             when(pagamentoOSRepository.findByOrdemServicoId(ordemId))
                     .thenReturn(Optional.of(new PagamentoOS())); // já existe
+            when(pagamentoClienteOSRepository.findByOrdemServicoId(ordemId)).thenReturn(Optional.empty());
+            when(pagamentoClienteOSRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
             when(solucaoOSOutputAssembler.toModel(any())).thenReturn(new SolucaoOSOutput());
 
             service.finalizarOS(ordemId, input);
