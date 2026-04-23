@@ -48,6 +48,6 @@ class StatusRastreioControllerTest {
     void listarQuantidade() throws Exception {
         mockMvc.perform(get("/api/rastreio/status"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(5));
+                .andExpect(jsonPath("$.length()").value(6));
     }
 }
