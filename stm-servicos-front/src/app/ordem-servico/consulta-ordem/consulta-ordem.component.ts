@@ -97,7 +97,7 @@ export class ConsultaOrdemComponent implements OnInit {
     pedagio: null, estacionamento: null, outros: '',
     valorOutros: null, lote: '', nf: '',
     tipoPagamento: '', banco: '', urlComprovante: '',
-    dataPrevista: null, dataPagamento: null, recebido: false
+    dataPrevista: null, dataPagamento: null
   };
 
   constructor(
@@ -643,7 +643,7 @@ export class ConsultaOrdemComponent implements OnInit {
           return;
         }
 
-        if (rec && rec.id != null && rec.recebido === true) {
+        if (rec && rec.id != null && rec.corrigido === true) {
           // ── Modo leitura ──
           this.recebimento = {
             km: rec.km, valorChamado: rec.valorChamado, valorKm: rec.valorKm,

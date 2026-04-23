@@ -99,17 +99,16 @@ public class ContasReceberRepository {
                 pg.get("estacionamento"),   // 11
                 pg.get("valorOutros"),      // 12
                 pg.get("valorTotal"),       // 13
-                pg.get("recebido"),         // 14
-                pg.get("pago"),             // 15
-                pg.get("corrigido"),        // 16
-                pg.get("tipoPagamento"),    // 17
-                pg.get("banco"),            // 18
-                pg.get("nf"),               // 19
-                pg.get("lote"),             // 20
-                pg.get("urlComprovante"),   // 21
-                pg.get("dataPrevista"),     // 22
-                pg.get("dataPagamento"),    // 23
-                pg.get("criadoEm")          // 24
+                pg.get("pago"),             // 14
+                pg.get("corrigido"),        // 15
+                pg.get("tipoPagamento"),    // 16
+                pg.get("banco"),            // 17
+                pg.get("nf"),               // 18
+                pg.get("lote"),             // 19
+                pg.get("urlComprovante"),   // 20
+                pg.get("dataPrevista"),     // 21
+                pg.get("dataPagamento"),    // 22
+                pg.get("criadoEm")          // 23
         );
 
         cq.where(buildPredicates(cb, pg, os, cli, filtro).toArray(new Predicate[0]));
@@ -160,9 +159,6 @@ public class ContasReceberRepository {
         if (hasText(f.getLote()))
             p.add(cb.equal(pg.get("lote"), f.getLote()));
 
-        if (f.getRecebido() != null)
-            p.add(cb.equal(pg.get("recebido"), f.getRecebido()));
-
         if (f.getDataAberturaInicio() != null) {
             OffsetDateTime ini = f.getDataAberturaInicio().atStartOfDay().atOffset(ZoneOffset.UTC);
             p.add(cb.greaterThanOrEqualTo(os.get("dataHoraAbertura"), ini));
@@ -207,17 +203,16 @@ public class ContasReceberRepository {
         o.setEstacionamento(toBD(r[11]));
         o.setValorOutros(toBD(r[12]));
         o.setValorTotal(toBD(r[13]));
-        o.setRecebido(r[14] != null && (boolean) r[14]);
-        o.setPago(r[15] != null && (boolean) r[15]);
-        o.setCorrigido(r[16] != null && (boolean) r[16]);
-        o.setTipoPagamento(r[17] != null ? (TipoPagamento) r[17] : null);
-        o.setBanco((String) r[18]);
-        o.setNf((String) r[19]);
-        o.setLote((String) r[20]);
-        o.setUrlComprovante((String) r[21]);
-        o.setDataPrevista(r[22] != null ? (LocalDate) r[22] : null);
-        o.setDataPagamento(r[23] != null ? (OffsetDateTime) r[23] : null);
-        o.setCriadoEm(r[24] != null ? (OffsetDateTime) r[24] : null);
+        o.setPago(r[14] != null && (boolean) r[14]);
+        o.setCorrigido(r[15] != null && (boolean) r[15]);
+        o.setTipoPagamento(r[16] != null ? (TipoPagamento) r[16] : null);
+        o.setBanco((String) r[17]);
+        o.setNf((String) r[18]);
+        o.setLote((String) r[19]);
+        o.setUrlComprovante((String) r[20]);
+        o.setDataPrevista(r[21] != null ? (LocalDate) r[21] : null);
+        o.setDataPagamento(r[22] != null ? (OffsetDateTime) r[22] : null);
+        o.setCriadoEm(r[23] != null ? (OffsetDateTime) r[23] : null);
         return o;
     }
 
@@ -235,33 +230,33 @@ public class ContasReceberRepository {
 
         // RECEBIDO
         Expression<BigDecimal> recChamado = cb.<BigDecimal>selectCase()
-                .when(cb.isTrue(pg.get("recebido")), pg.<BigDecimal>get("valorChamado")).otherwise(zero);
+                .when(cb.isTrue(pg.get("pago")), pg.<BigDecimal>get("valorChamado")).otherwise(zero);
         Expression<BigDecimal> recKmValor = cb.<BigDecimal>selectCase()
-                .when(cb.isTrue(pg.get("recebido")),
+                .when(cb.isTrue(pg.get("pago")),
                         cb.prod(pg.<BigDecimal>get("km"), pg.<BigDecimal>get("valorKm"))).otherwise(zero);
         Expression<BigDecimal> recPedagio = cb.<BigDecimal>selectCase()
-                .when(cb.isTrue(pg.get("recebido")), pg.<BigDecimal>get("pedagio")).otherwise(zero);
+                .when(cb.isTrue(pg.get("pago")), pg.<BigDecimal>get("pedagio")).otherwise(zero);
         Expression<BigDecimal> recEstac = cb.<BigDecimal>selectCase()
-                .when(cb.isTrue(pg.get("recebido")), pg.<BigDecimal>get("estacionamento")).otherwise(zero);
+                .when(cb.isTrue(pg.get("pago")), pg.<BigDecimal>get("estacionamento")).otherwise(zero);
         Expression<BigDecimal> recOutros = cb.<BigDecimal>selectCase()
-                .when(cb.isTrue(pg.get("recebido")), pg.<BigDecimal>get("valorOutros")).otherwise(zero);
+                .when(cb.isTrue(pg.get("pago")), pg.<BigDecimal>get("valorOutros")).otherwise(zero);
         Expression<BigDecimal> recTotal = cb.<BigDecimal>selectCase()
-                .when(cb.isTrue(pg.get("recebido")), pg.<BigDecimal>get("valorTotal")).otherwise(zero);
+                .when(cb.isTrue(pg.get("pago")), pg.<BigDecimal>get("valorTotal")).otherwise(zero);
 
         // NÃO RECEBIDO
         Expression<BigDecimal> naoChamado = cb.<BigDecimal>selectCase()
-                .when(cb.isFalse(pg.get("recebido")), pg.<BigDecimal>get("valorChamado")).otherwise(zero);
+                .when(cb.isFalse(pg.get("pago")), pg.<BigDecimal>get("valorChamado")).otherwise(zero);
         Expression<BigDecimal> naoKmValor = cb.<BigDecimal>selectCase()
-                .when(cb.isFalse(pg.get("recebido")),
+                .when(cb.isFalse(pg.get("pago")),
                         cb.prod(pg.<BigDecimal>get("km"), pg.<BigDecimal>get("valorKm"))).otherwise(zero);
         Expression<BigDecimal> naoPedagio = cb.<BigDecimal>selectCase()
-                .when(cb.isFalse(pg.get("recebido")), pg.<BigDecimal>get("pedagio")).otherwise(zero);
+                .when(cb.isFalse(pg.get("pago")), pg.<BigDecimal>get("pedagio")).otherwise(zero);
         Expression<BigDecimal> naoEstac = cb.<BigDecimal>selectCase()
-                .when(cb.isFalse(pg.get("recebido")), pg.<BigDecimal>get("estacionamento")).otherwise(zero);
+                .when(cb.isFalse(pg.get("pago")), pg.<BigDecimal>get("estacionamento")).otherwise(zero);
         Expression<BigDecimal> naoOutros = cb.<BigDecimal>selectCase()
-                .when(cb.isFalse(pg.get("recebido")), pg.<BigDecimal>get("valorOutros")).otherwise(zero);
+                .when(cb.isFalse(pg.get("pago")), pg.<BigDecimal>get("valorOutros")).otherwise(zero);
         Expression<BigDecimal> naoTotal = cb.<BigDecimal>selectCase()
-                .when(cb.isFalse(pg.get("recebido")), pg.<BigDecimal>get("valorTotal")).otherwise(zero);
+                .when(cb.isFalse(pg.get("pago")), pg.<BigDecimal>get("valorTotal")).otherwise(zero);
 
         cq.multiselect(
                 cb.count(pg),                //  0
@@ -269,9 +264,9 @@ public class ContasReceberRepository {
                 cb.sum(naoTotal),            //  2
                 cb.sum(pg.get("valorTotal")),//  3
                 cb.sum(cb.<Long>selectCase()
-                        .when(cb.isTrue(pg.get("recebido")), 1L).otherwise(0L)),  //  4
+                        .when(cb.isTrue(pg.get("pago")), 1L).otherwise(0L)),  //  4
                 cb.sum(cb.<Long>selectCase()
-                        .when(cb.isFalse(pg.get("recebido")), 1L).otherwise(0L)), //  5
+                        .when(cb.isFalse(pg.get("pago")), 1L).otherwise(0L)), //  5
                 cb.sum(recChamado),  //  6
                 cb.sum(recKmValor),  //  7
                 cb.sum(recPedagio),  //  8

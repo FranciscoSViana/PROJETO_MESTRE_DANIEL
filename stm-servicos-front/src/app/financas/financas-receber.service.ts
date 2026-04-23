@@ -1,6 +1,6 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { Page } from '../template/utils/page';
 import { ContasReceberItem } from './contas-receber-item';
@@ -45,6 +45,19 @@ export class FinancasReceberService {
     return this.http.post(`${this.apiUrl}/pagamento-lote`, payload);
   }
 
+  listarClientesDisponiveis(): Observable<string[]> {
+    // Busca sem filtro de paginação, traz só os clientes distintos com pago=false
+    const params = new HttpParams().set('pago', 'false').set('size', '1000');
+    return this.http.get<any>(this.apiUrl, { params }).pipe(
+      map((res: any) => {
+        const set = new Set<string>(
+          (res.content ?? []).map((i: any) => i.cliente).filter(Boolean)
+        );
+        return Array.from(set).sort() as string[];
+      })
+    );
+  }
+
   uploadComprovanteRecebimento(file: File, lote: string): Observable<string> {
     const formData = new FormData();
     formData.append('file', file);
@@ -70,7 +83,6 @@ export class FinancasReceberService {
     if (filtro.osClt) params = params.set('osClt', filtro.osClt);
     if (filtro.cliente) params = params.set('cliente', filtro.cliente);
     if (filtro.lote) params = params.set('lote', filtro.lote);
-    if (filtro.recebido !== '') params = params.set('recebido', filtro.recebido);
     if (filtro.pago !== '') params = params.set('pago', filtro.pago);
     if (filtro.dataAberturaInicio) params = params.set('dataAberturaInicio', filtro.dataAberturaInicio);
     if (filtro.dataAberturaFim) params = params.set('dataAberturaFim', filtro.dataAberturaFim);

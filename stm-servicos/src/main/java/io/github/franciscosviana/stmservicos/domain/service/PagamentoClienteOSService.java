@@ -49,13 +49,7 @@ public class PagamentoClienteOSService {
                 .findByOrdemServicoId(ordemServicoId)
                 .orElse(new PagamentoClienteOS());
 
-        if (pagamento.isRecebido()) {
-            throw new OrdemServicoException(
-                    "Este recebimento já foi registrado. Use o endpoint de edição para alterá-lo.");
-        }
-
         preencherPagamento(pagamento, os, solucao, input);
-        pagamento.setRecebido(true);
         pagamento.setCorrigido(true);
 
         pagamentoClienteOSRepository.save(pagamento);
@@ -79,10 +73,6 @@ public class PagamentoClienteOSService {
                         "Nenhum recebimento encontrado para edição. Registre o recebimento primeiro."));
 
         preencherPagamento(pagamento, os, solucao, input);
-
-        if (input.getRecebido() != null) {
-            pagamento.setRecebido(input.getRecebido());
-        }
 
         pagamentoClienteOSRepository.save(pagamento);
         return assembler.toModel(pagamento);
@@ -151,7 +141,6 @@ public class PagamentoClienteOSService {
                     pagamento.setUrlComprovante(input.getUrlComprovante());
                 }
 
-                pagamento.setRecebido(true);
                 pagamento.setCorrigido(true);
                 pagamento.setPago(true);
 

@@ -108,7 +108,6 @@ public class ContasReceberService {
                 setCurrency(row, col++, d.getEstacionamento(), moedaStyle);
                 setCurrency(row, col++, d.getValorOutros(), moedaStyle);
                 setCurrency(row, col++, d.getValorTotal(), moedaStyle);
-                row.createCell(col++).setCellValue(d.isRecebido() ? "SIM" : "NÃO");
                 row.createCell(col++).setCellValue(d.isPago() ? "SIM" : "NÃO");
                 row.createCell(col++).setCellValue(d.getTipoPagamento() != null ? d.getTipoPagamento().name() : "");
                 row.createCell(col++).setCellValue(nvl(d.getBanco()));

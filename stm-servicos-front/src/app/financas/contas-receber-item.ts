@@ -12,7 +12,6 @@ export class ContasReceberItem {
     estacionamento?: number;
     valorOutros?: number;
     valorTotal?: number;
-    recebido?: boolean;
     pago?: boolean;
     corrigido?: boolean;
     tipoPagamento?: string;

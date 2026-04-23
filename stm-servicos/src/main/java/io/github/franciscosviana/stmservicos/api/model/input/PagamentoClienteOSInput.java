@@ -45,6 +45,4 @@ public class PagamentoClienteOSInput {
 
     // ✅ LocalDate em vez de OffsetDateTime — recebe "yyyy-MM-dd" do frontend
     private LocalDate dataPagamento;
-
-    private Boolean recebido;
 }

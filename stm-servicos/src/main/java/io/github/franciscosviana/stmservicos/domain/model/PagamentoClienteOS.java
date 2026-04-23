@@ -99,10 +99,6 @@ public class PagamentoClienteOS {
     @Column(name = "criado_em", insertable = false, updatable = false)
     private OffsetDateTime criadoEm;
 
-    @Column(name = "recebido", nullable = false)
-    @Builder.Default
-    private boolean recebido = false;
-
     @Column(name = "pago", nullable = false)
     @Builder.Default
     private boolean pago = false;
