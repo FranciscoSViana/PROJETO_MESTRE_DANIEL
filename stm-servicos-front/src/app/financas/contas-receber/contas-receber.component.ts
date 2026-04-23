@@ -41,6 +41,7 @@ export class ContasReceberComponent implements OnInit, OnDestroy {
     cliente: '',
     lote: '',
     recebido: '' as '' | 'true' | 'false',
+    pago: '' as '' | 'true' | 'false',
     dataAberturaInicio: '',
     dataAberturaFim: '',
     dataPagamentoInicio: '',
@@ -49,7 +50,7 @@ export class ContasReceberComponent implements OnInit, OnDestroy {
 
   loteOptions: string[] = [];
 
-  recebidoOptions = [
+  pagoOptions = [
     { label: 'Todos', value: '' },
     { label: 'Recebido', value: 'true' },
     { label: 'Pendente', value: 'false' }
@@ -151,7 +152,7 @@ export class ContasReceberComponent implements OnInit, OnDestroy {
 
   limparFiltros(): void {
     this.filtro = {
-      osg: '', osClt: '', cliente: '', lote: '', recebido: '',
+      osg: '', osClt: '', cliente: '', lote: '', recebido: '', pago: '',
       dataAberturaInicio: '', dataAberturaFim: '',
       dataPagamentoInicio: '', dataPagamentoFim: '',
     };

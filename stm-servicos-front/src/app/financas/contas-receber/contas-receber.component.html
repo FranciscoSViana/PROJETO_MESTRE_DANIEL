@@ -186,9 +186,9 @@
                             </select>
                         </th>
                         <th class="p-2 border">
-                            <select [(ngModel)]="filtro.recebido" (ngModelChange)="onSelectFiltroChange()"
+                            <select [(ngModel)]="filtro.pago" (ngModelChange)="onSelectFiltroChange()"
                                 class="w-full border p-1 rounded text-xs">
-                                <option *ngFor="let o of recebidoOptions" [value]="o.value">{{ o.label }}</option>
+                                <option *ngFor="let o of pagoOptions" [value]="o.value">{{ o.label }}</option>
                             </select>
                         </th>
                         <th class="p-2 border">
@@ -247,12 +247,12 @@
                             <td class="p-3 border text-center">
                                 <span
                                     class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold border"
-                                    [ngClass]="item.recebido
+                                    [ngClass]="item.pago
                     ? 'bg-green-50 text-green-700 border-green-200'
                     : 'bg-orange-50 text-orange-600 border-orange-200'">
                                     <i class="fa-solid text-[10px]"
-                                        [ngClass]="item.recebido ? 'fa-circle-check' : 'fa-clock'"></i>
-                                    {{ item.recebido ? 'Recebido' : 'Pendente' }}
+                                        [ngClass]="item.pago ? 'fa-circle-check' : 'fa-clock'"></i>
+                                    {{ item.pago ? 'Pago' : 'Pendente' }}
                                 </span>
                             </td>
 
@@ -351,13 +351,13 @@
         <!-- CARDS MOBILE -->
         <div class="md:hidden space-y-3">
             <div *ngFor="let item of items" class="border rounded-xl shadow-sm p-4 bg-white"
-                [ngClass]="item.recebido ? 'border-l-4 border-l-green-400' : 'border-l-4 border-l-orange-400'">
+                [ngClass]="item.pago ? 'border-l-4 border-l-green-400' : 'border-l-4 border-l-orange-400'">
 
                 <div class="flex justify-between items-start mb-2">
                     <span class="font-bold text-green-700 font-mono">{{ item.osg }}</span>
                     <span class="px-2 py-0.5 rounded-full text-xs font-semibold"
-                        [ngClass]="item.recebido ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-600'">
-                        {{ item.recebido ? 'Recebido' : 'Pendente' }}
+                        [ngClass]="item.pago ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-600'">
+                        {{ item.pago ? 'Pago' : 'Pendente' }}
                     </span>
                 </div>
 
