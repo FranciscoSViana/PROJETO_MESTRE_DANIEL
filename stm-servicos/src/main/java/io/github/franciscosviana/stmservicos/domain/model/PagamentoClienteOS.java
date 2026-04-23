@@ -107,8 +107,8 @@ public class PagamentoClienteOS {
     @Builder.Default
     private boolean pago = false;
 
-    @Column(name = "corrigido", nullable = false)
     @Builder.Default
+    @Column(name = "corrigido", nullable = false)
     private boolean corrigido = false;
 
     public void calcularValorTotal() {

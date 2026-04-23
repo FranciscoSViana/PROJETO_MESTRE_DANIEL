@@ -71,6 +71,7 @@ export class FinancasReceberService {
     if (filtro.cliente) params = params.set('cliente', filtro.cliente);
     if (filtro.lote) params = params.set('lote', filtro.lote);
     if (filtro.recebido !== '') params = params.set('recebido', filtro.recebido);
+    if (filtro.pago !== '') params = params.set('pago', filtro.pago);
     if (filtro.dataAberturaInicio) params = params.set('dataAberturaInicio', filtro.dataAberturaInicio);
     if (filtro.dataAberturaFim) params = params.set('dataAberturaFim', filtro.dataAberturaFim);
     if (filtro.dataPagamentoInicio) params = params.set('dataPagamentoInicio', filtro.dataPagamentoInicio);
