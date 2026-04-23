@@ -40,7 +40,6 @@ export class ContasReceberComponent implements OnInit, OnDestroy {
     osClt: '',
     cliente: '',
     lote: '',
-    recebido: '' as '' | 'true' | 'false',
     pago: '' as '' | 'true' | 'false',
     dataAberturaInicio: '',
     dataAberturaFim: '',
@@ -52,7 +51,7 @@ export class ContasReceberComponent implements OnInit, OnDestroy {
 
   pagoOptions = [
     { label: 'Todos', value: '' },
-    { label: 'Recebido', value: 'true' },
+    { label: 'Pago', value: 'true' },
     { label: 'Pendente', value: 'false' }
   ];
 
@@ -122,7 +121,6 @@ export class ContasReceberComponent implements OnInit, OnDestroy {
             pedagio: i.pedagio ?? 0,
             estacionamento: i.estacionamento ?? 0,
             valorOutros: i.valorOutros ?? 0,
-            recebido: i.recebido ?? false,
             pago: i.pago ?? false,
           }));
           this.totalPages = res.totalPages;
@@ -152,7 +150,7 @@ export class ContasReceberComponent implements OnInit, OnDestroy {
 
   limparFiltros(): void {
     this.filtro = {
-      osg: '', osClt: '', cliente: '', lote: '', recebido: '', pago: '',
+      osg: '', osClt: '', cliente: '', lote: '', pago: '',
       dataAberturaInicio: '', dataAberturaFim: '',
       dataPagamentoInicio: '', dataPagamentoFim: '',
     };
@@ -253,9 +251,15 @@ export class ContasReceberComponent implements OnInit, OnDestroy {
       dataPrevista: null, dataPagamento: null
     };
 
-    // Extrai clientes distintos dos itens já carregados na tela
-    const set = new Set(this.items.map(i => i.cliente).filter(Boolean) as string[]);
-    this.clientesDisponiveis = Array.from(set).sort();
+    // ← Busca do backend em vez de usar apenas a página atual
+    this.service.listarClientesDisponiveis().subscribe({
+      next: (clientes) => { this.clientesDisponiveis = clientes; },
+      error: () => {
+        // fallback: usa os itens da tela
+        const set = new Set(this.items.map(i => i.cliente).filter(Boolean) as string[]);
+        this.clientesDisponiveis = Array.from(set).sort();
+      }
+    });
   }
 
   fecharModalPagamentoLote(): void {

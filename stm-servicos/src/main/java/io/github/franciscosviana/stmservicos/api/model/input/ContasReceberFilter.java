@@ -12,7 +12,6 @@ public class ContasReceberFilter {
     private String osClt;
     private String cliente;
     private String lote;
-    private Boolean recebido;
 
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private LocalDate dataAberturaInicio;

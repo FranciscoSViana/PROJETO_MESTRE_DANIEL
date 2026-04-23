@@ -34,7 +34,8 @@ public class PagamentoClienteOSOutputAssembler {
                 .dataPrevista(p.getDataPrevista())
                 .dataPagamento(p.getDataPagamento())
                 .criadoEm(p.getCriadoEm())
-                .recebido(p.isRecebido())
+                .pago(p.isPago())           // ← estava faltando
+                .corrigido(p.isCorrigido()) // ← estava faltando
                 .build();
     }
 

@@ -29,7 +29,6 @@ public class ContasReceberOutput {
     private BigDecimal valorOutros;
     private BigDecimal valorTotal;
 
-    private boolean recebido;
     private boolean pago;
     private boolean corrigido;
     private TipoPagamento tipoPagamento;

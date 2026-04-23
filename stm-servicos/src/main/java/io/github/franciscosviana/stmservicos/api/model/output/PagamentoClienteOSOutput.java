@@ -42,8 +42,6 @@ public class PagamentoClienteOSOutput {
     private OffsetDateTime dataPagamento;
     private OffsetDateTime criadoEm;
 
-    private boolean recebido;
-
     private boolean pago;
     private boolean corrigido;
 }

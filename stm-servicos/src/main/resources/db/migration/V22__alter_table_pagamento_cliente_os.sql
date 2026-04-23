@@ -1,0 +1,1 @@
+ALTER TABLE pagamento_cliente_os DROP COLUMN recebido;

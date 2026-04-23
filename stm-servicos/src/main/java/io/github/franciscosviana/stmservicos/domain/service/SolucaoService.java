@@ -158,7 +158,6 @@ public class SolucaoService {
                 .valorOutros(valorOutros)
                 .valorTotal(valorTotal)
                 .tipoPagamento(null)
-                .recebido(false)
                 .pago(false)
                 .corrigido(false)
                 .build();
