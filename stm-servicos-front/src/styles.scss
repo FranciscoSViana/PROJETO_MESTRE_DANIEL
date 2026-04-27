@@ -1,17 +1,60 @@
+// styles.scss
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Em seu arquivo .scss */
-.no-spinner::-webkit-inner-spin-button,
-.no-spinner::-webkit-outer-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
+// ─── Tokens de cor STM Serviços ──────────────────────────────────
+:root {
+  // Primárias
+  --color-brand-darkest:  #1A2332;  // sidebar / navbar bg
+  --color-brand-dark:     #1E3A5F;  // principal / botões primários
+  --color-brand-base:     #2A5FA0;  // interativo / links
+  --color-brand-light:    #3A7CC4;  // hover de botões
+  --color-brand-bg:       #EAF3FC;  // fundos / chips "em andamento"
+
+  // Acento (CTA / destaques)
+  --color-accent:         #F97316;
+  --color-accent-hover:   #EA6010;
+  --color-accent-bg:      #FFF3E6;
+
+  // Semânticas
+  --color-success:        #22C55E;
+  --color-success-bg:     #F0FDF4;
+  --color-success-text:   #15803D;
+
+  --color-error:          #EF4444;
+  --color-error-bg:       #FEF2F2;
+  --color-error-text:     #B91C1C;
+
+  --color-warning:        #F59E0B;
+  --color-warning-bg:     #FFFBEB;
+  --color-warning-text:   #92400E;
+
+  // Neutros
+  --color-bg-page:        #F8FAFC;
+  --color-bg-surface:     #F1F5F9;
+  --color-border:         #CBD5E1;
+  --color-text-secondary: #64748B;
+  --color-text-primary:   #1E293B;
 }
 
-.no-spinner {
-  -moz-appearance: textfield;
-}
+// ─── Extensão Tailwind com as cores da marca ────────────────────
+// No tailwind.config.js adicione:
+// theme: { extend: { colors: {
+//   brand: { darkest: '#1A2332', dark: '#1E3A5F', base: '#2A5FA0',
+//             light: '#3A7CC4', bg: '#EAF3FC' },
+//   accent: { DEFAULT: '#F97316', hover: '#EA6010', bg: '#FFF3E6' }
+// }}}
+
+// ─── Utilitários globais ─────────────────────────────────────────
+.no-spinner::-webkit-inner-spin-button,
+.no-spinner::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+.no-spinner { -moz-appearance: textfield; }
 
 html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+  background-color: var(--color-bg-page);
+  color: var(--color-text-primary);
+}
