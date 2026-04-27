@@ -616,25 +616,16 @@ export class ConsultaOrdemComponent implements OnInit {
     this.carregandoRecebimento = true;
     this.modalRecebimentoAberto = true;
 
-    // 1️⃣ Pré-preenche com valores padrão do cliente + lote automático
     const clienteId = os.cliente?.id;
-    if (clienteId) {
-      this.clienteService.buscarPorId(clienteId).subscribe({
-        next: (cliente) => {
-          if (cliente.valorChamado != null) this.recebimento.valorChamado = cliente.valorChamado;
-          if (cliente.valorKm != null) this.recebimento.valorKm = cliente.valorKm;
-          if (cliente.tipoFluxoPagamento) this.recebimento.lote = this.gerarNomeLote(cliente.tipoFluxoPagamento);
-        },
-        error: () => { }
-      });
-    }
 
-    // 2️⃣ Recebimento existente + Solução em paralelo
     forkJoin({
       recebimento: this.service.buscarRecebimento(os.id!).pipe(catchError(() => of(null))),
-      solucao: this.solucaoService.buscarPorOrdem(os.id!).pipe(catchError(() => of(null)))
+      solucao: this.solucaoService.buscarPorOrdem(os.id!).pipe(catchError(() => of(null))),
+      cliente: clienteId
+        ? this.clienteService.buscarPorId(clienteId).pipe(catchError(() => of(null)))
+        : of(null)
     }).subscribe({
-      next: ({ recebimento: rec, solucao }) => {
+      next: ({ recebimento: rec, solucao, cliente }) => {
 
         if (!solucao && !rec) {
           this.carregandoRecebimento = false;
@@ -643,8 +634,14 @@ export class ConsultaOrdemComponent implements OnInit {
           return;
         }
 
+        // Pré-preenche com valores padrão do cliente (sem lote)
+        if (cliente) {
+          if (cliente.valorChamado != null) this.recebimento.valorChamado = cliente.valorChamado;
+          if (cliente.valorKm != null) this.recebimento.valorKm = cliente.valorKm;
+        }
+
         if (rec && rec.id != null && rec.corrigido === true) {
-          // ── Modo leitura ──
+          // Modo leitura
           this.recebimento = {
             km: rec.km, valorChamado: rec.valorChamado, valorKm: rec.valorKm,
             pedagio: rec.pedagio, estacionamento: rec.estacionamento,
@@ -659,30 +656,35 @@ export class ConsultaOrdemComponent implements OnInit {
           this.recebimentoJaExiste = true;
           this.recebimentoModoEdicao = false;
 
+        } else if (rec && rec.id != null) {
+          // Rascunho existente — lote vem do banco, sem geração automática
+          this.recebimento.km = rec.km;
+          this.recebimento.valorChamado = rec.valorChamado ?? this.recebimento.valorChamado;
+          this.recebimento.valorKm = rec.valorKm ?? this.recebimento.valorKm;
+          this.recebimento.pedagio = rec.pedagio;
+          this.recebimento.estacionamento = rec.estacionamento;
+          this.recebimento.outros = rec.outros ?? '';
+          this.recebimento.valorOutros = rec.valorOutros;
+          this.recebimento.lote = rec.lote ?? '';
+          this.recebimento.nf = rec.nf ?? '';
+          this.recebimento.tipoPagamento = rec.tipoPagamento ?? '';
+          this.recebimento.banco = rec.banco ?? '';
+          this.recebimento.urlComprovante = rec.urlComprovante ?? '';
+          this.recebimento.dataPrevista = this.toDateInput(rec.dataPrevista);
+          this.recebimento.dataPagamento = this.toDateInput(rec.dataPagamento);
+          this.recebimento.recebido = false;
+          this.recebimentoJaExiste = false;
+          this.recebimentoModoEdicao = true;
+
         } else {
-          // ── Modo edição ──
-          if (rec && rec.id != null) {
-            this.recebimento.km = rec.km;
-            this.recebimento.valorChamado = rec.valorChamado;
-            this.recebimento.valorKm = rec.valorKm;
-            this.recebimento.pedagio = rec.pedagio;
-            this.recebimento.estacionamento = rec.estacionamento;
-            this.recebimento.outros = rec.outros ?? '';
-            this.recebimento.valorOutros = rec.valorOutros;
-            this.recebimento.lote = rec.lote ?? '';
-            this.recebimento.nf = rec.nf ?? '';
-            this.recebimento.tipoPagamento = rec.tipoPagamento ?? '';
-            this.recebimento.banco = rec.banco ?? '';
-            this.recebimento.urlComprovante = rec.urlComprovante ?? '';
-            this.recebimento.dataPrevista = this.toDateInput(rec.dataPrevista);
-            this.recebimento.dataPagamento = this.toDateInput(rec.dataPagamento);
-            this.recebimento.recebido = false;
-          } else if (solucao) {
+          // Novo recebimento — preenche da solução, lote fica vazio
+          if (solucao) {
             this.recebimento.km = solucao.km;
             this.recebimento.pedagio = solucao.pedagio;
             this.recebimento.estacionamento = solucao.estacionamento;
             this.recebimento.valorOutros = solucao.outros;
           }
+          this.recebimento.lote = '';
           this.recebimentoJaExiste = false;
           this.recebimentoModoEdicao = true;
         }
