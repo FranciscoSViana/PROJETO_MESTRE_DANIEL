@@ -1,7 +1,21 @@
-<div class="min-h-screen flex flex-col bg-gradient-to-r from-blue-500 to-blue-700">
+<div class="min-h-screen flex flex-col" style="background-color: var(--color-brand-darkest);">
 
   <!-- ================= HEADER ================= -->
-  <header class="p-4 md:p-6 shadow-lg text-white relative">
+  <header class="p-4 md:p-6 shadow-lg text-white relative" style="background-color: var(--color-brand-dark);">
+
+    <!-- ===== LOGO GUARDIAN com efeito de fusão ===== -->
+    <div class="absolute left-0 top-0 h-full flex items-center pointer-events-none select-none" style="width: 280px;">
+      <img src="GUARDIAN.jpeg" alt="" class="w-full h-full object-cover" style="
+         object-position: left center;
+         opacity: 0.6;
+         mask-image: radial-gradient(ellipse 80% 90% at 35% 50%,
+           black 30%,
+           transparent 75%);
+         -webkit-mask-image: radial-gradient(ellipse 80% 90% at 35% 50%,
+           black 30%,
+           transparent 75%);
+       " />
+    </div>
 
     <div class="text-center">
       <h1 class="text-2xl md:text-[30px] font-bold">{{ props.titulo }}</h1>
@@ -9,7 +23,7 @@
     </div>
 
     <div class="mt-3 md:mt-4" *ngIf="usuarioLogado && !isLoginRoute()">
-      <hr class="border-t border-blue-300 opacity-50" />
+      <hr class="border-t border-white opacity-20" />
     </div>
 
     <nav class="mt-3 md:mt-4 relative" *ngIf="usuarioLogado && !isLoginRoute()">
@@ -18,16 +32,16 @@
       <div class="hidden md:flex justify-center items-center">
 
         <ul class="flex space-x-6 font-semibold">
-          <li><a routerLink="clientes" routerLinkActive="text-yellow-300 underline"
-              class="hover:text-yellow-300 transition">Clientes</a></li>
-          <li><a routerLink="credenciados" routerLinkActive="text-yellow-300 underline"
-              class="hover:text-yellow-300 transition">Credenciados</a></li>
-          <li><a routerLink="ordem-servico" routerLinkActive="text-yellow-300 underline"
-              class="hover:text-yellow-300 transition">Ordens</a></li>
-          <li><a routerLink="financas" routerLinkActive="text-yellow-300 underline"
-              class="hover:text-yellow-300 transition">Finanças</a></li>
-          <li *ngIf="isAdmin"><a routerLink="usuarios" routerLinkActive="text-yellow-300 underline"
-              class="hover:text-yellow-300 transition">Usuários</a></li>
+          <li><a routerLink="clientes" routerLinkActive="text-accent underline"
+              class="hover:text-accent transition">Clientes</a></li>
+          <li><a routerLink="credenciados" routerLinkActive="text-accent underline"
+              class="hover:text-accent transition">Credenciados</a></li>
+          <li><a routerLink="ordem-servico" routerLinkActive="text-accent underline"
+              class="hover:text-accent transition">Ordens</a></li>
+          <li><a routerLink="financas" routerLinkActive="text-accent underline"
+              class="hover:text-accent transition">Finanças</a></li>
+          <li *ngIf="isAdmin"><a routerLink="usuarios" routerLinkActive="text-accent underline"
+              class="hover:text-accent transition">Usuários</a></li>
         </ul>
 
         <!-- Ações desktop: sino + avatar -->
@@ -35,11 +49,11 @@
 
           <!-- Sino -->
           <div class="relative" data-menu>
-            <button (click)="toggleNotificacoes()"
-              class="w-10 h-10 rounded-full bg-blue-500 hover:bg-blue-400 flex items-center justify-center transition shadow">
+            <button (click)="toggleNotificacoes()" class="w-10 h-10 rounded-full bg-brand-base hover:bg-brand-light
+                     flex items-center justify-center transition shadow">
               <i class="fa-solid fa-bell text-white"></i>
-              <span *ngIf="qtdNotificacoes > 0"
-                class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
+              <span *ngIf="qtdNotificacoes > 0" class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white
+                       text-xs font-bold rounded-full flex items-center justify-center">
                 {{ qtdNotificacoes > 9 ? '9+' : qtdNotificacoes }}
               </span>
             </button>
@@ -49,10 +63,11 @@
               <div class="flex items-center justify-between px-4 py-2 border-b">
                 <p class="text-sm font-semibold">Notificações</p>
                 <button *ngIf="qtdNotificacoes > 0" (click)="marcarTodasLidas()"
-                  class="text-xs text-blue-600 hover:underline">Marcar todas como lidas</button>
+                  class="text-xs text-brand-base hover:underline">
+                  Marcar todas como lidas
+                </button>
               </div>
-              <div *ngFor="let n of notificacoes"
-                class="px-4 py-3 border-b last:border-0 hover:bg-gray-50 transition">
+              <div *ngFor="let n of notificacoes" class="px-4 py-3 border-b last:border-0 hover:bg-gray-50 transition">
                 <p class="text-xs text-gray-700">{{ n.mensagem }}</p>
                 <p class="text-xs text-gray-400 mt-1">{{ n.criadaEm | date:'dd/MM/yyyy HH:mm' }}</p>
               </div>
@@ -64,8 +79,8 @@
 
           <!-- Avatar + menu usuário -->
           <div class="relative" data-menu>
-            <button (click)="toggleMenuUsuario()"
-              class="w-10 h-10 rounded-full bg-yellow-400 text-blue-900 font-bold flex items-center justify-center hover:bg-yellow-300 transition shadow">
+            <button (click)="toggleMenuUsuario()" class="w-10 h-10 rounded-full bg-accent text-white font-bold
+                     flex items-center justify-center hover:bg-accent-hover transition shadow">
               {{ usuarioLogado![0] | uppercase }}
             </button>
 
@@ -74,21 +89,19 @@
               <p class="px-4 py-2 text-sm font-semibold border-b truncate">{{ usuarioLogado }}</p>
               <a routerLink="/usuarios/perfil"
                 class="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 transition text-sm">
-                <i class="fa-solid fa-user text-blue-500 w-4"></i> Meu Perfil
+                <i class="fa-solid fa-user text-brand-base w-4"></i> Meu Perfil
               </a>
               <a routerLink="/usuarios/editar"
                 class="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 transition text-sm">
-                <i class="fa-solid fa-pen-to-square text-blue-500 w-4"></i> Editar Dados
+                <i class="fa-solid fa-pen-to-square text-brand-base w-4"></i> Editar Dados
               </a>
               <a *ngIf="isAdmin" routerLink="/usuarios/cadastro"
                 class="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 transition text-sm">
-                <i class="fa-solid fa-user-plus text-blue-500 w-4"></i> Novo Usuário
+                <i class="fa-solid fa-user-plus text-brand-base w-4"></i> Novo Usuário
               </a>
               <hr class="my-1">
-              <!-- O botão de logout está dentro de [data-menu], mas chamamos logout()
-                   diretamente — o AuthService já redireciona. -->
-              <button (click)="logout()"
-                class="w-full flex items-center gap-2 px-4 py-2 text-red-600 hover:bg-red-50 transition text-sm font-semibold">
+              <button (click)="logout()" class="w-full flex items-center gap-2 px-4 py-2 text-red-600
+                       hover:bg-red-50 transition text-sm font-semibold">
                 <i class="fa-solid fa-right-from-bracket w-4"></i> Sair
               </button>
             </div>
@@ -101,7 +114,7 @@
       <div class="flex md:hidden items-center justify-between">
 
         <button (click)="menuMobileAberto = !menuMobileAberto"
-          class="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 transition text-white">
+          class="p-2 rounded-lg bg-brand-base hover:bg-brand-light transition text-white">
           <i *ngIf="!menuMobileAberto" class="fa-solid fa-bars text-xl"></i>
           <i *ngIf="menuMobileAberto" class="fa-solid fa-xmark text-xl"></i>
         </button>
@@ -110,11 +123,11 @@
 
           <!-- Sino mobile -->
           <div class="relative" data-menu>
-            <button (click)="toggleNotificacoes()"
-              class="w-10 h-10 rounded-full bg-blue-500 hover:bg-blue-400 flex items-center justify-center transition shadow">
+            <button (click)="toggleNotificacoes()" class="w-10 h-10 rounded-full bg-brand-base hover:bg-brand-light
+                     flex items-center justify-center transition shadow">
               <i class="fa-solid fa-bell text-white"></i>
-              <span *ngIf="qtdNotificacoes > 0"
-                class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
+              <span *ngIf="qtdNotificacoes > 0" class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white
+                       text-xs font-bold rounded-full flex items-center justify-center">
                 {{ qtdNotificacoes > 9 ? '9+' : qtdNotificacoes }}
               </span>
             </button>
@@ -124,7 +137,7 @@
               <div class="flex items-center justify-between px-4 py-2 border-b">
                 <p class="text-sm font-semibold">Notificações</p>
                 <button *ngIf="qtdNotificacoes > 0" (click)="marcarTodasLidas()"
-                  class="text-xs text-blue-600 hover:underline">Marcar lidas</button>
+                  class="text-xs text-brand-base hover:underline">Marcar lidas</button>
               </div>
               <div *ngFor="let n of notificacoes" class="px-4 py-3 border-b last:border-0 text-xs">
                 <p class="text-gray-700">{{ n.mensagem }}</p>
@@ -138,8 +151,8 @@
 
           <!-- Avatar mobile -->
           <div class="relative" data-menu>
-            <button (click)="toggleMenuUsuario()"
-              class="w-10 h-10 rounded-full bg-yellow-400 text-blue-900 font-bold flex items-center justify-center hover:bg-yellow-300 transition shadow">
+            <button (click)="toggleMenuUsuario()" class="w-10 h-10 rounded-full bg-accent text-white font-bold
+                     flex items-center justify-center hover:bg-accent-hover transition shadow">
               {{ usuarioLogado![0] | uppercase }}
             </button>
 
@@ -148,19 +161,19 @@
               <p class="px-4 py-2 text-sm font-semibold border-b truncate">{{ usuarioLogado }}</p>
               <a routerLink="/usuarios/perfil"
                 class="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 transition text-sm">
-                <i class="fa-solid fa-user text-blue-500 w-4"></i> Meu Perfil
+                <i class="fa-solid fa-user text-brand-base w-4"></i> Meu Perfil
               </a>
               <a routerLink="/usuarios/editar"
                 class="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 transition text-sm">
-                <i class="fa-solid fa-pen-to-square text-blue-500 w-4"></i> Editar Dados
+                <i class="fa-solid fa-pen-to-square text-brand-base w-4"></i> Editar Dados
               </a>
               <a *ngIf="isAdmin" routerLink="/usuarios/cadastro"
                 class="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 transition text-sm">
-                <i class="fa-solid fa-user-plus text-blue-500 w-4"></i> Novo Usuário
+                <i class="fa-solid fa-user-plus text-brand-base w-4"></i> Novo Usuário
               </a>
               <hr class="my-1">
-              <button (click)="logout()"
-                class="w-full flex items-center gap-2 px-4 py-2 text-red-600 hover:bg-red-50 transition text-sm font-semibold">
+              <button (click)="logout()" class="w-full flex items-center gap-2 px-4 py-2 text-red-600
+                       hover:bg-red-50 transition text-sm font-semibold">
                 <i class="fa-solid fa-right-from-bracket w-4"></i> Sair
               </button>
             </div>
@@ -170,35 +183,35 @@
       </div>
 
       <!-- Menu mobile expandido -->
-      <div *ngIf="menuMobileAberto" class="md:hidden mt-3 bg-blue-600 rounded-xl overflow-hidden shadow-inner">
-        <ul class="flex flex-col font-semibold text-white divide-y divide-blue-500">
+      <div *ngIf="menuMobileAberto" class="md:hidden mt-3 bg-brand-darkest rounded-xl overflow-hidden shadow-inner">
+        <ul class="flex flex-col font-semibold text-white divide-y divide-brand-dark">
           <li>
-            <a routerLink="clientes" routerLinkActive="bg-blue-500" (click)="menuMobileAberto = false"
-              class="flex items-center gap-3 px-5 py-3 hover:bg-blue-500 transition">
+            <a routerLink="clientes" routerLinkActive="bg-brand-dark" (click)="menuMobileAberto = false"
+              class="flex items-center gap-3 px-5 py-3 hover:bg-brand-dark transition">
               <i class="fa-solid fa-users w-4"></i> Clientes
             </a>
           </li>
           <li>
-            <a routerLink="credenciados" routerLinkActive="bg-blue-500" (click)="menuMobileAberto = false"
-              class="flex items-center gap-3 px-5 py-3 hover:bg-blue-500 transition">
+            <a routerLink="credenciados" routerLinkActive="bg-brand-dark" (click)="menuMobileAberto = false"
+              class="flex items-center gap-3 px-5 py-3 hover:bg-brand-dark transition">
               <i class="fa-solid fa-building w-4"></i> Credenciados
             </a>
           </li>
           <li>
-            <a routerLink="ordem-servico" routerLinkActive="bg-blue-500" (click)="menuMobileAberto = false"
-              class="flex items-center gap-3 px-5 py-3 hover:bg-blue-500 transition">
+            <a routerLink="ordem-servico" routerLinkActive="bg-brand-dark" (click)="menuMobileAberto = false"
+              class="flex items-center gap-3 px-5 py-3 hover:bg-brand-dark transition">
               <i class="fa-solid fa-file-lines w-4"></i> Ordens
             </a>
           </li>
           <li>
-            <a routerLink="financas" routerLinkActive="bg-blue-500" (click)="menuMobileAberto = false"
-              class="flex items-center gap-3 px-5 py-3 hover:bg-blue-500 transition">
+            <a routerLink="financas" routerLinkActive="bg-brand-dark" (click)="menuMobileAberto = false"
+              class="flex items-center gap-3 px-5 py-3 hover:bg-brand-dark transition">
               <i class="fa-solid fa-coins w-4"></i> Finanças
             </a>
           </li>
           <li *ngIf="isAdmin">
-            <a routerLink="usuarios" routerLinkActive="bg-blue-500" (click)="menuMobileAberto = false"
-              class="flex items-center gap-3 px-5 py-3 hover:bg-blue-500 transition">
+            <a routerLink="usuarios" routerLinkActive="bg-brand-dark" (click)="menuMobileAberto = false"
+              class="flex items-center gap-3 px-5 py-3 hover:bg-brand-dark transition">
               <i class="fa-solid fa-user-gear w-4"></i> Usuários
             </a>
           </li>
@@ -229,8 +242,8 @@
   </main>
 
   <!-- ================= FOOTER ================= -->
-  <footer class="bg-gray-200 text-center p-4 mt-6" *ngIf="!isLoginRoute()">
-    <p class="text-gray-600 text-sm">© {{ anoAtual }}</p>
+  <footer class="text-center p-4 mt-6" *ngIf="!isLoginRoute()" style="background-color: var(--color-brand-darkest);">
+    <p class="text-white opacity-50 text-sm">© {{ anoAtual }}</p>
   </footer>
 
 </div>
