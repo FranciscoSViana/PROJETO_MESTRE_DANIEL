@@ -405,6 +405,7 @@ export class ConsultaOrdemComponent implements OnInit {
     this.carregandoPagamento = true;
     this.modalPagamentoAberto = true;
 
+    // Contas a Pagar: valores padrão vêm do CREDENCIADO
     const credenciadoId = os.credenciado?.id;
     if (credenciadoId) {
       this.credenciadoService.buscarPorId(credenciadoId).subscribe({
@@ -592,7 +593,6 @@ export class ConsultaOrdemComponent implements OnInit {
       case 'QUINZENAL':
         return base + (dia <= 15 ? 'A' : 'B');
       case 'SEMANAL': {
-        // Semana do mês: 1–7 → S1, 8–14 → S2, 15–21 → S3, 22+ → S4
         const semana = dia <= 7 ? 1 : dia <= 14 ? 2 : dia <= 21 ? 3 : 4;
         return `${base}S${semana}`;
       }
@@ -616,6 +616,8 @@ export class ConsultaOrdemComponent implements OnInit {
     this.carregandoRecebimento = true;
     this.modalRecebimentoAberto = true;
 
+    // Contas a Receber: valores padrão vêm do CLIENTE (via forkJoin abaixo)
+    // Não há busca separada ao credenciado aqui
     const clienteId = os.cliente?.id;
 
     forkJoin({
@@ -634,14 +636,14 @@ export class ConsultaOrdemComponent implements OnInit {
           return;
         }
 
-        // Pré-preenche com valores padrão do cliente (sem lote)
+        // Pré-preenche valorChamado e valorKm com os valores cadastrados no CLIENTE
         if (cliente) {
           if (cliente.valorChamado != null) this.recebimento.valorChamado = cliente.valorChamado;
           if (cliente.valorKm != null) this.recebimento.valorKm = cliente.valorKm;
         }
 
         if (rec && rec.id != null && rec.corrigido === true) {
-          // Modo leitura
+          // Recebimento já confirmado — modo leitura com dados históricos
           this.recebimento = {
             km: rec.km, valorChamado: rec.valorChamado, valorKm: rec.valorKm,
             pedagio: rec.pedagio, estacionamento: rec.estacionamento,
@@ -657,10 +659,9 @@ export class ConsultaOrdemComponent implements OnInit {
           this.recebimentoModoEdicao = false;
 
         } else if (rec && rec.id != null) {
-          // Rascunho existente — lote vem do banco, sem geração automática
+          // Rascunho existente — valorChamado e valorKm já vieram do cliente acima,
+          // não sobrescrevemos esses dois campos aqui
           this.recebimento.km = rec.km;
-          this.recebimento.valorChamado = rec.valorChamado ?? this.recebimento.valorChamado;
-          this.recebimento.valorKm = rec.valorKm ?? this.recebimento.valorKm;
           this.recebimento.pedagio = rec.pedagio;
           this.recebimento.estacionamento = rec.estacionamento;
           this.recebimento.outros = rec.outros ?? '';
@@ -677,7 +678,8 @@ export class ConsultaOrdemComponent implements OnInit {
           this.recebimentoModoEdicao = true;
 
         } else {
-          // Novo recebimento — preenche da solução, lote fica vazio
+          // Novo recebimento — preenche km/pedágio/estacionamento/outros da solução
+          // valorChamado e valorKm já vieram do cliente acima
           if (solucao) {
             this.recebimento.km = solucao.km;
             this.recebimento.pedagio = solucao.pedagio;
@@ -704,8 +706,6 @@ export class ConsultaOrdemComponent implements OnInit {
 
   salvarRecebimento() {
     if (!this.ordemRecebimentoSelecionada?.id) return;
-    // ← remover o bloco abaixo:
-    // if (!this.recebimento.tipoPagamento) { alert('Selecione o tipo de pagamento.'); return; }
 
     const payload = {
       tipoPagamento: this.recebimento.tipoPagamento || null,
