@@ -1,0 +1,110 @@
+name: CI — STM Serviços
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  # ============================================================
+  # JOB 1: Testes Unitários + JaCoCo + SonarCloud
+  # ============================================================
+  unit-tests:
+    name: Testes Unitários + SonarCloud
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # SonarCloud precisa do histórico completo para análise de blame
+
+      - name: Configurar Java 21 (Temurin)
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Cache do Gradle
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Permissão ao gradlew
+        run: chmod +x gradlew
+
+      - name: Executar testes unitários e gerar relatório JaCoCo
+        run: ./gradlew test jacocoTestReport --no-daemon
+
+      - name: Análise SonarCloud
+        run: ./gradlew sonar --no-daemon
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+      - name: Upload relatório JaCoCo como artefato
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: jacoco-report
+          path: build/reports/jacoco/
+          retention-days: 7
+
+      - name: Upload resultados dos testes
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results
+          path: build/reports/tests/
+          retention-days: 7
+
+  # ============================================================
+  # JOB 2: Testes E2E (Cucumber + Testcontainers + Docker)
+  # ============================================================
+  e2e-tests:
+    name: Testes E2E (Cucumber)
+    runs-on: ubuntu-latest
+    needs: unit-tests  # Só executa após os testes unitários passarem
+
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      - name: Configurar Java 21 (Temurin)
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Cache do Gradle
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Permissão ao gradlew
+        run: chmod +x gradlew
+
+      - name: Executar testes E2E (requer Docker para Testcontainers)
+        run: ./gradlew e2eTest --no-daemon
+        env:
+          SPRING_PROFILES_ACTIVE: e2e
+          TESTCONTAINERS_RYUK_DISABLED: 'false'
+
+      - name: Upload relatório Cucumber
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cucumber-report
+          path: build/reports/cucumber/
+          retention-days: 7
