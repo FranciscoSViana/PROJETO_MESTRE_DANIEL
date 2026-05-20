@@ -186,8 +186,8 @@ jacocoTestReport {
 // ===============================
 sonar {
     properties {
-        property 'sonar.projectKey', 'SONAR_PROJECT_KEY'
-        property 'sonar.organization', 'SONAR_ORGANIZATION'
+        property 'sonar.projectKey', System.getenv('SONAR_PROJECT_KEY') ?: 'SONAR_PROJECT_KEY'
+        property 'sonar.organization', System.getenv('SONAR_ORGANIZATION') ?: 'SONAR_ORGANIZATION'
         property 'sonar.coverage.jacoco.xmlReportPaths',
                  'build/reports/jacoco/test/jacocoTestReport.xml'
         property 'sonar.exclusions', [
@@ -197,5 +197,7 @@ sonar {
                 '**/common/config/**',
                 '**/domain/model/enums/**'
         ].join(',')
+        // Aguarda o resultado do Quality Gate e falha o build se não passar
+        property 'sonar.qualitygate.wait', 'true'
     }
 }
