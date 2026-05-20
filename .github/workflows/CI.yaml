@@ -160,21 +160,23 @@ jobs:
       # --------------------------------------------------------
       # Executa SonarCloud
       # --------------------------------------------------------
-      - name: Análise SonarCloud
-        working-directory: stm-servicos
-        run: |
-          ./gradlew sonar \
-            --no-daemon \
-            -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }} \
-            -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }} \
-            -Dsonar.host.url=https://sonarcloud.io \
-            -Dsonar.token=${{ secrets.SONAR_TOKEN }} \
-            -Dsonar.qualitygate.wait=true \
-            -Dsonar.gradle.skipCompile=true \
-            -Dsonar.qualitygate.ignore.failure=true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+       - name: Análise SonarCloud
+         working-directory: stm-servicos
+         run: |
+           ./gradlew clean test jacocoTestReport sonar \
+             --no-daemon \
+             -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }} \
+             -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }} \
+             -Dsonar.host.url=https://sonarcloud.io \
+             -Dsonar.token=${{ secrets.SONAR_TOKEN }} \
+             -Dsonar.qualitygate.wait=true \
+             -Dsonar.qualitygate.ignore.failure=true \
+             -Dsonar.java.binaries=build/classes/java/main \
+             -Dsonar.coverage.jacoco.xmlReportPaths=build/reports/jacoco/test/jacocoTestReport.xml,build/reports/jacoco/e2e/jacocoE2EReport.xml
+         env:
+           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+           SPRING_PROFILES_ACTIVE: test
 
   # ============================================================
   # JOB 4: Criar Tag de Versão
