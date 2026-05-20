@@ -1,0 +1,254 @@
+name: CI - Testes + Tag
+
+on:
+  push:
+    branches:
+      - develop
+
+permissions:
+  contents: write
+
+jobs:
+  # ============================================================
+  # JOB 1: Testes Unitários + JaCoCo
+  # ============================================================
+  unit-tests:
+    name: Testes Unitários
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configurar Java 21 (Temurin)
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: gradle
+
+      - name: Permissão ao gradlew
+        run: chmod +x stm-servicos/gradlew
+
+      - name: Executar testes unitários e gerar relatório JaCoCo
+        working-directory: stm-servicos
+        run: ./gradlew clean test jacocoTestReport --no-daemon
+        env:
+          SPRING_PROFILES_ACTIVE: test
+
+      - name: Upload resultados dos testes
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: stm-servicos/build/reports/tests/
+          retention-days: 7
+
+      - name: Upload relatório JaCoCo (Unit)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-unit-report
+          path: stm-servicos/build/reports/jacoco/test/
+          retention-days: 7
+
+  # ============================================================
+  # JOB 2: Testes E2E (Cucumber + Testcontainers)
+  # ============================================================
+  e2e-tests:
+    name: Testes E2E (Cucumber)
+    runs-on: ubuntu-latest
+    needs: unit-tests
+
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configurar Java 21 (Temurin)
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: gradle
+
+      - name: Permissão ao gradlew
+        run: chmod +x stm-servicos/gradlew
+
+      - name: Executar testes E2E (Testcontainers + Docker)
+        working-directory: stm-servicos
+        run: ./gradlew e2eTest --no-daemon
+        env:
+          SPRING_PROFILES_ACTIVE: e2e
+
+      - name: Upload relatório Cucumber
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cucumber-report
+          path: |
+            stm-servicos/build/reports/cucumber/
+            stm-servicos/build/cucumber-reports/
+          retention-days: 7
+
+      - name: Upload relatório JaCoCo E2E
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-e2e-report
+          path: stm-servicos/build/reports/jacoco/e2e/
+          retention-days: 7
+
+  # ============================================================
+  # JOB 3: SonarCloud (executa após Unit + E2E)
+  # ============================================================
+  sonarcloud:
+    name: SonarCloud
+    runs-on: ubuntu-latest
+    needs:
+      - unit-tests
+      - e2e-tests
+
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configurar Java 21 (Temurin)
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: gradle
+
+      - name: Permissão ao gradlew
+        run: chmod +x stm-servicos/gradlew
+
+      # --------------------------------------------------------
+      # Baixa relatório JaCoCo Unit
+      # --------------------------------------------------------
+      - name: Download relatório JaCoCo Unit
+        uses: actions/download-artifact@v4
+        with:
+          name: jacoco-unit-report
+          path: stm-servicos/build/reports/jacoco/test/
+
+      # --------------------------------------------------------
+      # Baixa relatório JaCoCo E2E
+      # --------------------------------------------------------
+      - name: Download relatório JaCoCo E2E
+        uses: actions/download-artifact@v4
+        with:
+          name: jacoco-e2e-report
+          path: stm-servicos/build/reports/jacoco/e2e/
+
+      # --------------------------------------------------------
+      # Compila o projeto para gerar os .class necessários
+      # para o SonarCloud (sonar.java.binaries)
+      # --------------------------------------------------------
+      - name: Compilar projeto
+        working-directory: stm-servicos
+        run: ./gradlew clean classes testClasses --no-daemon
+
+      # --------------------------------------------------------
+      # Debug (opcional)
+      # --------------------------------------------------------
+      - name: Verificar arquivos JaCoCo e classes compiladas
+        run: |
+          echo "=== Unit ==="
+          ls -R stm-servicos/build/reports/jacoco/test || true
+
+          echo "=== E2E ==="
+          ls -R stm-servicos/build/reports/jacoco/e2e || true
+
+          echo "=== Classes ==="
+          ls -R stm-servicos/build/classes/java/main || true
+
+      # --------------------------------------------------------
+      # Executa SonarCloud
+      # --------------------------------------------------------
+      - name: Análise SonarCloud
+        working-directory: stm-servicos
+        run: |
+          ./gradlew sonar \
+            --no-daemon \
+            -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }} \
+            -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }} \
+            -Dsonar.host.url=https://sonarcloud.io \
+            -Dsonar.token=${{ secrets.SONAR_TOKEN }} \
+            -Dsonar.qualitygate.wait=true \
+            -Dsonar.qualitygate.ignore.failure=true \
+            -Dsonar.java.binaries=build/classes/java/main \
+            -Dsonar.coverage.jacoco.xmlReportPaths=build/reports/jacoco/test/jacocoTestReport.xml,build/reports/jacoco/e2e/jacocoE2EReport.xml
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+  # ============================================================
+  # JOB 4: Criar Tag de Versão
+  # Executa somente se Unit + E2E + SonarCloud concluírem
+  # ============================================================
+  create-tag:
+    name: Criar Tag de Versão
+    runs-on: ubuntu-latest
+    needs:
+      - unit-tests
+      - e2e-tests
+      - sonarcloud
+    outputs:
+      new_tag: ${{ steps.versao.outputs.tag }}
+
+    steps:
+      - name: Checkout com histórico de tags
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Calcular próxima versão (incrementa patch)
+        id: versao
+        shell: bash
+        run: |
+          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+          echo "Última tag encontrada: $LAST_TAG"
+
+          VERSION=${LAST_TAG#v}
+          MAJOR=$(echo "$VERSION" | cut -d. -f1)
+          MINOR=$(echo "$VERSION" | cut -d. -f2)
+          PATCH=$(echo "$VERSION" | cut -d. -f3)
+
+          NEW_PATCH=$((PATCH + 1))
+          NEW_TAG="v${MAJOR}.${MINOR}.${NEW_PATCH}"
+
+          echo "Nova tag: $NEW_TAG"
+          echo "tag=$NEW_TAG" >> "$GITHUB_OUTPUT"
+
+      - name: Verificar se a tag já existe
+        id: check_tag
+        shell: bash
+        run: |
+          if git rev-parse "${{ steps.versao.outputs.tag }}" >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+            echo "Tag já existe."
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+            echo "Tag não existe."
+          fi
+
+      - name: Criar e publicar tag no repositório
+        if: steps.check_tag.outputs.exists == 'false'
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          TAG="${{ steps.versao.outputs.tag }}"
+
+          git tag "$TAG" -m "Release $TAG"
+          git push origin "$TAG"
+
+          echo "Tag $TAG criada com sucesso!"

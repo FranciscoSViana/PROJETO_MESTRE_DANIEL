@@ -1,8 +1,10 @@
 plugins {
     id 'idea'
     id 'java'
+    id 'jacoco'
     id 'org.springframework.boot' version '3.5.8'
     id 'io.spring.dependency-management' version '1.1.7'
+    id 'org.sonarqube' version '7.2.3.7755'
 }
 
 group = 'io.github.franciscosviana'
@@ -74,28 +76,203 @@ dependencies {
     // ===============================
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
+    testCompileOnly 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
 
     // ===============================
     // EXPORTAÇÃO
     // ===============================
-    // Excel (XLSX)
     implementation 'org.apache.poi:poi-ooxml:5.3.0'
-
-    // PDF via Thymeleaf + Flying Saucer
     implementation 'org.xhtmlrenderer:flying-saucer-pdf:9.9.4'
-
-    // CSV
     implementation 'com.opencsv:opencsv:5.9'
 
     // ===============================
-    // TESTES
+    // TESTES — BASE
     // ===============================
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     testImplementation 'com.h2database:h2'
+
+    // ===============================
+    // TESTES — CUCUMBER (E2E / BDD)
+    // ===============================
+    testImplementation 'io.cucumber:cucumber-java:7.20.1'
+    testImplementation 'io.cucumber:cucumber-spring:7.20.1'
+    testImplementation 'io.cucumber:cucumber-junit-platform-engine:7.20.1'
+    testImplementation 'org.junit.platform:junit-platform-suite'
+
+    // ===============================
+    // TESTES — REST ASSURED (E2E HTTP)
+    // ===============================
+    testImplementation 'io.rest-assured:rest-assured:5.5.0'
+
+    // ===============================
+    // TESTES — TESTCONTAINERS (PostgreSQL real)
+    // ===============================
+    testImplementation 'org.testcontainers:junit-jupiter'
+    testImplementation 'org.testcontainers:postgresql'
+
+    // ===============================
+    // TESTES — WIREMOCK (APIs externas)
+    // ===============================
+    testImplementation('org.wiremock:wiremock:3.10.0') {
+        exclude group: 'com.google.guava', module: 'guava'
+    }
+
+    // ===============================
+    // TESTES — S3MOCK ADOBE (AWS S3)
+    // ===============================
+    testImplementation('com.adobe.testing:s3mock-testcontainers:3.11.0') {
+        exclude group: 'ch.qos.logback', module: 'logback-classic'
+    }
 }
 
+// ===============================
+// JACOCO — VERSÃO
+// ===============================
+jacoco {
+    toolVersion = '0.8.12'
+}
+
+// ===============================
+// TESTES UNITÁRIOS (padrão)
+// ===============================
 tasks.named('test') {
+    useJUnitPlatform {
+        excludeTags 'e2e'
+    }
+    exclude '**/e2e/**'
+    finalizedBy jacocoTestReport
+}
+
+// ===============================
+// JACOCO — COBERTURA UNITÁRIOS
+// ===============================
+jacocoTestReport {
+    dependsOn test
+    reports {
+        xml.required = true
+        html.required = true
+    }
+    classDirectories.setFrom(files(classDirectories.files.collect {
+        fileTree(dir: it, exclude: [
+                '**/StmServicosApplication.class',
+                '**/api/model/**',
+                '**/domain/model/enums/**',
+                '**/common/config/**',
+                '**/common/auth/SchedulerConfig.class'
+        ])
+    }))
+}
+
+// ===============================
+// TESTES E2E (Cucumber + Docker)
+// ===============================
+tasks.register('e2eTest', Test) {
+    description = 'Executa testes E2E com Cucumber, Testcontainers e REST Assured'
+    group = 'verification'
+
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath = sourceSets.test.runtimeClasspath
+
     useJUnitPlatform()
+
+    // Executa apenas o runner do Cucumber
+    include '**/CucumberE2ERunner.class'
+
+    // Filtra cenários Cucumber com @e2e
+    systemProperty 'cucumber.filter.tags', '@e2e'
+
+    // Caminho dos arquivos .feature
+    systemProperty 'cucumber.features', 'src/test/resources/features'
+
+    // Profile Spring
+    systemProperty 'spring.profiles.active', 'e2e'
+
+    shouldRunAfter test
+    finalizedBy tasks.named('jacocoE2EReport')
+}
+
+// ===============================
+// JACOCO — COBERTURA E2E
+// ===============================
+tasks.register('jacocoE2EReport', JacocoReport) {
+    dependsOn tasks.named('e2eTest')
+    executionData.setFrom(
+            layout.buildDirectory.file('jacoco/e2eTest.exec')
+    )
+    sourceSets sourceSets.main
+    reports {
+        xml.required = true
+        html.required = true
+        xml.outputLocation = layout.buildDirectory.file('reports/jacoco/e2e/jacocoE2EReport.xml')
+        html.outputLocation = layout.buildDirectory.dir('reports/jacoco/e2e/html')
+    }
+    classDirectories.setFrom(files(sourceSets.main.output.classesDirs).collect {
+        fileTree(dir: it, exclude: [
+                '**/StmServicosApplication.class',
+                '**/api/model/**',
+                '**/domain/model/enums/**',
+                '**/common/config/**',
+                '**/common/auth/SchedulerConfig.class'
+        ])
+    })
+}
+
+// ===============================
+// SONARCLOUD
+// ===============================
+sonar {
+    properties {
+        // Identificação do projeto no SonarCloud
+        property 'sonar.projectKey',
+                System.getenv('SONAR_PROJECT_KEY') ?: 'FranciscoSViana_PROJETO_MESTRE_DANIEL'
+
+        property 'sonar.organization',
+                System.getenv('SONAR_ORGANIZATION') ?: 'franciscosviana'
+
+        // Token de autenticação (definido no GitHub Actions)
+        def sonarToken = System.getenv('SONAR_TOKEN')
+        if (sonarToken) {
+            property 'sonar.token', sonarToken
+        }
+
+        // URL do SonarCloud
+        property 'sonar.host.url', 'https://sonarcloud.io'
+
+        // Relatórios de cobertura JaCoCo (unit + e2e)
+        property 'sonar.coverage.jacoco.xmlReportPaths', [
+                'build/reports/jacoco/test/jacocoTestReport.xml',
+                'build/reports/jacoco/e2e/jacocoE2EReport.xml'
+        ].join(',')
+
+        // Inclusão explícita dos templates Thymeleaf para eliminar o warning:
+        // "Some thymeleaf templates are not indexed"
+        property 'sonar.sources', 'src/main/java,src/main/resources'
+
+        // Inclui apenas templates HTML
+        property 'sonar.inclusions', [
+                'src/main/java/**/*.java',
+                'src/main/resources/**/*.html'
+        ].join(',')
+
+        // Excluir classes e pacotes que não precisam ser analisados
+        property 'sonar.exclusions', [
+                '**/StmServicosApplication.java',
+                '**/api/model/input/**',
+                '**/api/model/output/**',
+                '**/common/config/**',
+                '**/domain/model/enums/**'
+        ].join(',')
+
+        // Aguarda o resultado do Quality Gate
+        property 'sonar.qualitygate.wait', 'true'
+
+        // Encoding padrão
+        property 'sonar.sourceEncoding', 'UTF-8'
+
+        // Linguagem principal
+        property 'sonar.java.source', '21'
+    }
 }

@@ -1,0 +1,54 @@
+spring:
+  datasource:
+    # URL sobrescrita pelo @DynamicPropertySource do PostgresContainerConfig
+    url: jdbc:postgresql://localhost:5432/stm_test
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: false
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          secret-key: test-secret-key-for-e2e-tests-only-must-be-atleast32chars!!
+
+application:
+  jwt:
+    secret-key: test-secret-key-for-e2e-tests-only-must-be-atleast32chars!!
+  frontend:
+    reset-url: http://localhost:4200/reset?token=
+
+# APIs externas — sobrescritas pelo WireMockConfig via @DynamicPropertySource
+viacep:
+  base-url: http://localhost:8089
+brasilapi:
+  base-url: http://localhost:8089
+googlemaps:
+  api-key: mock-maps-key-e2e
+  base-url: http://localhost:8089
+
+# Brevo (email) — mockado pelo bean
+brevo:
+  api-key: mock-brevo-key-e2e
+  host: localhost
+
+# AWS S3 — sobrescrito pelo S3MockConfig via @DynamicPropertySource
+aws:
+  bucket: stm-bucket-e2e
+  access-key: mock-access-key
+  secret-key: mock-secret-key
+  region: us-east-1
+  endpoint: http://localhost:9090
+
+logging:
+  level:
+    root: WARN
+    io.github.franciscosviana: INFO
+    org.testcontainers: WARN
+    com.github.dockerjava: WARN
