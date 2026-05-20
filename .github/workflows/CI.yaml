@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - develop
+      - main
 
 permissions:
   contents: write
@@ -190,10 +191,11 @@ jobs:
 
   # ============================================================
   # JOB 4: Criar Tag de Versão
-  # Executa somente se Unit + E2E + SonarCloud concluírem
+  # Executa somente na branch develop
   # ============================================================
   create-tag:
     name: Criar Tag de Versão
+    if: github.ref == 'refs/heads/develop'
     runs-on: ubuntu-latest
     needs:
       - unit-tests
