@@ -172,12 +172,24 @@ jacocoTestReport {
 tasks.register('e2eTest', Test) {
     description = 'Executa testes E2E com Cucumber, Testcontainers e REST Assured'
     group = 'verification'
+
     testClassesDirs = sourceSets.test.output.classesDirs
     classpath = sourceSets.test.runtimeClasspath
-    useJUnitPlatform {
-        includeTags 'e2e'
-    }
+
+    useJUnitPlatform()
+
+    // Executa apenas o runner do Cucumber
+    include '**/CucumberE2ERunner.class'
+
+    // Filtra cenários Cucumber com @e2e
+    systemProperty 'cucumber.filter.tags', '@e2e'
+
+    // Caminho dos arquivos .feature
+    systemProperty 'cucumber.features', 'src/test/resources/features'
+
+    // Profile Spring
     systemProperty 'spring.profiles.active', 'e2e'
+
     shouldRunAfter test
     finalizedBy tasks.named('jacocoE2EReport')
 }
