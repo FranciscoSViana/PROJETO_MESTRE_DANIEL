@@ -1,0 +1,158 @@
+name: CI — Testes + Tag
+
+on:
+  push:
+    branches:
+      - develop
+
+permissions:
+  contents: write
+
+jobs:
+  # ============================================================
+  # JOB 1: Testes Unitários + JaCoCo + SonarCloud
+  # ============================================================
+  unit-tests:
+    name: Testes Unitários + SonarCloud
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configurar Java 21 (Temurin)
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Cache do Gradle
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('stm-servicos/**/*.gradle*', 'stm-servicos/**/gradle-wrapper.properties') }}
+          restore-keys: ${{ runner.os }}-gradle-
+
+      - name: Permissão ao gradlew
+        run: chmod +x stm-servicos/gradlew
+
+      - name: Executar testes unitários e gerar relatório JaCoCo
+        working-directory: stm-servicos
+        run: ./gradlew test jacocoTestReport --no-daemon
+        env:
+          SPRING_PROFILES_ACTIVE: test
+
+      - name: Upload resultados dos testes
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results
+          path: stm-servicos/build/reports/tests/
+          retention-days: 7
+
+      - name: Upload relatório JaCoCo
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: jacoco-report
+          path: stm-servicos/build/reports/jacoco/
+          retention-days: 7
+
+      - name: Análise SonarCloud — Quality Gate
+        working-directory: stm-servicos
+        run: ./gradlew sonar --no-daemon
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_PROJECT_KEY: ${{ secrets.SONAR_PROJECT_KEY }}
+          SONAR_ORGANIZATION: ${{ secrets.SONAR_ORGANIZATION }}
+
+  # ============================================================
+  # JOB 2: Testes E2E (Cucumber + Testcontainers)
+  # ============================================================
+  e2e-tests:
+    name: Testes E2E (Cucumber)
+    runs-on: ubuntu-latest
+    needs: unit-tests
+
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      - name: Configurar Java 21 (Temurin)
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Cache do Gradle
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('stm-servicos/**/*.gradle*', 'stm-servicos/**/gradle-wrapper.properties') }}
+          restore-keys: ${{ runner.os }}-gradle-
+
+      - name: Permissão ao gradlew
+        run: chmod +x stm-servicos/gradlew
+
+      - name: Executar testes E2E (Testcontainers + Docker)
+        working-directory: stm-servicos
+        run: ./gradlew e2eTest --no-daemon
+        env:
+          SPRING_PROFILES_ACTIVE: e2e
+
+      - name: Upload relatório Cucumber
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cucumber-report
+          path: stm-servicos/build/reports/cucumber/
+          retention-days: 7
+
+  # ============================================================
+  # JOB 3: Criar tag de versão (somente após testes passarem)
+  # ============================================================
+  create-tag:
+    name: Criar Tag de Versão
+    runs-on: ubuntu-latest
+    needs: [unit-tests, e2e-tests]
+    outputs:
+      new_tag: ${{ steps.versao.outputs.tag }}
+
+    steps:
+      - name: Checkout com histórico de tags
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Calcular próxima versão (incrementa patch)
+        id: versao
+        run: |
+          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+          echo "Última tag encontrada: $LAST_TAG"
+
+          VERSION=${LAST_TAG#v}
+          MAJOR=$(echo "$VERSION" | cut -d. -f1)
+          MINOR=$(echo "$VERSION" | cut -d. -f2)
+          PATCH=$(echo "$VERSION" | cut -d. -f3)
+
+          NEW_PATCH=$((PATCH + 1))
+          NEW_TAG="v${MAJOR}.${MINOR}.${NEW_PATCH}"
+
+          echo "Nova tag: $NEW_TAG"
+          echo "tag=$NEW_TAG" >> "$GITHUB_OUTPUT"
+
+      - name: Criar e publicar tag no repositório
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag "${{ steps.versao.outputs.tag }}" -m "Release ${{ steps.versao.outputs.tag }}"
+          git push origin "${{ steps.versao.outputs.tag }}"
+          echo "Tag ${{ steps.versao.outputs.tag }} criada com sucesso!"
