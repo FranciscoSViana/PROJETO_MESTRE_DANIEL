@@ -129,15 +129,41 @@ dependencies {
 }
 
 // ===============================
+// JACOCO — VERSÃO
+// ===============================
+jacoco {
+    toolVersion = '0.8.12'
+}
+
+// ===============================
 // TESTES UNITÁRIOS (padrão)
 // ===============================
 tasks.named('test') {
     useJUnitPlatform {
         excludeTags 'e2e'
     }
-    // Exclui fisicamente o pacote e2e que requer Docker (roda apenas via e2eTest)
     exclude '**/e2e/**'
     finalizedBy jacocoTestReport
+}
+
+// ===============================
+// JACOCO — COBERTURA UNITÁRIOS
+// ===============================
+jacocoTestReport {
+    dependsOn test
+    reports {
+        xml.required = true
+        html.required = true
+    }
+    classDirectories.setFrom(files(classDirectories.files.collect {
+        fileTree(dir: it, exclude: [
+                '**/StmServicosApplication.class',
+                '**/api/model/**',
+                '**/domain/model/enums/**',
+                '**/common/config/**',
+                '**/common/auth/SchedulerConfig.class'
+        ])
+    }))
 }
 
 // ===============================
@@ -153,15 +179,17 @@ tasks.register('e2eTest', Test) {
     }
     systemProperty 'spring.profiles.active', 'e2e'
     shouldRunAfter test
-    finalizedBy jacocoE2EReport  // <-- gera cobertura ao finalizar
+    finalizedBy tasks.named('jacocoE2EReport')
 }
 
 // ===============================
 // JACOCO — COBERTURA E2E
 // ===============================
 tasks.register('jacocoE2EReport', JacocoReport) {
-    dependsOn e2eTest
-    executionData.setFrom(tasks.named('e2eTest').map { it.jacoco.destinationFile })
+    dependsOn tasks.named('e2eTest')
+    executionData.setFrom(
+            layout.buildDirectory.file('jacoco/e2eTest.exec')
+    )
     sourceSets sourceSets.main
     reports {
         xml.required = true
@@ -169,17 +197,15 @@ tasks.register('jacocoE2EReport', JacocoReport) {
         xml.outputLocation = layout.buildDirectory.file('reports/jacoco/e2e/jacocoE2EReport.xml')
         html.outputLocation = layout.buildDirectory.dir('reports/jacoco/e2e/html')
     }
-    afterEvaluate {
-        classDirectories.setFrom(files(classDirectories.files.collect {
-            fileTree(dir: it, exclude: [
-                    '**/StmServicosApplication.class',
-                    '**/api/model/**',
-                    '**/domain/model/enums/**',
-                    '**/common/config/**',
-                    '**/common/auth/SchedulerConfig.class'
-            ])
-        }))
-    }
+    classDirectories.setFrom(files(sourceSets.main.output.classesDirs).collect {
+        fileTree(dir: it, exclude: [
+                '**/StmServicosApplication.class',
+                '**/api/model/**',
+                '**/domain/model/enums/**',
+                '**/common/config/**',
+                '**/common/auth/SchedulerConfig.class'
+        ])
+    })
 }
 
 // ===============================
@@ -200,52 +226,6 @@ sonar {
                 '**/common/config/**',
                 '**/domain/model/enums/**'
         ].join(',')
-        property 'sonar.qualitygate.wait', 'true'
-    }
-}
-// ===============================
-// JACOCO — COBERTURA
-// ===============================
-jacoco {
-    toolVersion = '0.8.12'
-}
-
-jacocoTestReport {
-    dependsOn test
-    reports {
-        xml.required = true
-        html.required = true
-    }
-    afterEvaluate {
-        classDirectories.setFrom(files(classDirectories.files.collect {
-            fileTree(dir: it, exclude: [
-                '**/StmServicosApplication.class',
-                '**/api/model/**',
-                '**/domain/model/enums/**',
-                '**/common/config/**',
-                '**/common/auth/SchedulerConfig.class'
-            ])
-        }))
-    }
-}
-
-// ===============================
-// SONARCLOUD
-// ===============================
-sonar {
-    properties {
-        property 'sonar.projectKey', System.getenv('SONAR_PROJECT_KEY') ?: 'SONAR_PROJECT_KEY'
-        property 'sonar.organization', System.getenv('SONAR_ORGANIZATION') ?: 'SONAR_ORGANIZATION'
-        property 'sonar.coverage.jacoco.xmlReportPaths',
-                 'build/reports/jacoco/test/jacocoTestReport.xml'
-        property 'sonar.exclusions', [
-                '**/StmServicosApplication.java',
-                '**/api/model/input/**',
-                '**/api/model/output/**',
-                '**/common/config/**',
-                '**/domain/model/enums/**'
-        ].join(',')
-        // Aguarda o resultado do Quality Gate e falha o build se não passar
         property 'sonar.qualitygate.wait', 'true'
     }
 }
