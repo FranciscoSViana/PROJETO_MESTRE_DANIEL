@@ -10,10 +10,10 @@ permissions:
 
 jobs:
   # ============================================================
-  # JOB 1: Testes Unitários + JaCoCo + SonarCloud
+  # JOB 1: Testes Unitários + JaCoCo
   # ============================================================
   unit-tests:
-    name: Testes Unitários + SonarCloud
+    name: Testes Unitários
     runs-on: ubuntu-latest
 
     steps:
@@ -46,29 +46,13 @@ jobs:
           path: stm-servicos/build/reports/tests/
           retention-days: 7
 
-      - name: Upload relatório JaCoCo
+      - name: Upload relatório JaCoCo (Unit)
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: jacoco-report
-          path: stm-servicos/build/reports/jacoco/
+          name: jacoco-unit-report
+          path: stm-servicos/build/reports/jacoco/test/
           retention-days: 7
-
-      - name: Análise SonarCloud (sem falhar o build por Quality Gate)
-        working-directory: stm-servicos
-        run: |
-          ./gradlew sonar \
-            --no-daemon \
-            -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }} \
-            -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }} \
-            -Dsonar.host.url=https://sonarcloud.io \
-            -Dsonar.token=${{ secrets.SONAR_TOKEN }} \
-            -Dsonar.qualitygate.wait=true \
-            -Dsonar.gradle.skipCompile=true \
-            -Dsonar.qualitygate.ignore.failure=true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
   # ============================================================
   # JOB 2: Testes E2E (Cucumber + Testcontainers)
@@ -81,6 +65,8 @@ jobs:
     steps:
       - name: Checkout do código
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Configurar Java 21 (Temurin)
         uses: actions/setup-java@v4
@@ -108,8 +94,91 @@ jobs:
             stm-servicos/build/cucumber-reports/
           retention-days: 7
 
+      - name: Upload relatório JaCoCo E2E
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-e2e-report
+          path: stm-servicos/build/reports/jacoco/e2e/
+          retention-days: 7
+
   # ============================================================
-  # JOB 3: Criar tag de versão (somente após todos os testes)
+  # JOB 3: SonarCloud (executa após Unit + E2E)
+  # ============================================================
+  sonarcloud:
+    name: SonarCloud
+    runs-on: ubuntu-latest
+    needs:
+      - unit-tests
+      - e2e-tests
+
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configurar Java 21 (Temurin)
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: gradle
+
+      - name: Permissão ao gradlew
+        run: chmod +x stm-servicos/gradlew
+
+      # --------------------------------------------------------
+      # Baixa relatório JaCoCo Unit
+      # --------------------------------------------------------
+      - name: Download relatório JaCoCo Unit
+        uses: actions/download-artifact@v4
+        with:
+          name: jacoco-unit-report
+          path: stm-servicos/build/reports/jacoco/test/
+
+      # --------------------------------------------------------
+      # Baixa relatório JaCoCo E2E
+      # --------------------------------------------------------
+      - name: Download relatório JaCoCo E2E
+        uses: actions/download-artifact@v4
+        with:
+          name: jacoco-e2e-report
+          path: stm-servicos/build/reports/jacoco/e2e/
+
+      # --------------------------------------------------------
+      # Debug (opcional)
+      # --------------------------------------------------------
+      - name: Verificar arquivos JaCoCo
+        run: |
+          echo "=== Unit ==="
+          ls -R stm-servicos/build/reports/jacoco/test || true
+
+          echo "=== E2E ==="
+          ls -R stm-servicos/build/reports/jacoco/e2e || true
+
+      # --------------------------------------------------------
+      # Executa SonarCloud
+      # --------------------------------------------------------
+      - name: Análise SonarCloud
+        working-directory: stm-servicos
+        run: |
+          ./gradlew sonar \
+            --no-daemon \
+            -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }} \
+            -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }} \
+            -Dsonar.host.url=https://sonarcloud.io \
+            -Dsonar.token=${{ secrets.SONAR_TOKEN }} \
+            -Dsonar.qualitygate.wait=true \
+            -Dsonar.gradle.skipCompile=true \
+            -Dsonar.qualitygate.ignore.failure=true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+  # ============================================================
+  # JOB 4: Criar Tag de Versão
+  # Executa somente se Unit + E2E + SonarCloud concluírem
   # ============================================================
   create-tag:
     name: Criar Tag de Versão
@@ -117,6 +186,7 @@ jobs:
     needs:
       - unit-tests
       - e2e-tests
+      - sonarcloud
     outputs:
       new_tag: ${{ steps.versao.outputs.tag }}
 
