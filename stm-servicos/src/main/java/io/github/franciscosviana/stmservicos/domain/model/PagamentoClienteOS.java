@@ -106,12 +106,4 @@ public class PagamentoClienteOS {
     @Builder.Default
     @Column(name = "corrigido", nullable = false)
     private boolean corrigido = false;
-
-    public void calcularValorTotal() {
-        this.valorTotal = valorChamado
-                .add(km.multiply(valorKm))
-                .add(pedagio)
-                .add(estacionamento)
-                .add(valorOutros);
-    }
 }

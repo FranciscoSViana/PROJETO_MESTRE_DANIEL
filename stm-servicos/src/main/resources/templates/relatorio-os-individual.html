@@ -1,7 +1,8 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR" xml:lang="pt-BR">
 <head>
     <meta charset="UTF-8"/>
+    <title>Ordem de Serviço</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -32,20 +33,20 @@
             margin-bottom: 2px;
         }
 
-        td {
+        th, td {
             padding: 4px 8px;
             border: 1px solid #ddd;
             vertical-align: top;
         }
 
-        .lbl {
+        th.lbl, td.lbl {
             background: #f0f4f8;
             font-weight: bold;
             width: 18%;
             white-space: nowrap;
         }
 
-        .val {
+        td.val {
             width: 32%;
         }
 
@@ -63,109 +64,121 @@
 <!-- ═══ DADOS DA OS ═══════════════════════════════════════════ -->
 <h2>DADOS DA ORDEM DE SERVIÇO</h2>
 <table>
+    <thead>
     <tr>
-        <td class="lbl">OSG</td>
+        <th class="lbl" scope="row">OSG</th>
         <td class="val" th:text="${os.osg}"></td>
-        <td class="lbl">OS Cliente</td>
+        <th class="lbl" scope="row">OS Cliente</th>
         <td class="val" th:text="${os.osClt}"></td>
     </tr>
+    </thead>
+    <tbody>
     <tr>
-        <td class="lbl">Status</td>
+        <th class="lbl" scope="row">Status</th>
         <td class="val" th:text="${os.status}"></td>
-        <td class="lbl">Data Abertura</td>
+        <th class="lbl" scope="row">Data Abertura</th>
         <td class="val" th:text="${os.dataHoraAbertura != null
-            ? #temporals.format(os.dataHoraAbertura, 'dd/MM/yyyy HH:mm') : ''}"></td>
+                ? #temporals.format(os.dataHoraAbertura, 'dd/MM/yyyy HH:mm') : ''}"></td>
     </tr>
     <tr>
-        <td class="lbl">Equipamento</td>
+        <th class="lbl" scope="row">Equipamento</th>
         <td class="val" th:text="${os.equipamento}"></td>
-        <td class="lbl">Série</td>
+        <th class="lbl" scope="row">Série</th>
         <td class="val" th:text="${os.serie}"></td>
     </tr>
     <tr>
-        <td class="lbl">PIB</td>
+        <th class="lbl" scope="row">PIB</th>
         <td class="val" th:text="${os.pib}"></td>
-        <td class="lbl">Rastreio</td>
+        <th class="lbl" scope="row">Rastreio</th>
         <td class="val" th:text="${os.rastreio}"></td>
     </tr>
     <tr>
-        <td class="lbl">Defeito</td>
+        <th class="lbl" scope="row">Defeito</th>
         <td colspan="3" th:text="${os.defeito}"></td>
     </tr>
+    </tbody>
 </table>
 
 <!-- ═══ CLIENTE / CREDENCIADO ═════════════════════════════════ -->
 <h2>DADOS DO CLIENTE / CREDENCIADO</h2>
 <table>
+    <thead>
     <tr>
-        <td class="lbl">Cliente</td>
+        <th class="lbl" scope="row">Cliente</th>
         <td class="val" th:text="${os.cliente != null ? os.cliente.nome : ''}"></td>
-        <td class="lbl">Credenciado</td>
+        <th class="lbl" scope="row">Credenciado</th>
         <td class="val" th:text="${os.credenciado != null ? os.credenciado.rag : ''}"></td>
     </tr>
+    </thead>
+    <tbody>
     <tr>
-        <td class="lbl">Técnico</td>
+        <th class="lbl" scope="row">Técnico</th>
         <td class="val" th:text="${os.tecnico != null ? os.tecnico.nome : ''}"></td>
-        <td class="lbl">Contato</td>
+        <th class="lbl" scope="row">Contato</th>
         <td class="val" th:text="${os.contato}"></td>
     </tr>
     <tr>
-        <td class="lbl">Departamento</td>
+        <th class="lbl" scope="row">Departamento</th>
         <td class="val" th:text="${os.departamento}"></td>
-        <td class="lbl">Telefone</td>
+        <th class="lbl" scope="row">Telefone</th>
         <td class="val" th:text="${os.telefone}"></td>
     </tr>
     <tr th:if="${os.endereco != null}">
-        <td class="lbl">Cidade</td>
+        <th class="lbl" scope="row">Cidade</th>
         <td class="val" th:text="${os.endereco.cidade}"></td>
-        <td class="lbl">Estado</td>
+        <th class="lbl" scope="row">Estado</th>
         <td class="val" th:text="${os.endereco.estado}"></td>
     </tr>
     <tr th:if="${os.endereco != null}">
-        <td class="lbl">Logradouro</td>
+        <th class="lbl" scope="row">Logradouro</th>
         <td colspan="3" th:text="${os.endereco.logradouro}"></td>
     </tr>
+    </tbody>
 </table>
 
 <!-- ═══ SOLUÇÃO / FINALIZAÇÃO ══════════════════════════════════ -->
 <h2>SOLUÇÃO / FINALIZAÇÃO</h2>
 <p th:if="${solucao == null}" class="blank">OS ainda não finalizada.</p>
 <table th:if="${solucao != null}">
+    <thead>
     <tr>
-        <td class="lbl">Data Atendimento</td>
+        <th class="lbl" scope="row">Data Atendimento</th>
         <td class="val" th:text="${solucao.dataAtendimento != null
-            ? #temporals.format(solucao.dataAtendimento, 'dd/MM/yyyy HH:mm') : ''}"></td>
-        <td class="lbl">Hora Inicial</td>
+                ? #temporals.format(solucao.dataAtendimento, 'dd/MM/yyyy HH:mm') : ''}"></td>
+        <th class="lbl" scope="row">Hora Inicial</th>
         <td class="val" th:text="${solucao.horaInicial != null
-            ? #temporals.format(solucao.horaInicial, 'dd/MM/yyyy HH:mm') : ''}"></td>
+                ? #temporals.format(solucao.horaInicial, 'dd/MM/yyyy HH:mm') : ''}"></td>
     </tr>
+    </thead>
+    <tbody>
     <tr>
-        <td class="lbl">Hora Final</td>
+        <th class="lbl" scope="row">Hora Final</th>
         <td class="val" th:text="${solucao.horaFinal != null
-            ? #temporals.format(solucao.horaFinal, 'dd/MM/yyyy HH:mm') : ''}"></td>
-        <td class="lbl">Peça Solicitada</td>
+                ? #temporals.format(solucao.horaFinal, 'dd/MM/yyyy HH:mm') : ''}"></td>
+        <th class="lbl" scope="row">Peça Solicitada</th>
         <td class="val" th:text="${solucao.pecaSolicitada}"></td>
     </tr>
     <tr>
-        <td class="lbl">KM</td>
+        <th class="lbl" scope="row">KM</th>
         <td class="val" th:text="${solucao.km}"></td>
-        <td class="lbl">Pedágio</td>
+        <th class="lbl" scope="row">Pedágio</th>
         <td class="val" th:text="${solucao.pedagio}"></td>
     </tr>
     <tr>
-        <td class="lbl">Estacionamento</td>
+        <th class="lbl" scope="row">Estacionamento</th>
         <td class="val" th:text="${solucao.estacionamento}"></td>
-        <td class="lbl">Outros</td>
+        <th class="lbl" scope="row">Outros</th>
         <td class="val" th:text="${solucao.outros}"></td>
     </tr>
     <tr>
-        <td class="lbl">Solução</td>
+        <th class="lbl" scope="row">Solução</th>
         <td colspan="3" th:text="${solucao.solucao}"></td>
     </tr>
     <tr>
-        <td class="lbl">Observação</td>
+        <th class="lbl" scope="row">Observação</th>
         <td colspan="3" th:text="${solucao.observacao}"></td>
     </tr>
+    </tbody>
 </table>
 
 </body>
