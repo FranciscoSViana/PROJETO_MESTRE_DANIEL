@@ -1,7 +1,8 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR" xml:lang="pt-BR">
 <head>
     <meta charset="UTF-8"/>
+    <title>Relatório — Contas a Receber</title>
     <style>
         * {
             margin: 0;
@@ -16,7 +17,6 @@
             padding: 24px;
         }
 
-        /* ── CABEÇALHO ── */
         .header {
             display: flex;
             justify-content: space-between;
@@ -46,7 +46,6 @@
             line-height: 1.6;
         }
 
-        /* ── RESUMO ── */
         .resumo {
             display: table;
             width: 100%;
@@ -124,7 +123,6 @@
             width: 12px;
         }
 
-        /* ── TABELA ── */
         table {
             width: 100%;
             border-collapse: collapse;
@@ -149,10 +147,6 @@
 
         tbody tr:nth-child(even) {
             background-color: #f0fdf4;
-        }
-
-        tbody tr:hover {
-            background-color: #dcfce7;
         }
 
         tbody td {
@@ -181,7 +175,6 @@
             color: #15803d;
         }
 
-        /* ── BADGES ── */
         .badge {
             display: inline-block;
             padding: 2px 7px;
@@ -230,7 +223,6 @@
             color: #9ca3af;
         }
 
-        /* ── RODAPÉ ── */
         .footer {
             margin-top: 20px;
             padding-top: 10px;
@@ -241,7 +233,6 @@
             color: #9ca3af;
         }
 
-        /* ── SEM DADOS ── */
         .empty {
             text-align: center;
             padding: 30px;
@@ -267,40 +258,42 @@
 <!-- RESUMO -->
 <div th:if="${#lists.size(dados) > 0}">
     <table class="resumo">
+        <thead>
         <tr>
-            <td class="resumo-card recebido">
+            <th scope="col" class="resumo-card recebido">
                 <div class="label">Total Recebido</div>
                 <div class="valor"
-                     th:text="${#numbers.formatCurrency(dados.?[recebido == true].![valorTotal].stream().reduce(0, (a,b) -> a + b))}">
+                     th:text="${#numbers.formatCurrency(#aggregates.sum(dados.?[corrigido == true].![valorTotal ?: 0]))}">
                     R$ 0,00
                 </div>
                 <div class="qtd"
-                     th:text="${#lists.size(dados.?[recebido == true])} + ' OS'">0 OS
+                     th:text="${#lists.size(dados.?[corrigido == true])} + ' OS'">0 OS
                 </div>
-            </td>
+            </th>
             <td class="resumo-spacer"></td>
-            <td class="resumo-card pendente">
+            <th scope="col" class="resumo-card pendente">
                 <div class="label">Pendente</div>
                 <div class="valor"
-                     th:text="${#numbers.formatCurrency(dados.?[recebido == false].![valorTotal].stream().reduce(0, (a,b) -> a + b))}">
+                     th:text="${#numbers.formatCurrency(#aggregates.sum(dados.?[corrigido == false].![valorTotal ?: 0]))}">
                     R$ 0,00
                 </div>
                 <div class="qtd"
-                     th:text="${#lists.size(dados.?[recebido == false])} + ' OS'">0 OS
+                     th:text="${#lists.size(dados.?[corrigido == false])} + ' OS'">0 OS
                 </div>
-            </td>
+            </th>
             <td class="resumo-spacer"></td>
-            <td class="resumo-card total">
+            <th scope="col" class="resumo-card total">
                 <div class="label">Total Geral</div>
                 <div class="valor"
-                     th:text="${#numbers.formatCurrency(dados.![valorTotal].stream().reduce(0, (a,b) -> a + b))}">
+                     th:text="${#numbers.formatCurrency(#aggregates.sum(dados.![valorTotal ?: 0]))}">
                     R$ 0,00
                 </div>
                 <div class="qtd"
                      th:text="${#lists.size(dados)} + ' OS'">0 OS
                 </div>
-            </td>
+            </th>
         </tr>
+        </thead>
     </table>
 </div>
 
@@ -337,30 +330,24 @@
             <td class="text-left" th:text="${d.cliente ?: '-'}">-</td>
 
             <td class="text-center"
-                th:text="${d.dataHoraAbertura != null}
-              ? ${#temporals.format(d.dataHoraAbertura, 'dd/MM/yyyy')}
-              : '-'">-
+                th:text="${d.dataHoraAbertura != null ? #temporals.format(d.dataHoraAbertura, 'dd/MM/yyyy') : '-'}">-
             </td>
 
             <td class="text-center" th:text="${d.lote ?: '-'}">-</td>
 
             <td class="text-center"
-                th:text="${d.tipoPagamento != null} ? ${d.tipoPagamento.name()} : '-'">-
+                th:text="${d.tipoPagamento != null ? d.tipoPagamento.name() : '-'}">-
             </td>
 
             <td class="text-center" th:text="${d.nf ?: '-'}">-</td>
             <td class="text-center" th:text="${d.banco ?: '-'}">-</td>
 
             <td class="text-center"
-                th:text="${d.dataPrevista != null}
-              ? ${#temporals.format(d.dataPrevista, 'dd/MM/yyyy')}
-              : '-'">-
+                th:text="${d.dataPrevista != null ? #temporals.format(d.dataPrevista, 'dd/MM/yyyy') : '-'}">-
             </td>
 
             <td class="text-center"
-                th:text="${d.dataPagamento != null}
-              ? ${#temporals.format(d.dataPagamento, 'dd/MM/yyyy')}
-              : '-'">-
+                th:text="${d.dataPagamento != null ? #temporals.format(d.dataPagamento, 'dd/MM/yyyy') : '-'}">-
             </td>
 
             <td class="text-right"
@@ -380,8 +367,8 @@
             </td>
 
             <td class="text-center">
-                <span th:if="${d.recebido}" class="badge badge-recebido">Recebido</span>
-                <span th:unless="${d.recebido}" class="badge badge-pendente">Pendente</span>
+                <span th:if="${d.corrigido}" class="badge badge-recebido">Recebido</span>
+                <span th:unless="${d.corrigido}" class="badge badge-pendente">Pendente</span>
             </td>
 
             <td class="text-center">
