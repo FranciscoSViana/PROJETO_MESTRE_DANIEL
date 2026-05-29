@@ -14,8 +14,12 @@ public class ViaCepClient {
     private final RestTemplate restTemplate;
 
     public ViaCepResponse buscarEnderecoPorCep(String cep) {
+        String cepLimpo = cep.replaceAll("[^0-9]", "");
+        if (cepLimpo.length() != 8) {
+            throw new IllegalArgumentException("CEP inválido: " + cep);
+        }
 
-        String url = VIACEP + "/" + cep + "/json/";
+        String url = VIACEP + "/" + cepLimpo + "/json/";
 
         try {
             return restTemplate.getForObject(url, ViaCepResponse.class);

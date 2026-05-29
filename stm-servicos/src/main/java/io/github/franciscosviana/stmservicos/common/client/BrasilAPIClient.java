@@ -19,8 +19,11 @@ public class BrasilAPIClient {
     private final RestTemplate restTemplate;
 
     public ReceitaWsResponse consultarCnpj(String cnpj) {
-        String url = BRASILAPI + "/cnpj/v1/" + cnpj;
-
+        String cnpjLimpo = cnpj.replaceAll("[^0-9]", "");
+        if (cnpjLimpo.length() != 14) {
+            throw new IllegalArgumentException("CNPJ inválido: " + cnpj);
+        }
+        String url = BRASILAPI + "/cnpj/v1/" + cnpjLimpo;
         try {
             return restTemplate.getForObject(url, ReceitaWsResponse.class);
         } catch (Exception e) {
@@ -30,24 +33,25 @@ public class BrasilAPIClient {
 
     public List<EstadoResponse> buscarEstados() {
         String url = BRASILAPI + "/ibge/uf/v1";
-
         EstadoResponse[] estados = restTemplate.getForObject(url, EstadoResponse[].class);
-
         return List.of(estados);
     }
 
     public List<MunicipioResponse> buscarMunicipios(String uf) {
-        String url = BRASILAPI + "/ibge/municipios/v1/" + uf;
-
+        if (!uf.matches("[A-Za-z]{2}")) {
+            throw new IllegalArgumentException("UF inválida: " + uf);
+        }
+        String url = BRASILAPI + "/ibge/municipios/v1/" + uf.toUpperCase();
         MunicipioResponse[] municipios = restTemplate.getForObject(url, MunicipioResponse[].class);
-
         return List.of(municipios);
     }
 
     public CepGeoResponse consultarCep(String cep) {
-
-        String url = BRASILAPI + "/cep/v2/" + cep;
-
+        String cepLimpo = cep.replaceAll("[^0-9]", "");
+        if (cepLimpo.length() != 8) {
+            throw new IllegalArgumentException("CEP inválido: " + cep);
+        }
+        String url = BRASILAPI + "/cep/v2/" + cepLimpo;
         try {
             return restTemplate.getForObject(url, CepGeoResponse.class);
         } catch (Exception e) {
