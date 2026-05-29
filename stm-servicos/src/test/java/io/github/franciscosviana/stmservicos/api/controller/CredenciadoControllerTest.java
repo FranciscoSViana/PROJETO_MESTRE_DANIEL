@@ -76,4 +76,61 @@ class CredenciadoControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray());
     }
+
+    @Test
+    @DisplayName("POST /api/credenciados deve criar credenciado e retornar 201")
+    void salvar() throws Exception {
+        CredenciadoOutput output = new CredenciadoOutput();
+        when(credenciadoService.salvar(any())).thenReturn(output);
+
+        mockMvc.perform(post("/api/credenciados")
+                        .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                        .content("{\"rag\":\"Empresa Ltda\",\"tipoPessoa\":2}"))
+                .andExpect(status().isCreated());
+    }
+
+    @Test
+    @DisplayName("PUT /api/credenciados/{id} deve atualizar credenciado e retornar 200")
+    void atualizar() throws Exception {
+        UUID id = UUID.randomUUID();
+        CredenciadoOutput output = new CredenciadoOutput();
+        when(credenciadoService.atualizar(eq(id), any())).thenReturn(output);
+
+        mockMvc.perform(put("/api/credenciados/" + id)
+                        .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                        .content("{\"rag\":\"Empresa Ltda Atualizada\"}"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("GET /api/credenciados/credenciado/{codigo} deve retornar credenciado por código")
+    void buscarPorCodigo() throws Exception {
+        CredenciadoOutput output = new CredenciadoOutput();
+        when(credenciadoService.buscarPorCodigo(1L)).thenReturn(output);
+
+        mockMvc.perform(get("/api/credenciados/credenciado/1"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("GET /api/credenciados/proximos deve retornar credenciados próximos")
+    void buscarProximos() throws Exception {
+        when(credenciadoService.buscarProximosPorCep(eq("64000-000"), anyDouble()))
+                .thenReturn(List.of());
+
+        mockMvc.perform(get("/api/credenciados/proximos")
+                        .param("cep", "64000-000"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray());
+    }
+
+    @Test
+    @DisplayName("GET /api/credenciados/municipios/{uf} deve retornar municípios")
+    void listarMunicipios() throws Exception {
+        when(credenciadoService.listarMunicipios("PI")).thenReturn(List.of());
+
+        mockMvc.perform(get("/api/credenciados/municipios/PI"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray());
+    }
 }

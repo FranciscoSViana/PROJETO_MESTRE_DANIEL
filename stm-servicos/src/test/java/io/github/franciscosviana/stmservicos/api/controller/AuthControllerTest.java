@@ -30,6 +30,7 @@ import java.time.LocalDate;
 import java.util.Set;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -265,5 +266,82 @@ class AuthControllerTest {
         mockMvc.perform(delete("/api/auth/usuarios/" + id))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("Usuário excluído com sucesso"));
+    }
+
+    // ──────────────────────────────────────────────────────────────────────────
+    // POST /api/auth/reset-senha
+    // ──────────────────────────────────────────────────────────────────────────
+    @Nested
+    @DisplayName("POST /api/auth/reset-senha")
+    class ResetSenha {
+
+        @Test
+        @DisplayName("deve retornar 200 quando token válido e senha atualizada")
+        void deveRetornar200QuandoSucesso() throws Exception {
+            when(senhaResetService.resetPassword(any(), any())).thenReturn(true);
+
+            mockMvc.perform(post("/api/auth/reset-senha")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content("{\"token\":\"token-valido\",\"novaSenha\":\"NovaSenha@123\"}"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.message").value("Senha atualizada"));
+        }
+
+        @Test
+        @DisplayName("deve retornar 400 quando token inválido ou expirado")
+        void deveRetornar400QuandoTokenInvalido() throws Exception {
+            when(senhaResetService.resetPassword(any(), any())).thenReturn(false);
+
+            mockMvc.perform(post("/api/auth/reset-senha")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content("{\"token\":\"token-invalido\",\"novaSenha\":\"NovaSenha@123\"}"))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.error").value("Token inválido ou expirado"));
+        }
+    }
+
+    // ──────────────────────────────────────────────────────────────────────────
+    // GET /api/auth/usuarios
+    // ──────────────────────────────────────────────────────────────────────────
+    @Test
+    @DisplayName("GET /api/auth/usuarios deve retornar página de usuários")
+    @WithMockUser
+    void deveListarUsuarios() throws Exception {
+        when(authService.listarUsuarios(any())).thenReturn(
+                new org.springframework.data.domain.PageImpl<>(java.util.Collections.emptyList()));
+
+        mockMvc.perform(get("/api/auth/usuarios"))
+                .andExpect(status().isOk());
+    }
+
+    // ──────────────────────────────────────────────────────────────────────────
+    // PUT /api/auth/usuarios/{id}
+    // ──────────────────────────────────────────────────────────────────────────
+    @Test
+    @DisplayName("PUT /api/auth/usuarios/{id} deve retornar 200 ao atualizar")
+    @WithMockUser
+    void deveAtualizarUsuario() throws Exception {
+        java.util.UUID id = java.util.UUID.randomUUID();
+        doNothing().when(authService).atualizarUsuario(eq(id), any());
+
+        mockMvc.perform(put("/api/auth/usuarios/" + id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("Usuário atualizado com sucesso"));
+    }
+
+    // ──────────────────────────────────────────────────────────────────────────
+    // GET /api/auth/username-preview com exceção
+    // ──────────────────────────────────────────────────────────────────────────
+    @Test
+    @DisplayName("GET /api/auth/username-preview deve retornar erro quando gerar lança exceção")
+    void deveRetornarErroCasoDeFalha() throws Exception {
+        when(usernameGeneratorService.gerar(any())).thenThrow(new RuntimeException("Falha interna"));
+
+        mockMvc.perform(get("/api/auth/username-preview")
+                        .param("nome", "Francisco Viana"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("Falha interna"));
     }
 }

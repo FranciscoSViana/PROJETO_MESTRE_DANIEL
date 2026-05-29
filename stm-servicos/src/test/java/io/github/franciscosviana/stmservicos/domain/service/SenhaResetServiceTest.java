@@ -189,4 +189,20 @@ class SenhaResetServiceTest {
                     .isInstanceOf(SenhaFracaException.class);
         }
     }
+
+    // ──────────────────────────────────────────────────────────────────────────
+    // limparTokensExpirados()
+    // ──────────────────────────────────────────────────────────────────────────
+    @Nested
+    @DisplayName("limparTokensExpirados()")
+    class LimparTokensExpirados {
+
+        @Test
+        @DisplayName("deve chamar deleteByExpiryDateBefore para remover tokens expirados")
+        void deveLimparTokensExpirados() {
+            service.limparTokensExpirados();
+
+            verify(tokenRepo).deleteByExpiryDateBefore(any(java.time.Instant.class));
+        }
+    }
 }

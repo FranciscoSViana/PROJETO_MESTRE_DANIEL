@@ -133,6 +133,51 @@ class NotificacaoSenhaServiceTest {
 
             verify(notificacaoRepository, times(1)).save(any(NotificacaoUsuario.class));
         }
+
+        @Test
+        @DisplayName("não deve processar usuário desabilitado (enabled=false)")
+        void naoDeveProcessarUsuarioDesabilitado() {
+            Usuario usuario = usuarioComSenhaAntiga(91);
+            usuario.setNotificacaoSenhaEnviada(false);
+            usuario.setEnabled(false);
+
+            when(usuarioRepository.findAll()).thenReturn(List.of(usuario));
+
+            service.verificarSenhasAntigos();
+
+            verify(notificacaoRepository, never()).save(any());
+            verify(emailService, never()).enviarEmail(any(), any(), any());
+        }
+
+        @Test
+        @DisplayName("não deve processar usuário com ultimaAlteracaoSenha nula")
+        void naoDeveProcessarSenhaNull() {
+            Usuario usuario = usuarioComSenhaAntiga(91);
+            usuario.setNotificacaoSenhaEnviada(false);
+            usuario.setUltimaAlteracaoSenha(null);
+
+            when(usuarioRepository.findAll()).thenReturn(List.of(usuario));
+
+            service.verificarSenhasAntigos();
+
+            verify(notificacaoRepository, never()).save(any());
+        }
+
+        @Test
+        @DisplayName("não deve falhar quando envio de email lança exceção")
+        void naoDeveFalharQuandoEmailFalhar() {
+            Usuario usuario = usuarioComSenhaAntiga(91);
+            usuario.setNotificacaoSenhaEnviada(false);
+
+            when(usuarioRepository.findAll()).thenReturn(List.of(usuario));
+            doThrow(new RuntimeException("Brevo down"))
+                    .when(emailService).enviarEmail(any(), any(), any());
+
+            service.verificarSenhasAntigos();
+
+            assertThat(usuario.isNotificacaoSenhaEnviada()).isTrue();
+            verify(notificacaoRepository).save(any(NotificacaoUsuario.class));
+        }
     }
 
     private Usuario usuarioComSenhaAntiga(int diasAtras) {

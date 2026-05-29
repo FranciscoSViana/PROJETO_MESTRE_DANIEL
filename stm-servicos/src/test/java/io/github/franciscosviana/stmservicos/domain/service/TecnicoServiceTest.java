@@ -21,6 +21,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -228,6 +229,52 @@ class TecnicoServiceTest {
             assertThatThrownBy(() -> service.atualizar(tecnicoId, input))
                     .isInstanceOf(CPFInvalidoException.class);
         }
+    }
+
+    // ──────────────────────────────────────────────────────────────────────────
+    // buscarPorId() e listarPorCredenciado()
+    // ──────────────────────────────────────────────────────────────────────────
+    @Nested
+    @DisplayName("buscarPorId()")
+    class BuscarPorId {
+
+        @Test
+        @DisplayName("deve retornar output quando técnico encontrado")
+        void deveRetornarOutput() {
+            TecnicoOutput output = new TecnicoOutput();
+            when(tecnicoRepository.findById(tecnicoId)).thenReturn(Optional.of(tecnico));
+            when(assembler.toModel(tecnico)).thenReturn(output);
+
+            assertThat(service.buscarPorId(tecnicoId)).isEqualTo(output);
+        }
+
+        @Test
+        @DisplayName("deve lançar RuntimeException quando técnico não encontrado")
+        void deveLancarExcecaoSeNaoEncontrado() {
+            when(tecnicoRepository.findById(tecnicoId)).thenReturn(Optional.empty());
+
+            assertThatThrownBy(() -> service.buscarPorId(tecnicoId))
+                    .isInstanceOf(RuntimeException.class)
+                    .hasMessageContaining("Técnico não encontrado");
+        }
+    }
+
+    @Test
+    @DisplayName("listarPorCredenciado() deve retornar página mapeada de técnicos")
+    void deveListarPorCredenciado() {
+        org.springframework.data.domain.PageRequest pageable = org.springframework.data.domain.PageRequest.of(0, 10);
+        org.springframework.data.domain.Page<Tecnico> page =
+                new org.springframework.data.domain.PageImpl<>(List.of(tecnico));
+        TecnicoOutput output = new TecnicoOutput();
+
+        when(tecnicoRepository.findByCredenciadoId(credenciadoId, pageable)).thenReturn(page);
+        when(assembler.toModel(tecnico)).thenReturn(output);
+
+        org.springframework.data.domain.Page<TecnicoOutput> resultado =
+                service.listarPorCredenciado(credenciadoId, pageable);
+
+        assertThat(resultado.getContent()).hasSize(1);
+        assertThat(resultado.getContent().get(0)).isEqualTo(output);
     }
 
     // ──────────────────────────────────────────────────────────────────────────

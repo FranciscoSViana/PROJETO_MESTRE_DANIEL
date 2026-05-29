@@ -314,6 +314,104 @@ class AuthServiceTest {
     }
 
     // ──────────────────────────────────────────────────────────────────────────
+    // ATUALIZAÇÃO - branches adicionais
+    // ──────────────────────────────────────────────────────────────────────────
+    @Nested
+    @DisplayName("atualizarUsuario() branches adicionais")
+    class AtualizarUsuarioBranches {
+
+        @Test
+        @DisplayName("deve atualizar roles quando informadas e válidas")
+        void deveAtualizarRoles() {
+            UUID id = UUID.randomUUID();
+            Usuario usuario = usuarioComRoles("joao.silva", java.util.Set.of("USER"));
+            usuario.setId(id);
+            usuario.setEmail("joao@email.com");
+
+            UpdateUsuarioRequest req = new UpdateUsuarioRequest();
+            req.setRoles(java.util.Set.of("ADMIN"));
+
+            when(usuarioRepository.findById(id)).thenReturn(Optional.of(usuario));
+
+            authService.atualizarUsuario(id, req);
+
+            assertThat(usuario.getRoles()).containsExactly("ADMIN");
+            verify(usuarioRepository).save(usuario);
+        }
+
+        @Test
+        @DisplayName("deve lançar RoleException quando role inválida na atualização")
+        void deveLancarExcecaoRoleInvalidaNaAtualizacao() {
+            UUID id = UUID.randomUUID();
+            Usuario usuario = usuarioComRoles("joao.silva", java.util.Set.of("USER"));
+            usuario.setId(id);
+
+            UpdateUsuarioRequest req = new UpdateUsuarioRequest();
+            req.setRoles(java.util.Set.of("SUPERADMIN"));
+
+            when(usuarioRepository.findById(id)).thenReturn(Optional.of(usuario));
+
+            assertThatThrownBy(() -> authService.atualizarUsuario(id, req))
+                    .isInstanceOf(io.github.franciscosviana.stmservicos.common.validation.RoleException.class)
+                    .hasMessageContaining("Role inválida");
+        }
+
+        @Test
+        @DisplayName("deve atualizar dataNascimento quando informada")
+        void deveAtualizarDataNascimento() {
+            UUID id = UUID.randomUUID();
+            Usuario usuario = usuarioComRoles("joao.silva", java.util.Set.of("USER"));
+            usuario.setId(id);
+
+            java.time.LocalDate nascimento = java.time.LocalDate.of(1990, 5, 15);
+            UpdateUsuarioRequest req = new UpdateUsuarioRequest();
+            req.setDataNascimento(nascimento);
+
+            when(usuarioRepository.findById(id)).thenReturn(Optional.of(usuario));
+
+            authService.atualizarUsuario(id, req);
+
+            assertThat(usuario.getDataNascimento()).isEqualTo(nascimento);
+        }
+
+        @Test
+        @DisplayName("não deve atualizar campos quando request tem todos nulos")
+        void naoDeveAtualizarQuandoTudoNulo() {
+            UUID id = UUID.randomUUID();
+            Usuario usuario = usuarioComRoles("joao.silva", java.util.Set.of("USER"));
+            usuario.setId(id);
+            usuario.setNomeCompleto("Nome Original");
+
+            UpdateUsuarioRequest req = new UpdateUsuarioRequest();
+
+            when(usuarioRepository.findById(id)).thenReturn(Optional.of(usuario));
+
+            authService.atualizarUsuario(id, req);
+
+            assertThat(usuario.getNomeCompleto()).isEqualTo("Nome Original");
+            verify(usuarioRepository).save(usuario);
+        }
+
+        @Test
+        @DisplayName("não deve verificar email duplicado quando email não muda")
+        void naoDeveVerificarEmailQuandoNaoMuda() {
+            UUID id = UUID.randomUUID();
+            Usuario usuario = usuarioComRoles("joao.silva", java.util.Set.of("USER"));
+            usuario.setId(id);
+            usuario.setEmail("joao@email.com");
+
+            UpdateUsuarioRequest req = new UpdateUsuarioRequest();
+            req.setEmail("joao@email.com"); // mesmo email
+
+            when(usuarioRepository.findById(id)).thenReturn(Optional.of(usuario));
+
+            authService.atualizarUsuario(id, req);
+
+            verify(usuarioRepository, never()).existsByEmail(any());
+        }
+    }
+
+    // ──────────────────────────────────────────────────────────────────────────
     // EXCLUSÃO
     // ──────────────────────────────────────────────────────────────────────────
     @Nested

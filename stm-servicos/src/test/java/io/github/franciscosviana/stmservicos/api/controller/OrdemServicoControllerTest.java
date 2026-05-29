@@ -197,4 +197,123 @@ class OrdemServicoControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray());
     }
+
+    // ──────────────────────────────────────────────────────────────────────────
+    // PUT /api/ordens-servico/{id}
+    // ──────────────────────────────────────────────────────────────────────────
+    @Test
+    @DisplayName("PUT /api/ordens-servico/{id} deve retornar 200 ao atualizar")
+    void deveAtualizar() throws Exception {
+        UUID id = UUID.randomUUID();
+        OrdemServicoInput input = new OrdemServicoInput();
+        OrdemServicoOutput output = new OrdemServicoOutput();
+        when(ordemServicoService.atualizar(eq(id), any())).thenReturn(output);
+
+        mockMvc.perform(put("/api/ordens-servico/" + id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(input)))
+                .andExpect(status().isOk());
+    }
+
+    // ──────────────────────────────────────────────────────────────────────────
+    // POST /api/ordens-servico/{ordemId}/solucao
+    // ──────────────────────────────────────────────────────────────────────────
+    @Test
+    @DisplayName("POST /api/ordens-servico/{ordemId}/solucao deve finalizar OS")
+    void deveFinalizar() throws Exception {
+        UUID id = UUID.randomUUID();
+        io.github.franciscosviana.stmservicos.api.model.output.SolucaoOSOutput output =
+                new io.github.franciscosviana.stmservicos.api.model.output.SolucaoOSOutput();
+        when(solucaoService.finalizarOS(eq(id), any())).thenReturn(output);
+
+        mockMvc.perform(post("/api/ordens-servico/" + id + "/solucao")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{}"))
+                .andExpect(status().isOk());
+    }
+
+    // ──────────────────────────────────────────────────────────────────────────
+    // PUT /api/ordens-servico/{ordemId}/solucao
+    // ──────────────────────────────────────────────────────────────────────────
+    @Test
+    @DisplayName("PUT /api/ordens-servico/{ordemId}/solucao deve editar solução")
+    void deveEditarSolucao() throws Exception {
+        UUID id = UUID.randomUUID();
+        io.github.franciscosviana.stmservicos.api.model.output.SolucaoOSOutput output =
+                new io.github.franciscosviana.stmservicos.api.model.output.SolucaoOSOutput();
+        when(solucaoService.editarSolucao(eq(id), any())).thenReturn(output);
+
+        mockMvc.perform(put("/api/ordens-servico/" + id + "/solucao")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{}"))
+                .andExpect(status().isOk());
+    }
+
+    // ──────────────────────────────────────────────────────────────────────────
+    // GET /api/ordens-servico/exportar/xlsx
+    // ──────────────────────────────────────────────────────────────────────────
+    @Test
+    @DisplayName("GET /api/ordens-servico/exportar/xlsx deve retornar bytes do arquivo")
+    void deveExportarXlsx() throws Exception {
+        when(exportService.exportarXlsx(any(), any(), any(), any(), any(),
+                any(), any(), any(), any()))
+                .thenReturn(new byte[]{0x50, 0x4B});
+
+        mockMvc.perform(get("/api/ordens-servico/exportar/xlsx"))
+                .andExpect(status().isOk());
+    }
+
+    // ──────────────────────────────────────────────────────────────────────────
+    // GET /api/ordens-servico/exportar/csv
+    // ──────────────────────────────────────────────────────────────────────────
+    @Test
+    @DisplayName("GET /api/ordens-servico/exportar/csv deve retornar bytes do arquivo")
+    void deveExportarCsv() throws Exception {
+        when(exportService.exportarCsv(any(), any(), any(), any(), any(),
+                any(), any(), any(), any()))
+                .thenReturn("osg,osClt".getBytes());
+
+        mockMvc.perform(get("/api/ordens-servico/exportar/csv"))
+                .andExpect(status().isOk());
+    }
+
+    // ──────────────────────────────────────────────────────────────────────────
+    // GET /api/ordens-servico/exportar/pdf
+    // ──────────────────────────────────────────────────────────────────────────
+    @Test
+    @DisplayName("GET /api/ordens-servico/exportar/pdf deve retornar bytes do arquivo")
+    void deveExportarPdf() throws Exception {
+        when(exportService.exportarPdf(any(), any(), any(), any(), any(),
+                any(), any(), any(), any()))
+                .thenReturn(new byte[]{0x25, 0x50});
+
+        mockMvc.perform(get("/api/ordens-servico/exportar/pdf"))
+                .andExpect(status().isOk());
+    }
+
+    // ──────────────────────────────────────────────────────────────────────────
+    // GET /api/ordens-servico/{id}/relatorio/pdf
+    // ──────────────────────────────────────────────────────────────────────────
+    @Test
+    @DisplayName("GET /api/ordens-servico/{id}/relatorio/pdf deve retornar relatório PDF")
+    void deveRetornarRelatorioPdf() throws Exception {
+        UUID id = UUID.randomUUID();
+        when(exportService.exportarRelatorioPdf(id)).thenReturn(new byte[]{0x25, 0x50});
+
+        mockMvc.perform(get("/api/ordens-servico/" + id + "/relatorio/pdf"))
+                .andExpect(status().isOk());
+    }
+
+    // ──────────────────────────────────────────────────────────────────────────
+    // GET /api/ordens-servico/{id}/relatorio/xlsx
+    // ──────────────────────────────────────────────────────────────────────────
+    @Test
+    @DisplayName("GET /api/ordens-servico/{id}/relatorio/xlsx deve retornar relatório XLSX")
+    void deveRetornarRelatorioXlsx() throws Exception {
+        UUID id = UUID.randomUUID();
+        when(exportService.exportarRelatorioXlsx(id)).thenReturn(new byte[]{0x50, 0x4B});
+
+        mockMvc.perform(get("/api/ordens-servico/" + id + "/relatorio/xlsx"))
+                .andExpect(status().isOk());
+    }
 }
