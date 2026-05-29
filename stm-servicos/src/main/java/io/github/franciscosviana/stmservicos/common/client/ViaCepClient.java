@@ -14,7 +14,7 @@ public class ViaCepClient {
     private final RestTemplate restTemplate;
 
     public ViaCepResponse buscarEnderecoPorCep(String cep) {
-        String cepLimpo = cep.replaceAll("[^0-9]", "");
+        String cepLimpo = cep.replaceAll("\\D", "");
         if (cepLimpo.length() != 8) {
             throw new IllegalArgumentException("CEP inválido: " + cep);
         }

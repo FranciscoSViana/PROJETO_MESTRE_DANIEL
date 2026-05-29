@@ -19,7 +19,7 @@ public class BrasilAPIClient {
     private final RestTemplate restTemplate;
 
     public ReceitaWsResponse consultarCnpj(String cnpj) {
-        String cnpjLimpo = cnpj.replaceAll("[^0-9]", "");
+        String cnpjLimpo = cnpj.replaceAll("\\D", "");
         if (cnpjLimpo.length() != 14) {
             throw new IllegalArgumentException("CNPJ inválido: " + cnpj);
         }
@@ -47,7 +47,7 @@ public class BrasilAPIClient {
     }
 
     public CepGeoResponse consultarCep(String cep) {
-        String cepLimpo = cep.replaceAll("[^0-9]", "");
+        String cepLimpo = cep.replaceAll("\\D", "");
         if (cepLimpo.length() != 8) {
             throw new IllegalArgumentException("CEP inválido: " + cep);
         }

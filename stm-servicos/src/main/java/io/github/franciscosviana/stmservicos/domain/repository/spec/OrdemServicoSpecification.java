@@ -3,6 +3,7 @@ package io.github.franciscosviana.stmservicos.domain.repository.spec;
 import io.github.franciscosviana.stmservicos.domain.model.OrdemServico;
 import io.github.franciscosviana.stmservicos.domain.model.enums.StatusOrdem;
 import jakarta.persistence.criteria.Predicate;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.time.LocalDate;
@@ -11,6 +12,7 @@ import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 public class OrdemServicoSpecification {
 
     public static Specification<OrdemServico> filtro(
@@ -39,6 +41,7 @@ public class OrdemServicoSpecification {
                 try {
                     predicates.add(cb.equal(root.get("status"), StatusOrdem.valueOf(status.toUpperCase())));
                 } catch (IllegalArgumentException ignored) {
+                    log.info(ignored.getMessage());
                 }
             }
 
@@ -68,18 +71,21 @@ public class OrdemServicoSpecification {
             try {
                 return LocalDate.parse(valor, DateTimeFormatter.ISO_LOCAL_DATE);
             } catch (DateTimeParseException ignored) {
+                log.info(ignored.getMessage());
             }
         }
         if (valor.matches("\\d{2}/\\d{2}/\\d{4}")) {
             try {
                 return LocalDate.parse(valor, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
             } catch (DateTimeParseException ignored) {
+                log.info(ignored.getMessage());
             }
         }
         if (valor.matches("\\d{8}")) {
             try {
                 return LocalDate.parse(valor, DateTimeFormatter.ofPattern("ddMMyyyy"));
             } catch (DateTimeParseException ignored) {
+                log.info(ignored.getMessage());
             }
         }
         return null;
