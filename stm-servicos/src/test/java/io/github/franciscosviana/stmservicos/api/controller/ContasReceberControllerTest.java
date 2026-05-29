@@ -21,9 +21,15 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.math.BigDecimal;
 import java.util.List;
 
+import io.github.franciscosviana.stmservicos.api.model.input.PagamentoLoteInput;
+import io.github.franciscosviana.stmservicos.api.model.output.PagamentoLoteResultado;
+import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(ContasReceberController.class)
@@ -126,5 +132,61 @@ class ContasReceberControllerTest {
                     .andExpect(header().string("Content-Disposition",
                             org.hamcrest.Matchers.containsString("contas-receber")));
         }
+    }
+
+    @Test
+    @DisplayName("GET /api/financeiro/contas-receber/lotes-por-cliente deve retornar lotes")
+    @WithMockUser
+    void listarLotesPorCliente() throws Exception {
+        when(contasReceberService.listarLotesPorCliente("Empresa X"))
+                .thenReturn(List.of("LOTE-01", "LOTE-02"));
+
+        mockMvc.perform(get("/api/financeiro/contas-receber/lotes-por-cliente")
+                        .param("cliente", "Empresa X"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray());
+    }
+
+    @Test
+    @DisplayName("GET /api/financeiro/contas-receber/os-pendentes deve retornar lista de OS pendentes")
+    @WithMockUser
+    void listarOsPendentes() throws Exception {
+        when(contasReceberService.listarOsPendentes("Empresa X", "LOTE-01"))
+                .thenReturn(List.of());
+
+        mockMvc.perform(get("/api/financeiro/contas-receber/os-pendentes")
+                        .param("cliente", "Empresa X")
+                        .param("lote", "LOTE-01"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray());
+    }
+
+    @Test
+    @DisplayName("POST /api/financeiro/contas-receber/pagamento-lote deve processar lote")
+    @WithMockUser
+    void registrarPagamentoLote() throws Exception {
+        PagamentoLoteResultado resultado = PagamentoLoteResultado.builder()
+                .totalProcessado(1)
+                .totalSucesso(1)
+                .totalErro(0)
+                .erros(List.of())
+                .build();
+        when(pagamentoClienteOSService.registrarLote(any())).thenReturn(resultado);
+
+        mockMvc.perform(post("/api/financeiro/contas-receber/pagamento-lote")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"ordemServicoIds\":[],\"dataPagamento\":\"2026-01-01\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalSucesso").value(1));
+    }
+
+    @Test
+    @DisplayName("GET /api/financeiro/contas-receber/exportar/pdf deve retornar bytes PDF")
+    @WithMockUser
+    void exportarPdf() throws Exception {
+        when(contasReceberService.exportarPdf(any())).thenReturn(new byte[]{0x25, 0x50});
+
+        mockMvc.perform(get("/api/financeiro/contas-receber/exportar/pdf"))
+                .andExpect(status().isOk());
     }
 }

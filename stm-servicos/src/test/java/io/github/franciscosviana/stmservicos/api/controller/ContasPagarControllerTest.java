@@ -71,4 +71,13 @@ class ContasPagarControllerTest {
                 .andExpect(header().string("Content-Disposition",
                         org.hamcrest.Matchers.containsString("contas-pagar.xlsx")));
     }
+
+    @Test
+    @DisplayName("GET /api/financeiro/contas-pagar/exportar/pdf deve retornar bytes")
+    void exportarPdf() throws Exception {
+        when(contasPagarService.exportarPdf(any())).thenReturn(new byte[]{0x25, 0x50});
+
+        mockMvc.perform(get("/api/financeiro/contas-pagar/exportar/pdf"))
+                .andExpect(status().isOk());
+    }
 }

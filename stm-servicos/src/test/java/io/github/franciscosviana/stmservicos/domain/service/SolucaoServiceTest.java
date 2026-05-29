@@ -23,6 +23,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -254,6 +255,82 @@ class SolucaoServiceTest {
                     .isInstanceOf(OrdemServicoException.class)
                     .hasMessageContaining("Solução não encontrada para a OS");
         }
+    }
+
+    // ──────────────────────────────────────────────────────────────────────────
+    // editarSolucao()
+    // ──────────────────────────────────────────────────────────────────────────
+    @Nested
+    @DisplayName("editarSolucao()")
+    class EditarSolucao {
+
+        @Test
+        @DisplayName("deve editar solução existente e registrar histórico")
+        void deveEditarSolucao() {
+            SolucaoOSInput input = inputSolucao();
+            SolucaoOS solucao = solucaoComValores();
+            solucao.setOrdemServico(ordem);
+
+            when(solucaoOSRepository.findByOrdemServicoId(ordemId)).thenReturn(Optional.of(solucao));
+            when(solucaoOSRepository.save(any())).thenReturn(solucao);
+            when(solucaoOSOutputAssembler.toModel(any())).thenReturn(new SolucaoOSOutput());
+
+            service.editarSolucao(ordemId, input);
+
+            verify(solucaoOSRepository).save(solucao);
+            verify(historicoOrdemServicoService).registrar(eq(ordem), any(), any());
+        }
+
+        @Test
+        @DisplayName("deve lançar OrdemServicoException quando solução não encontrada")
+        void deveLancarExcecaoSeNaoEncontrada() {
+            when(solucaoOSRepository.findByOrdemServicoId(ordemId)).thenReturn(Optional.empty());
+
+            assertThatThrownBy(() -> service.editarSolucao(ordemId, inputSolucao()))
+                    .isInstanceOf(OrdemServicoException.class)
+                    .hasMessageContaining("Solução não encontrada");
+        }
+    }
+
+    // ──────────────────────────────────────────────────────────────────────────
+    // listarTodas()
+    // ──────────────────────────────────────────────────────────────────────────
+    @Test
+    @DisplayName("listarTodas() deve retornar página mapeada de soluções")
+    void deveListarTodas() {
+        org.springframework.data.domain.PageRequest pageable = org.springframework.data.domain.PageRequest.of(0, 10);
+        SolucaoOS solucao = solucaoComValores();
+        org.springframework.data.domain.Page<SolucaoOS> page =
+                new org.springframework.data.domain.PageImpl<>(List.of(solucao));
+        SolucaoOSOutput output = new SolucaoOSOutput();
+
+        when(solucaoOSRepository.findAll(pageable)).thenReturn(page);
+        when(solucaoOSOutputAssembler.toModel(solucao)).thenReturn(output);
+
+        org.springframework.data.domain.Page<SolucaoOSOutput> resultado = service.listarTodas(pageable);
+
+        assertThat(resultado.getContent()).hasSize(1);
+        assertThat(resultado.getContent().get(0)).isEqualTo(output);
+    }
+
+    @Test
+    @DisplayName("finalizarOS() deve ignorar rascunho de PagamentoClienteOS se já existir")
+    void deveIgnorarRascunhoClienteSeJaExistir() {
+        SolucaoOSInput input = inputSolucao();
+        SolucaoOS solucao = solucaoComValores();
+
+        when(ordemServicoRepository.findById(ordemId)).thenReturn(Optional.of(ordem));
+        when(solucaoOSInputDisassembler.toDomainObject(input)).thenReturn(solucao);
+        when(solucaoOSRepository.save(solucao)).thenReturn(solucao);
+        when(pagamentoOSRepository.findByOrdemServicoId(ordemId)).thenReturn(Optional.empty());
+        when(pagamentoOSRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+        when(pagamentoClienteOSRepository.findByOrdemServicoId(ordemId))
+                .thenReturn(Optional.of(new PagamentoClienteOS()));
+        when(solucaoOSOutputAssembler.toModel(any())).thenReturn(new SolucaoOSOutput());
+
+        service.finalizarOS(ordemId, input);
+
+        verify(pagamentoClienteOSRepository, never()).save(any());
     }
 
     // ──────────────────────────────────────────────────────────────────────────
