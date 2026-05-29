@@ -100,6 +100,9 @@ export class ConsultaOrdemComponent implements OnInit {
     dataPrevista: null, dataPagamento: null
   };
 
+  solucaoModoEdicao = false;
+  solucaoEditando: any = {};
+
   constructor(
     private service: OrdemServicoService,
     private clienteService: ClienteService,
@@ -259,15 +262,63 @@ export class ConsultaOrdemComponent implements OnInit {
   }
 
   abrirModalVisualizacao(ordemId: string) {
+    this.solucaoModoEdicao = false;
     this.solucaoService.buscarPorOrdem(ordemId).subscribe({
-      next: solucao => { this.solucaoVisualizacao = solucao; this.modalVisualizarSolucao = true; },
+      next: solucao => {
+        this.solucaoVisualizacao = solucao;
+        this.solucaoEditando = {
+          horaInicial: solucao.horaInicial ? new Date(solucao.horaInicial).toISOString().slice(0, 16) : '',
+          horaFinal: solucao.horaFinal ? new Date(solucao.horaFinal).toISOString().slice(0, 16) : '',
+          pecaSolicitada: solucao.pecaSolicitada ?? '',
+          km: solucao.km ?? null,
+          pedagio: solucao.pedagio ?? null,
+          estacionamento: solucao.estacionamento ?? null,
+          outros: solucao.outros ?? null,
+          solucao: solucao.solucao ?? '',
+          observacao: solucao.observacao ?? ''
+        };
+        this.modalVisualizarSolucao = true;
+      },
       error: () => alert('Erro ao carregar solução.')
+    });
+  }
+
+  habilitarEdicaoSolucao() {
+    this.solucaoModoEdicao = true;
+  }
+
+  salvarEdicaoSolucao() {
+    const ordemId = this.solucaoVisualizacao?.ordemServicoId;
+    if (!ordemId) return;
+
+    const payload = {
+      horaInicial: this.toISO(this.solucaoEditando.horaInicial),
+      horaFinal: this.toISO(this.solucaoEditando.horaFinal),
+      pecaSolicitada: this.solucaoEditando.pecaSolicitada,
+      km: this.toNumber(this.solucaoEditando.km),
+      pedagio: this.toNumber(this.solucaoEditando.pedagio),
+      estacionamento: this.toNumber(this.solucaoEditando.estacionamento),
+      outros: this.toNumber(this.solucaoEditando.outros),
+      solucao: this.solucaoEditando.solucao,
+      observacao: this.solucaoEditando.observacao
+    };
+
+    this.service.editarSolucao(ordemId, payload).subscribe({
+      next: () => {
+        alert('Solução atualizada com sucesso!');
+        this.solucaoModoEdicao = false;
+        this.fecharModalVisualizacao();
+        this.carregarOrdens();
+      },
+      error: () => alert('Erro ao salvar solução.')
     });
   }
 
   fecharModalVisualizacao() {
     this.modalVisualizarSolucao = false;
     this.solucaoVisualizacao = undefined;
+    this.solucaoModoEdicao = false;
+    this.solucaoEditando = {};
   }
 
   acaoSolucao(os: OrdemServico) {

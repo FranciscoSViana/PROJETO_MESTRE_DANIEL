@@ -8,5 +8,6 @@ public enum TipoAcaoOS {
     FATURAMENTO,
     EXCLUSAO,
     CONCLUSAO_ORDEM,
+    EDICAO_SOLUCAO
 }
 
