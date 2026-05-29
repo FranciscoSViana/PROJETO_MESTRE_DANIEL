@@ -68,6 +68,25 @@ public class SolucaoService {
         return solucaoOSOutputAssembler.toModel(salva);
     }
 
+    // SolucaoService.java — adicionar método
+    @Transactional
+    public SolucaoOSOutput editarSolucao(UUID ordemId, SolucaoOSInput input) {
+        SolucaoOS solucao = solucaoOSRepository.findByOrdemServicoId(ordemId)
+                .orElseThrow(() -> new OrdemServicoException("Solução não encontrada para a OS"));
+
+        solucaoOSInputDisassembler.copyToDomainObject(input, solucao);
+
+        SolucaoOS salva = solucaoOSRepository.save(solucao);
+
+        historicoOrdemServicoService.registrar(
+                solucao.getOrdemServico(),
+                TipoAcaoOS.EDICAO_SOLUCAO,
+                montarDescricaoConclusao(salva)
+        );
+
+        return solucaoOSOutputAssembler.toModel(salva);
+    }
+
     /**
      * Cria um PagamentoOS com pago=false ao finalizar a OS.
      * Usa os valores padrão do credenciado como base e os custos da solução.

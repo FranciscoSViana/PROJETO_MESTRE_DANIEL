@@ -104,6 +104,14 @@ public class OrdemServicoController {
         return ResponseEntity.ok(output);
     }
 
+    // OrdemServicoController.java — adicionar endpoint
+    @PutMapping("/{ordemId}/solucao")
+    public ResponseEntity<SolucaoOSOutput> editarSolucao(
+            @PathVariable UUID ordemId,
+            @RequestBody SolucaoOSInput input) {
+        return ResponseEntity.ok(solucaoService.editarSolucao(ordemId, input));
+    }
+
     @GetMapping("/{id}/historico")
     public List<HistoricoOrdemServicoOutput> historico(@PathVariable UUID id) {
 

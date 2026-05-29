@@ -100,6 +100,9 @@ export class ConsultaOrdemComponent implements OnInit {
     dataPrevista: null, dataPagamento: null
   };
 
+  solucaoModoEdicao = false;
+  solucaoEditando: any = {};
+
   constructor(
     private service: OrdemServicoService,
     private clienteService: ClienteService,
@@ -259,15 +262,63 @@ export class ConsultaOrdemComponent implements OnInit {
   }
 
   abrirModalVisualizacao(ordemId: string) {
+    this.solucaoModoEdicao = false;
     this.solucaoService.buscarPorOrdem(ordemId).subscribe({
-      next: solucao => { this.solucaoVisualizacao = solucao; this.modalVisualizarSolucao = true; },
+      next: solucao => {
+        this.solucaoVisualizacao = solucao;
+        this.solucaoEditando = {
+          horaInicial: solucao.horaInicial ? new Date(solucao.horaInicial).toISOString().slice(0, 16) : '',
+          horaFinal: solucao.horaFinal ? new Date(solucao.horaFinal).toISOString().slice(0, 16) : '',
+          pecaSolicitada: solucao.pecaSolicitada ?? '',
+          km: solucao.km ?? null,
+          pedagio: solucao.pedagio ?? null,
+          estacionamento: solucao.estacionamento ?? null,
+          outros: solucao.outros ?? null,
+          solucao: solucao.solucao ?? '',
+          observacao: solucao.observacao ?? ''
+        };
+        this.modalVisualizarSolucao = true;
+      },
       error: () => alert('Erro ao carregar solução.')
+    });
+  }
+
+  habilitarEdicaoSolucao() {
+    this.solucaoModoEdicao = true;
+  }
+
+  salvarEdicaoSolucao() {
+    const ordemId = this.solucaoVisualizacao?.ordemServicoId;
+    if (!ordemId) return;
+
+    const payload = {
+      horaInicial: this.toISO(this.solucaoEditando.horaInicial),
+      horaFinal: this.toISO(this.solucaoEditando.horaFinal),
+      pecaSolicitada: this.solucaoEditando.pecaSolicitada,
+      km: this.toNumber(this.solucaoEditando.km),
+      pedagio: this.toNumber(this.solucaoEditando.pedagio),
+      estacionamento: this.toNumber(this.solucaoEditando.estacionamento),
+      outros: this.toNumber(this.solucaoEditando.outros),
+      solucao: this.solucaoEditando.solucao,
+      observacao: this.solucaoEditando.observacao
+    };
+
+    this.service.editarSolucao(ordemId, payload).subscribe({
+      next: () => {
+        alert('Solução atualizada com sucesso!');
+        this.solucaoModoEdicao = false;
+        this.fecharModalVisualizacao();
+        this.carregarOrdens();
+      },
+      error: () => alert('Erro ao salvar solução.')
     });
   }
 
   fecharModalVisualizacao() {
     this.modalVisualizarSolucao = false;
     this.solucaoVisualizacao = undefined;
+    this.solucaoModoEdicao = false;
+    this.solucaoEditando = {};
   }
 
   acaoSolucao(os: OrdemServico) {
@@ -405,32 +456,25 @@ export class ConsultaOrdemComponent implements OnInit {
     this.carregandoPagamento = true;
     this.modalPagamentoAberto = true;
 
-    // Contas a Pagar: valores padrão vêm do CREDENCIADO
     const credenciadoId = os.credenciado?.id;
-    if (credenciadoId) {
-      this.credenciadoService.buscarPorId(credenciadoId).subscribe({
-        next: (c) => {
-          if (c.valorChamado != null) this.pagamento.valorChamado = c.valorChamado;
-          if (c.valorKm != null) this.pagamento.valorKm = c.valorKm;
-          if (c.tipoFluxoPagamento) this.pagamento.lote = c.tipoFluxoPagamento;
-          if (c.chavePix) this.pagamento.chavePix = c.chavePix;
-        },
-        error: () => { }
-      });
-    }
 
     forkJoin({
       pagamento: this.service.buscarPagamento(os.id!).pipe(catchError(() => of(null))),
-      solucao: this.solucaoService.buscarPorOrdem(os.id!).pipe(catchError(() => of(null)))
+      solucao: this.solucaoService.buscarPorOrdem(os.id!).pipe(catchError(() => of(null))),
+      credenciado: credenciadoId
+        ? this.credenciadoService.buscarPorId(credenciadoId).pipe(catchError(() => of(null)))
+        : of(null)
     }).subscribe({
-      next: ({ pagamento: pag, solucao }) => {
+      next: ({ pagamento: pag, solucao, credenciado: c }) => {
         if (!solucao && !pag) {
           this.carregandoPagamento = false;
           this.modalPagamentoAberto = false;
           alert('Esta OS ainda não possui solução registrada. Finalize a OS antes de registrar o pagamento.');
           return;
         }
+
         if (pag && pag.id != null && pag.pago === true) {
+          // Pagamento confirmado — dados históricos, ignora credenciado
           this.pagamento = {
             km: pag.km, valorChamado: pag.valorChamado, valorKm: pag.valorKm,
             pedagio: pag.pedagio, estacionamento: pag.estacionamento,
@@ -438,28 +482,41 @@ export class ConsultaOrdemComponent implements OnInit {
             lote: pag.lote ?? '', cpfNf: pag.cpfNf ?? '',
             tipoPagamento: pag.tipoPagamento ?? '', banco: pag.banco ?? '',
             urlComprovante: pag.urlComprovante ?? '',
-            chavePix: pag.chavePix ?? this.pagamento.chavePix ?? '',
+            chavePix: pag.chavePix ?? '',
             pago: true
           };
           this.pagamentoJaExiste = true;
           this.pagamentoModoEdicao = false;
+
+        } else if (pag && pag.id != null) {
+          // Rascunho existente — usa dados do pagamento salvo,
+          // fallback para credenciado apenas se o campo estiver nulo
+          this.pagamento.km = pag.km;
+          this.pagamento.valorChamado = pag.valorChamado ?? c?.valorChamado ?? null;
+          this.pagamento.valorKm = pag.valorKm ?? c?.valorKm ?? null;
+          this.pagamento.pedagio = pag.pedagio;
+          this.pagamento.estacionamento = pag.estacionamento;
+          this.pagamento.outros = pag.outros ?? '';
+          this.pagamento.valorOutros = pag.valorOutros;
+          this.pagamento.lote = pag.lote ?? c?.tipoFluxoPagamento ?? '';
+          this.pagamento.cpfNf = pag.cpfNf ?? '';
+          this.pagamento.tipoPagamento = pag.tipoPagamento ?? '';
+          this.pagamento.banco = pag.banco ?? '';
+          this.pagamento.urlComprovante = pag.urlComprovante ?? '';
+          this.pagamento.chavePix = pag.chavePix ?? c?.chavePix ?? '';
+          this.pagamento.pago = false;
+          this.pagamentoJaExiste = false;
+          this.pagamentoModoEdicao = true;
+
         } else {
-          if (pag && pag.id != null) {
-            this.pagamento.km = pag.km;
-            this.pagamento.valorChamado = pag.valorChamado;
-            this.pagamento.valorKm = pag.valorKm;
-            this.pagamento.pedagio = pag.pedagio;
-            this.pagamento.estacionamento = pag.estacionamento;
-            this.pagamento.outros = pag.outros ?? '';
-            this.pagamento.valorOutros = pag.valorOutros;
-            this.pagamento.lote = pag.lote ?? '';
-            this.pagamento.cpfNf = pag.cpfNf ?? '';
-            this.pagamento.tipoPagamento = pag.tipoPagamento ?? '';
-            this.pagamento.banco = pag.banco ?? '';
-            this.pagamento.urlComprovante = pag.urlComprovante ?? '';
-            this.pagamento.chavePix = pag.chavePix ?? this.pagamento.chavePix ?? '';
-            this.pagamento.pago = false;
-          } else if (solucao) {
+          // Novo pagamento — defaults do credenciado + solucao
+          if (c) {
+            if (c.valorChamado != null) this.pagamento.valorChamado = c.valorChamado;
+            if (c.valorKm != null) this.pagamento.valorKm = c.valorKm;
+            if (c.tipoFluxoPagamento) this.pagamento.lote = c.tipoFluxoPagamento;
+            if (c.chavePix) this.pagamento.chavePix = c.chavePix;
+          }
+          if (solucao) {
             this.pagamento.km = solucao.km;
             this.pagamento.pedagio = solucao.pedagio;
             this.pagamento.estacionamento = solucao.estacionamento;
@@ -468,6 +525,7 @@ export class ConsultaOrdemComponent implements OnInit {
           this.pagamentoJaExiste = false;
           this.pagamentoModoEdicao = true;
         }
+
         this.carregandoPagamento = false;
       },
       error: () => { this.carregandoPagamento = false; }

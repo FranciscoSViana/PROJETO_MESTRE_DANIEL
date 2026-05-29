@@ -1,6 +1,7 @@
 export class Solucao {
 
     id?: string;
+    ordemServicoId?: string;
     dataAtendimento?: string;   // ISO string
     osClt?: string;
     osg?: string;
