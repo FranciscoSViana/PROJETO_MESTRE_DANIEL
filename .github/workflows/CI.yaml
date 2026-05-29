@@ -130,6 +130,13 @@ jobs:
         run: chmod +x stm-servicos/gradlew
 
       # --------------------------------------------------------
+      # Compila o projeto (SEM clean para não apagar os reports)
+      # --------------------------------------------------------
+      - name: Compilar projeto
+        working-directory: stm-servicos
+        run: ./gradlew classes testClasses --no-daemon
+
+      # --------------------------------------------------------
       # Baixa relatório JaCoCo Unit
       # --------------------------------------------------------
       - name: Download relatório JaCoCo Unit
@@ -146,14 +153,6 @@ jobs:
         with:
           name: jacoco-e2e-report
           path: stm-servicos/build/reports/jacoco/e2e/
-
-      # --------------------------------------------------------
-      # Compila o projeto para gerar os .class necessários
-      # para o SonarCloud (sonar.java.binaries)
-      # --------------------------------------------------------
-      - name: Compilar projeto
-        working-directory: stm-servicos
-        run: ./gradlew clean classes testClasses --no-daemon
 
       # --------------------------------------------------------
       # Debug (opcional)
