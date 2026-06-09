@@ -740,9 +740,20 @@ export class ConsultaOrdemComponent implements OnInit {
           // valorChamado e valorKm já vieram do cliente acima
           if (solucao) {
             this.recebimento.km = solucao.km;
-            this.recebimento.pedagio = solucao.pedagio;
-            this.recebimento.estacionamento = solucao.estacionamento;
-            this.recebimento.valorOutros = solucao.outros;
+            this.recebimento.pedagio =
+              solucao.pedagio != null
+                ? Number((solucao.pedagio / 0.7).toFixed(2))
+                : 0;
+
+            this.recebimento.estacionamento =
+              solucao.estacionamento != null
+                ? Number((solucao.estacionamento / 0.7).toFixed(2))
+                : 0;
+
+            this.recebimento.valorOutros =
+              solucao.outros != null
+                ? Number((solucao.outros / 0.7).toFixed(2))
+                : 0;
           }
           this.recebimento.lote = '';
           this.recebimentoJaExiste = false;
