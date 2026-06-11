@@ -720,10 +720,10 @@ export class ConsultaOrdemComponent implements OnInit {
           // Rascunho existente — valorChamado e valorKm já vieram do cliente acima,
           // não sobrescrevemos esses dois campos aqui
           this.recebimento.km = rec.km;
-          this.recebimento.pedagio = rec.pedagio;
-          this.recebimento.estacionamento = rec.estacionamento;
+          this.recebimento.pedagio = Number(((rec.pedagio ?? 0) / 0.7).toFixed(2));
+          this.recebimento.estacionamento = Number(((rec.estacionamento ?? 0) / 0.7).toFixed(2));
           this.recebimento.outros = rec.outros ?? '';
-          this.recebimento.valorOutros = rec.valorOutros;
+          this.recebimento.valorOutros = Number(((rec.valorOutros ?? 0) / 0.7).toFixed(2));
           this.recebimento.lote = rec.lote ?? '';
           this.recebimento.nf = rec.nf ?? '';
           this.recebimento.tipoPagamento = rec.tipoPagamento ?? '';
